@@ -6,11 +6,11 @@
  *
 */
 
-#include <gtksourceview/gtksourcebuffer.h>
-#include <gtksourceview/gtksourceview.h>
 
 #ifndef _PLUGINS_
 #define _PLUGINS_
+
+#include <gtksourceview/gtksourceview.h>
 
 #ifndef _PAGESTRUCT_
 #define _PAGESTRUCT_
@@ -67,8 +67,10 @@ struct plugData
 	plugMenuList	mlist;
 //install location of KKEdit data
 	const char*		dataDir;
-//plugin folder defaults to dataDir/plugs
-	char*			plugFolder;
+//global plugin folder defaults to DATADIR/plugins
+	char*			gPlugFolder;
+//local plugin folder defaults to ~/.KKEdit/plugins
+	char*			lPlugFolder;
 //unused
 	char*			htmlFile;
 //location of variable that holds the uri to be disp[layed by showDoc

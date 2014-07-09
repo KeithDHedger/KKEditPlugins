@@ -8,7 +8,7 @@
 #include <gtk/gtk.h>
 #include <gmodule.h>
 
-#include "kkedit-plugins.h"
+#include <kkedit-plugins.h>
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
@@ -25,7 +25,7 @@ extern "C" const gchar* g_module_unload(GModule *module)
 void openPlugHelp(GtkWidget* widget,gpointer data)
 {
 	plugData*	pdata=(plugData*)data;
-	asprintf(pdata->thePage,"file://%s/plughelp.html",(char*)pdata->plugFolder);
+	asprintf(pdata->thePage,"file://%s/plughelp.html",(char*)pdata->gPlugFolder);
 	showDocView(USEURI,(char*)"KKEdit Plugin Help",(char*)"KKEdit Plugin Help");
 }
 

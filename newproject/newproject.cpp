@@ -51,4 +51,14 @@ extern "C" int addMenus(gpointer data)
 	return(0);
 }
 
+extern "C" int plugPrefs(gpointer data)
+{
+	printf("doing plugPrefs ...\n");
+	return(0);
+}
 
+extern "C" int doAbout(gpointer data)
+{
+	printf("doing about ...\n");
+	return(0);
+}

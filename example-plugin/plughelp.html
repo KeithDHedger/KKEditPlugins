@@ -3,6 +3,7 @@
   <head>
     <meta http-equiv="content-type" content="text/html;
       charset=windows-1252">
+    <title></title>
   </head>
   <body alink="#EE0000" bgcolor="#cccccc" link="#0000EE" text="#000000"
     vlink="#551A8B">
@@ -24,7 +25,7 @@
       the structure that is passed to the 'addMenus' functions is
       defined in 'kkedit-plugins.h' which is installed in /usr/include,
       the basic structure is this:<br>
-      <div align="left"><br>
+      <div align="left">
         <table border="1" cellpadding="2" cellspacing="2" width="100%">
           <tbody>
             <tr>
@@ -120,6 +121,10 @@
                     &nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     pane;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; GtkScrolledWindow*&nbsp;&nbsp;
                     pageWindow;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //private
@@ -129,19 +134,35 @@
                     &nbsp;&nbsp;&nbsp; GtkSourceBuffer*&nbsp;&nbsp;
                     &nbsp;&nbsp; &nbsp;
                     buffer;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
                     //main text buffer for tab<br>
                     &nbsp;&nbsp;&nbsp; GtkSourceView*&nbsp;&nbsp;&nbsp;
                     &nbsp; &nbsp;&nbsp;&nbsp;
                     view;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; GtkSourceView*&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp; &nbsp;&nbsp;
                     view2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; char*&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;
                     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
                     filePath;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
                     //file path of tab or NULL if unsaved<br>
                     &nbsp;&nbsp;&nbsp; char*&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;
@@ -159,6 +180,10 @@
                     &nbsp;&nbsp;&nbsp; bool&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
                     &nbsp; &nbsp; rebuildMenu;&nbsp;&nbsp;&nbsp;&nbsp;
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
@@ -171,6 +196,10 @@
                     &nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     iter;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; GtkTextIter&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;
@@ -185,7 +214,15 @@
                     &nbsp;&nbsp;&nbsp; bool&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
                     isFirst;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; char*&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;
@@ -196,16 +233,28 @@
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;
                     &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;
                     gFile;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
                     //GFile used to track on disk changes to file<br>
                     &nbsp;&nbsp;&nbsp; GFileMonitor*&nbsp;&nbsp;&nbsp;
                     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
                     monitor;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
                     //GFileMonitor used to track on disk changes to file<br>
                     &nbsp;&nbsp;&nbsp; bool&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;
                     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
                     &nbsp;&nbsp;
                     itsMe;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; GList*&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;
@@ -218,20 +267,36 @@
                     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
                     &nbsp;&nbsp;
                     inTop;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; bool&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;
                     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
                     isSplit;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; const char*&nbsp;&nbsp; &nbsp;
                     &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp;
                     lang;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
                     //currently selected highlighting language<br>
                     &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
                     &nbsp;
                     tabVbox;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
                     //main GtkVBox* for the tab<br>
                     &nbsp;&nbsp;&nbsp; bool&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;
@@ -297,7 +362,6 @@ gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(openPlugHelp),plug
             <br>
           </div>
           Then add the callback like so:<br>
-          <br>
           <div align="left">
             <table border="1" cellpadding="2" cellspacing="2"
               width="100%">
@@ -368,13 +432,12 @@ asprintf(pdata-&gt;thePage,"file://%s/example-plugin/plughelp.html",(char*)pdata
               will be run when the 'About' button is clicked from the
               Edit-&gt;Plugin Prefs dialog.<br>
               <br>
-              &nbsp;
-              If your plugin contains a function called 'plugPrefs' it
-              will be run when the 'Preferences' button is clicked from
-              the Edit-&gt;Plugin Prefs dialog, this should only be used
-              for user settings, the 'g_module_check_init' function
-              should be used for setting the original preferences for
-              the plugin ( if any ).<br>
+              &nbsp; If your plugin contains a function called
+              'plugPrefs' it will be run when the 'Preferences' button
+              is clicked from the Edit-&gt;Plugin Prefs dialog, this
+              should only be used for user settings, the
+              'g_module_check_init' function should be used for setting
+              the original preferences for the plugin ( if any ).<br>
               <br>
               To see what gets run and when run KKEdit from the command
               line and brief messages will be printed as the various
@@ -382,14 +445,14 @@ asprintf(pdata-&gt;thePage,"file://%s/example-plugin/plughelp.html",(char*)pdata
               the example plugin not KKEdit.<br>
               <br>
               <br>
-              The full source for the plugin is:<br>
-              <div align="left"><br>
+              The full source for the example plugin is:<br>
+              <div align="left">
                 <table border="1" cellpadding="2" cellspacing="2"
                   width="100%">
                   <tbody>
                     <tr>
                       <td bgcolor="#ffffff" valign="top">/*<br>
-                        &nbsp; plugs/kkedit-example-plug.cpp<br>
+                        &nbsp; kkedit-example-plug.cpp<br>
                         */<br>
                         <br>
                         #include &lt;stdio.h&gt;<br>
@@ -522,6 +585,23 @@ gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(openPlugHelp),plug
                         %i\n",plugdata-&gt;currentTab);<br>
                         &nbsp;&nbsp;&nbsp; return(0);<br>
                         }<br>
+                        <br>
+                        extern "C" int plugPrefs(gpointer data)<br>
+                        {<br>
+                        &nbsp;&nbsp;&nbsp; plugData*&nbsp;&nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp; plugdata=(plugData*)data;<br>
+                        <br>
+                        &nbsp;&nbsp;&nbsp; printf("doing plugPrefs from
+                        example-plugin ...\n");<br>
+                        &nbsp;&nbsp;&nbsp; return(0);<br>
+                        }<br>
+                        <br>
+                        extern "C" int doAbout(gpointer data)<br>
+                        {<br>
+                        &nbsp;&nbsp;&nbsp; printf("doing about from
+                        example-plugin ...\n");<br>
+                        &nbsp;&nbsp;&nbsp; return(0);<br>
+                        }<br>
                       </td>
                     </tr>
                   </tbody>
@@ -544,9 +624,17 @@ gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(openPlugHelp),plug
                     href="http://keithhedger.hostingsiteforfree.com/index.html">Home
 
 
+
+
+
+
                     Page</a><br>
                   <a
                     href="http://keithhedger.hostingsiteforfree.com/pages/kkedit/help.html">KKEdit
+
+
+
+
 
 
                     Help</a><br>

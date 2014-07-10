@@ -103,3 +103,16 @@ extern "C" int switchTab(gpointer data)
 	return(0);
 }
 
+extern "C" int plugPrefs(gpointer data)
+{
+	plugData*		plugdata=(plugData*)data;
+
+	printf("doing plugPrefs from example-plugin ...\n");
+	return(0);
+}
+
+extern "C" int doAbout(gpointer data)
+{
+	printf("doing about from example-plugin ...\n");
+	return(0);
+}

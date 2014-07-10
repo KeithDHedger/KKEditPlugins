@@ -54,13 +54,12 @@
         //install location of KKEdit data<br>
         &nbsp;&nbsp;&nbsp; const char*&nbsp;&nbsp;&nbsp;
         &nbsp;&nbsp;&nbsp; dataDir;<br>
-        //plugin folder defaults to dataDir/plugs<br>
+        //global plugin folder defaults to DATADIR/plugins<br>
         &nbsp;&nbsp;&nbsp; char*&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-        &nbsp;&nbsp;&nbsp; plugFolder;<br>
-        //function pointer to showDocView<br>
-        &nbsp;&nbsp;&nbsp;
-        void*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        showDoc;<br>
+        &nbsp;&nbsp;&nbsp; gPlugFolder;<br>
+        //local plugin folder defaults to ~/.KKEdit/plugins<br>
+        &nbsp;&nbsp;&nbsp; char*&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp; lPlugFolder;<br>
         //unused<br>
         &nbsp;&nbsp;&nbsp; char*&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
         &nbsp;&nbsp;&nbsp; htmlFile;<br>
@@ -68,13 +67,14 @@
         showDoc<br>
         &nbsp;&nbsp;&nbsp; char**&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
         &nbsp;&nbsp;&nbsp; thePage;<br>
-        //get the page struct for the current page gives acces to text
-        buffer text view etc<br>
-        &nbsp;&nbsp;&nbsp; void*&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-        &nbsp;&nbsp;&nbsp; getPageStruct;<br>
         //current page MAYBE NULL!!<br>
         &nbsp;&nbsp;&nbsp; pageStruct*&nbsp;&nbsp;&nbsp;
         &nbsp;&nbsp;&nbsp; page;<br>
+        //the main notebook<br>
+        &nbsp;&nbsp;&nbsp; GtkNotebook*&nbsp;&nbsp;&nbsp; notebook;<br>
+        //cuurent tab<br>
+        &nbsp;&nbsp;&nbsp; int&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; currentTab;<br>
         };<br>
         <br>
         <div align="center">The 'plugMenuList' structure is fairly self
@@ -82,29 +82,40 @@
           menu, or you can add a menu item to the others, like this
           plugin adds a menuitem to the 'Help' menu.<br>
           The other items in the struct are:<br>
+          <br>
           dataDir=The install location of KKEdit's data usually
           /usr/share/KKEdit.<br>
-          plugFolder=The plugin folder, defaults to dataDir/plugs.<br>
-          showDoc=The KKEdit fubction to show the builtin docviewer or
+          gPlugFolder=The global plugin folder, defaults to
+          dataDir/plugins.<br>
+          lPlugFolder=The local plugin folder, defaults to&nbsp;
+          ~/.KKEdit/plugins.<br>
+          showDoc=The KKEdit function to show the built in docviewer or
           to display in the default browser, call like so:<br>
-          showDocView(USEURI,(char*)"KKEdit Plugin Help"); Where USEURI
-          is the uri contained in thePage, and the text in the second
-          param is used as a search term if thePage is empty.<br>
+          showDocView(USEURI,(char*)"KKEdit Plugin Help",(char*)"KKEdit
+          Plugin Help"); Where USEURI is the uri contained in thePage,
+          the text in the second param is used as a search term if
+          thePage is empty, and the final param sets the title of the
+          doc viewer.<br>
           thePage=The location to store the uri for use in the
           docviewer.<br>
+          page=A pointer to a data structure conatining all the info
+          about the current tab, filename, filepath, source buffer etc.<br>
+          notebook=A pointer to the main GtkNotebook* widget.<br>
+          currentTab=the currently selected tab.<br>
+          <br>
           So this call back in the example plugin is setup and called
           like so:<br>
           First add the extra menuitem to the 'Help' menu:<br>
           <br>
-          <div align="left">extern "C" int addMenus (gpointer menulist)<br>
+          <div align="left">extern "C" int addMenus(gpointer data)<br>
             {<br>
             &nbsp;&nbsp;&nbsp; printf("adding&nbsp; plug menus\n");<br>
             &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
             &nbsp;&nbsp;&nbsp; menuitem;<br>
             &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
             &nbsp;&nbsp;&nbsp; menu;<br>
-            &nbsp;&nbsp;&nbsp; plugData*&nbsp;&nbsp;&nbsp;
-            &nbsp;&nbsp;&nbsp; plugdata=(plugData*)menulist;<br>
+            &nbsp;&nbsp;&nbsp; plugData*&nbsp;&nbsp;&nbsp; &nbsp; &nbsp;
+            &nbsp; plugdata=(plugData*)data;<br>
             <br>
             &nbsp;&nbsp;&nbsp;
 menu=gtk_menu_item_get_submenu((GtkMenuItem*)plugdata-&gt;mlist.menuHelp);<br>
@@ -129,43 +140,59 @@ gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(openPlugHelp),plug
             &nbsp;&nbsp;&nbsp; plugData*&nbsp;&nbsp;&nbsp;
             pdata=(plugData*)data;<br>
             &nbsp;&nbsp;&nbsp;
-asprintf(pdata-&gt;thePage,"file://%s/plughelp.html",(char*)pdata-&gt;plugFolder);<br>
+asprintf(pdata-&gt;thePage,"file://%s/example-plugin/plughelp.html",(char*)pdata-&gt;gPlugFolder);<br>
             &nbsp;&nbsp;&nbsp; showDocView(USEURI,(char*)"KKEdit Plugin
-            Help");<br>
+            Help",(char*)"KKEdit Plugin Help");<br>
             }<br>
             <br>
+            <div align="center">The data structure is supplied to the
+              following functions as 'gpointer data' the same way as the
+              'addMenus' function above, and should be cast to a 'plugData*'
+              pointer.<br>
+              <br>
+            </div>
             <div align="center">If your plugin contains a function
               called 'setSensitive' when the text buffer changes or a
               file is open or saved etc, it will be called with
-              globalPlugData-&gt;page set to the current page ( may be
-              NULL ), this allows your plugin to do stuff depending on
-              the file state.<br>
+              data-&gt;page set to the current page ( may be NULL ),
+              this allows your plugin to do stuff depending on the file
+              state.<br>
               <br>
               If your plugin contains a function called 'openFile' when
-              a file is opened it will be called with
-              globalPlugData-&gt;page set to the new page, this allows
-              your plugin to do stuff immediately after a new file is
-              opened.<br>
+              a file is opened it will be called with data-&gt;page set
+              to the new page, this allows your plugin to do stuff
+              immediately after a new file is opened.<br>
               <br>
             </div>
             <div align="center">If your plugin contains a function
               called 'saveFile' when a file is saved it will be called
-              with globalPlugData-&gt;page set to the saved page, this
-              allows your plugin to do stuff immediately after a file is
-              saved.<br>
+              with data-&gt;page set to the saved page, this allows your
+              plugin to do stuff immediately after a file is saved.<br>
               <br>
               If your plugin contains a function called 'newFile' when a
-              new file is created it will be called with
-              globalPlugData-&gt;page set to the new page, this allows
-              your plugin to do stuff immediately after a new file is
-              created<br>
+              new file is created it will be called with data-&gt;page
+              set to the new page, this allows your plugin to do stuff
+              immediately after a new file is created<br>
               <br>
               If your plugin contains a function called 'closeFile' when
-              a file is closed it will be called with
-              globalPlugData-&gt;page set to the closing page, this
-              allows your plugin to do stuff immediately before a file
-              that is closing is destroyed.<br>
+              a file is closed it will be called with data-&gt;page set
+              to the closing page, this allows your plugin to do stuff
+              immediately before a file that is closing is destroyed.<br>
               <br>
+              If your plugin contains a function called 'newTab' when a
+              file is closed it will be called with data-&gt;page set to
+              the newly created page, this happens before 'openFile' and
+              'newFile'.<br>
+              <br>
+              If your plugin contains a function called 'switchTab' when
+              the notebook switches tab either manually or
+              programmatically this function is called with
+              data-&gt;currentTab set to the new current tab.<br>
+              <br>
+              To see what gets run and when run KKEdit from the command
+              line and brief messages will be printed as the various
+              plugin functions are called, these messages are printed by
+              the example plugin not KKEdit.<br>
               <br>
               <br>
               The full source for the plugin is:<br>
@@ -180,8 +207,6 @@ asprintf(pdata-&gt;thePage,"file://%s/plughelp.html",(char*)pdata-&gt;plugFolder
                 #include &lt;gmodule.h&gt;<br>
                 <br>
                 #include "kkedit-plugins.h"<br>
-                <br>
-                void showDocView(int howtodisplay,char* text);<br>
                 <br>
                 extern "C" const gchar* g_module_check_init(GModule
                 *module)<br>
@@ -201,12 +226,12 @@ asprintf(pdata-&gt;thePage,"file://%s/plughelp.html",(char*)pdata-&gt;plugFolder
                 &nbsp;&nbsp;&nbsp; plugData*&nbsp;&nbsp;&nbsp;
                 pdata=(plugData*)data;<br>
                 &nbsp;&nbsp;&nbsp;
-asprintf(pdata-&gt;thePage,"file://%s/plughelp.html",(char*)pdata-&gt;plugFolder);<br>
+asprintf(pdata-&gt;thePage,"file://%s/example-plugin/plughelp.html",(char*)pdata-&gt;gPlugFolder);<br>
                 &nbsp;&nbsp;&nbsp; showDocView(USEURI,(char*)"KKEdit
-                Plugin Help");<br>
+                Plugin Help",(char*)"KKEdit Plugin Help");<br>
                 }<br>
                 <br>
-                extern "C" int addMenus (gpointer menulist)<br>
+                extern "C" int addMenus(gpointer data)<br>
                 {<br>
                 &nbsp;&nbsp;&nbsp; printf("adding&nbsp; plug menus\n");<br>
                 &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
@@ -214,7 +239,7 @@ asprintf(pdata-&gt;thePage,"file://%s/plughelp.html",(char*)pdata-&gt;plugFolder
                 &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
                 &nbsp;&nbsp;&nbsp; menu;<br>
                 &nbsp;&nbsp;&nbsp; plugData*&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp; plugdata=(plugData*)menulist;<br>
+                &nbsp;&nbsp;&nbsp; plugdata=(plugData*)data;<br>
                 <br>
                 &nbsp;&nbsp;&nbsp;
 menu=gtk_menu_item_get_submenu((GtkMenuItem*)plugdata-&gt;mlist.menuHelp);<br>
@@ -233,15 +258,93 @@ gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(openPlugHelp),plug
                 &nbsp;&nbsp;&nbsp; return(0);<br>
                 }<br>
                 <br>
-                extern "C" int setSensitive (gpointer menulist)<br>
+                extern "C" int setSensitive(gpointer data)<br>
                 {<br>
                 &nbsp;&nbsp;&nbsp; printf("set sensitive\n");<br>
                 &nbsp;&nbsp;&nbsp; return(0);<br>
                 }<br>
                 <br>
+                extern "C" int openFile(gpointer data)<br>
+                {<br>
+                &nbsp;&nbsp;&nbsp; printf("open file \n");<br>
+                &nbsp;&nbsp;&nbsp; return(0);<br>
+                }<br>
+                <br>
+                extern "C" int saveFile(gpointer data)<br>
+                {<br>
+                &nbsp;&nbsp;&nbsp; printf("save file\n");<br>
+                &nbsp;&nbsp;&nbsp; return(0);<br>
+                }<br>
+                <br>
+                extern "C" int newFile(gpointer data)<br>
+                {<br>
+                &nbsp;&nbsp;&nbsp; printf("new file\n");<br>
+                &nbsp;&nbsp;&nbsp; return(0);<br>
+                }<br>
+                <br>
+                extern "C" int closeFile(gpointer data)<br>
+                {<br>
+                &nbsp;&nbsp;&nbsp; printf("close file\n");<br>
+                &nbsp;&nbsp;&nbsp; return(0);<br>
+                }<br>
+                <br>
+                extern "C" int newTab(gpointer data)<br>
+                {<br>
+                &nbsp;&nbsp;&nbsp; plugData*&nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; plugdata=(plugData*)data;<br>
+                <br>
+                &nbsp;&nbsp;&nbsp; printf("doing new tab\n");<br>
+                <br>
+                &nbsp;&nbsp;&nbsp;
+                if(plugdata-&gt;page-&gt;filePath!=NULL)<br>
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; printf("filePath =
+                %s\n",plugdata-&gt;page-&gt;filePath);<br>
+                <br>
+                &nbsp;&nbsp;&nbsp;
+                if(plugdata-&gt;page-&gt;fileName!=NULL)<br>
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; printf("fileName =
+                %s\n",plugdata-&gt;page-&gt;fileName);<br>
+                <br>
+                &nbsp;&nbsp;&nbsp;
+                if(plugdata-&gt;page-&gt;dirName!=NULL)<br>
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; printf("dirName =
+                %s\n",plugdata-&gt;page-&gt;dirName);<br>
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
+                &nbsp;&nbsp;&nbsp; printf("finished new tab\n");<br>
+                &nbsp;&nbsp;&nbsp; return(0);<br>
+                }<br>
+                <br>
+                extern "C" int switchTab(gpointer data)<br>
+                {<br>
+                &nbsp;&nbsp;&nbsp; plugData*&nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; plugdata=(plugData*)data;<br>
+                &nbsp;&nbsp;&nbsp; printf("switching tab\n");<br>
+                &nbsp;&nbsp;&nbsp; printf("new tab is
+                %i\n",plugdata-&gt;currentTab);<br>
+                &nbsp;&nbsp;&nbsp; return(0);<br>
+                }<br>
                 <br>
                 <div align="center">The full source and an example
-                  Makefile is installed in dataDir/plugs</div>
+                  Makefile is installed in
+                  dataDir/plugins/example-plugin.<br>
+                  As time goes by I will add a number of plugins which
+                  will be available on my site, if you write a plugin
+                  and want to share it send it to me and I will post it
+                  on my site, if you want your name and/or your email
+                  posted with it let me know otherwise I won't post your
+                  details.<br>
+                  <br>
+                  <br>
+                  Keith<br>
+                  <br>
+                  <a
+                    href="http://keithhedger.hostingsiteforfree.com/index.html">Home
+                    Page</a><br>
+                  <a
+                    href="http://keithhedger.hostingsiteforfree.com/pages/kkedit/help.html">KKEdit
+                    Help</a><br>
+                  <br>
+                </div>
                 <br>
                 <br>
                 <br>

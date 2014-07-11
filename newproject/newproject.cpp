@@ -42,6 +42,8 @@ extern "C" int addMenus(gpointer data)
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuProjects),menu);
 
 	menuitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW,NULL);
+
+//new
 	gtk_menu_item_set_label((GtkMenuItem*)menuitem,"New Project");
 	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(newProject),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
@@ -53,6 +55,43 @@ extern "C" int addMenus(gpointer data)
 
 extern "C" int plugPrefs(gpointer data)
 {
+	GtkWidget*	dialog;
+	GtkWidget*	dialogbox;
+	GtkWidget*	projects;
+	GtkWidget*	svn;
+	GtkWidget*	vbox;
+	int			response;
+	char*		command;
+	plugData*	plugdata=(plugData*)data;
+
+	vbox=gtk_vbox_new(false,0);
+
+	dialog=gtk_dialog_new_with_buttons("KKEdit Project Plugin Prefs",NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
+	gtk_window_set_default_size((GtkWindow*)dialog,300,120);
+	dialogbox=gtk_dialog_get_content_area((GtkDialog*)dialog);
+	gtk_container_add(GTK_CONTAINER(dialogbox),vbox);
+
+	projects=gtk_entry_new();
+	svn=gtk_entry_new();
+
+	gtk_entry_set_text((GtkEntry*)projects,"/media/LinuxData/Development/Projects");
+	gtk_entry_set_text((GtkEntry*)svn,"/media/LinuxData/Development/SVN");
+	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Projects Folder"),true,true,4);
+	gtk_box_pack_start((GtkBox*)vbox,projects,true,true,4);
+	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Subversion Folder"),true,true,4);
+	gtk_box_pack_start((GtkBox*)vbox,svn,true,true,4);
+
+	gtk_widget_show_all(dialog);
+	response=gtk_dialog_run(GTK_DIALOG(dialog));
+	if(response==GTK_RESPONSE_APPLY);
+		{
+			asprintf(&command,"echo %s>%s/newproject.rc;echo %s>>%s/newproject.rc",gtk_entry_get_text((GtkEntry*)projects),plugdata->lPlugFolder,gtk_entry_get_text((GtkEntry*)svn),plugdata->lPlugFolder);
+			system(command);
+			free(command);
+		}
+	gtk_widget_destroy((GtkWidget*)dialog);
+
+
 	return(0);
 }
 

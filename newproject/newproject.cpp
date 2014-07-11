@@ -9,20 +9,20 @@
 #include <gmodule.h>
 
 #include "kkedit-plugins.h"
+#define MYEMAIL "kdhedger68713@gmail.com"
+#define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
+#define VERSION "0.0.1"
 
 GtkWidget*	menuProjects;
 int	(*module_plug_function)(gpointer globaldata);
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
-	perror("doin ininit form newproject");
 	return(NULL);
 }
 
 extern "C" const gchar* g_module_unload(GModule *module)
 {
-	printf("doin cleanup form newproject\n");
-	printf("finished cleanup form newproject\n");
 	return(NULL);
 }
 
@@ -32,7 +32,6 @@ void newProject(GtkWidget* widget,gpointer data)
 
 extern "C" int addMenus(gpointer data)
 {
-	printf("adding  plug menus\n");
 	GtkWidget*		menuitem;
 	GtkWidget*		menu;
 	plugData*		plugdata=(plugData*)data;
@@ -49,19 +48,31 @@ extern "C" int addMenus(gpointer data)
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->mlist.menuBar),menuProjects);
 
-	printf("done adding  plug menus from newproject XXXX\n");
 	return(0);
 }
 
 extern "C" int plugPrefs(gpointer data)
 {
-	printf("doing plugPrefs ...\n");
 	return(0);
 }
 
 extern "C" int doAbout(gpointer data)
 {
-	printf("doing about ...\n");
+	plugData*	plugdata=(plugData*)data;
+	char*		licencepath;
+	const char	copyright[] ="Copyright \xc2\xa9 2014 K.D.Hedger";
+	const char*	aboutboxstring="KKEdit Project Plugin";
+	char*		licence;
+
+	const char*	authors[]= {"K.D.Hedger <"MYEMAIL">\n",MYWEBSITE,"\nMore by the same author\n","Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
+
+	asprintf(&licencepath,"%s/docs/gpl-3.0.txt",plugdata->dataDir);
+	g_file_get_contents(licencepath,&licence,NULL,NULL);
+
+	gtk_show_about_dialog(NULL,"authors",authors,"comments",aboutboxstring,"copyright",copyright,"version",VERSION,"website",MYWEBSITE,"program-name","KKEdit Project Plugin","logo-icon-name","KKEdit","license",licence,NULL);
+
+	free(licence);
+	free(licencepath);
 	return(0);
 }
 
@@ -78,10 +89,7 @@ extern "C" int enablePlug(gpointer data)
 		{
 			if(g_module_symbol(plugdata->plugData->module,"addMenus",(gpointer*)&module_plug_function))
 				module_plug_function(data);
-				printf("adding  plug menus from newproject\n");
 			gtk_widget_show_all(plugdata->mlist.menuBar);
 		}
-	printf("doing can enable from newproject...\n");
 	return(0);
-
 }

@@ -9,6 +9,9 @@
 #include <gmodule.h>
 
 #include "kkedit-plugins.h"
+#define MYEMAIL "kdhedger68713@gmail.com"
+#define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
+#define VERSION "0.0.6"
 
 GtkWidget*	examplemenu;
 int	(*module_plug_function)(gpointer globaldata);
@@ -113,7 +116,21 @@ extern "C" int plugPrefs(gpointer data)
 
 extern "C" int doAbout(gpointer data)
 {
-	printf("doing about from example-plugin ...\n");
+	plugData*	plugdata=(plugData*)data;
+	char*		licencepath;
+	const char	copyright[] ="Copyright \xc2\xa9 2014 K.D.Hedger";
+	const char*	aboutboxstring="KKEdit Project Plugin";
+	char*		licence;
+
+	const char*	authors[]= {"K.D.Hedger <"MYEMAIL">\n",MYWEBSITE,"\nMore by the same author\n","Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
+
+	asprintf(&licencepath,"%s/docs/gpl-3.0.txt",plugdata->dataDir);
+	g_file_get_contents(licencepath,&licence,NULL,NULL);
+
+	gtk_show_about_dialog(NULL,"authors",authors,"comments",aboutboxstring,"copyright",copyright,"version",VERSION,"website",MYWEBSITE,"program-name","KKEdit Example Plugin","logo-icon-name","KKEdit","license",licence,NULL);
+
+	free(licence);
+	free(licencepath);
 	return(0);
 }
 

@@ -15,7 +15,7 @@ int	(*module_plug_function)(gpointer globaldata);
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
-	perror("doin ininit");
+	perror("doin init");
 	return(NULL);
 }
 
@@ -117,6 +117,7 @@ extern "C" int doAbout(gpointer data)
 	return(0);
 }
 
+//return 0 if its safe to unload module
 extern "C" int enablePlug(gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;
@@ -128,6 +129,7 @@ extern "C" int enablePlug(gpointer data)
 		}
 	else
 		{
+//when calling a 'standard' function like 'addMenus' from within the plugin itself get the actual symbol as below
 			if(g_module_symbol(plugdata->plugData->module,"addMenus",(gpointer*)&module_plug_function))
 				module_plug_function(data);
 			gtk_widget_show_all(plugdata->mlist.menuBar);

@@ -11,19 +11,16 @@
 #include "kkedit-plugins.h"
 
 GtkWidget*	examplemenu;
-GModule*		thisModule;
 int	(*module_plug_function)(gpointer globaldata);
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
-	thisModule=module;
 	perror("doin ininit");
 	return(NULL);
 }
 
 extern "C" const gchar* g_module_unload(GModule *module)
 {
-	thisModule=NULL;
 	perror("doin cleanup");
 	return(NULL);
 }
@@ -38,7 +35,6 @@ void openPlugHelp(GtkWidget* widget,gpointer data)
 extern "C" int addMenus(gpointer data)
 {
 	printf("adding  plug menus from example-plugin\n");
-	GtkWidget*		menuitem;
 	GtkWidget*		menu;
 	plugData*		plugdata=(plugData*)data;
 
@@ -132,7 +128,7 @@ extern "C" int enablePlug(gpointer data)
 		}
 	else
 		{
-			if(g_module_symbol(thisModule,"addMenus",(gpointer*)&module_plug_function))
+			if(g_module_symbol(plugdata->plugData->module,"addMenus",(gpointer*)&module_plug_function))
 				module_plug_function(data);
 			gtk_widget_show_all(plugdata->mlist.menuBar);
 		}

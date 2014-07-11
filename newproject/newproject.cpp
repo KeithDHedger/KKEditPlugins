@@ -10,23 +10,18 @@
 
 #include "kkedit-plugins.h"
 
-GtkWidget*		menuProjects;
-GModule*		thisModule;
+GtkWidget*	menuProjects;
 int	(*module_plug_function)(gpointer globaldata);
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
-	thisModule=module;
 	perror("doin ininit form newproject");
 	return(NULL);
 }
 
 extern "C" const gchar* g_module_unload(GModule *module)
 {
-	thisModule=NULL;
 	printf("doin cleanup form newproject\n");
-//	gtk_widget_destroy(menuProjects);
-//	menuProjects
 	printf("finished cleanup form newproject\n");
 	return(NULL);
 }
@@ -81,7 +76,7 @@ extern "C" int enablePlug(gpointer data)
 		}
 	else
 		{
-			if(g_module_symbol(thisModule,"addMenus",(gpointer*)&module_plug_function))
+			if(g_module_symbol(plugdata->plugData->module,"addMenus",(gpointer*)&module_plug_function))
 				module_plug_function(data);
 				printf("adding  plug menus from newproject\n");
 			gtk_widget_show_all(plugdata->mlist.menuBar);

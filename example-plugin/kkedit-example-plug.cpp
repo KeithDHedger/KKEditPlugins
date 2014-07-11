@@ -10,14 +10,20 @@
 
 #include "kkedit-plugins.h"
 
+GtkWidget*	examplemenu;
+GModule*		thisModule;
+int	(*module_plug_function)(gpointer globaldata);
+
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
+	thisModule=module;
 	perror("doin ininit");
 	return(NULL);
 }
 
 extern "C" const gchar* g_module_unload(GModule *module)
 {
+	thisModule=NULL;
 	perror("doin cleanup");
 	return(NULL);
 }
@@ -31,16 +37,16 @@ void openPlugHelp(GtkWidget* widget,gpointer data)
 
 extern "C" int addMenus(gpointer data)
 {
-	printf("adding  plug menus\n");
+	printf("adding  plug menus from example-plugin\n");
 	GtkWidget*		menuitem;
 	GtkWidget*		menu;
 	plugData*		plugdata=(plugData*)data;
 
 	menu=gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuHelp);
-	menuitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,NULL);
-	gtk_menu_item_set_label((GtkMenuItem*)menuitem,"Plugin Help");
-	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(openPlugHelp),plugdata);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
+	examplemenu=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,NULL);
+	gtk_menu_item_set_label((GtkMenuItem*)examplemenu,"Plugin Help");
+	gtk_signal_connect(GTK_OBJECT(examplemenu),"activate",G_CALLBACK(openPlugHelp),plugdata);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu),examplemenu);
 
 	printf("done adding  plug menus\n");
 	return(0);
@@ -105,8 +111,6 @@ extern "C" int switchTab(gpointer data)
 
 extern "C" int plugPrefs(gpointer data)
 {
-	plugData*		plugdata=(plugData*)data;
-
 	printf("doing plugPrefs from example-plugin ...\n");
 	return(0);
 }
@@ -115,4 +119,24 @@ extern "C" int doAbout(gpointer data)
 {
 	printf("doing about from example-plugin ...\n");
 	return(0);
+}
+
+extern "C" int enablePlug(gpointer data)
+{
+	plugData*		plugdata=(plugData*)data;
+
+	if(plugdata->plugData->unload==true)
+		{
+			gtk_widget_destroy(examplemenu);
+			gtk_widget_show_all(plugdata->mlist.menuBar);	
+		}
+	else
+		{
+			if(g_module_symbol(thisModule,"addMenus",(gpointer*)&module_plug_function))
+				module_plug_function(data);
+			gtk_widget_show_all(plugdata->mlist.menuBar);
+		}
+	printf("doing can enable from example-plug...\n");
+	return(0);
+
 }

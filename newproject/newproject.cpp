@@ -11,16 +11,23 @@
 #include "kkedit-plugins.h"
 
 GtkWidget*		menuProjects;
+GModule*		thisModule;
+int	(*module_plug_function)(gpointer globaldata);
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
+	thisModule=module;
 	perror("doin ininit form newproject");
 	return(NULL);
 }
 
 extern "C" const gchar* g_module_unload(GModule *module)
 {
-	perror("doin cleanup form newproject");
+	thisModule=NULL;
+	printf("doin cleanup form newproject\n");
+//	gtk_widget_destroy(menuProjects);
+//	menuProjects
+	printf("finished cleanup form newproject\n");
 	return(NULL);
 }
 
@@ -47,7 +54,7 @@ extern "C" int addMenus(gpointer data)
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->mlist.menuBar),menuProjects);
 
-	printf("done adding  plug menus\n");
+	printf("done adding  plug menus from newproject XXXX\n");
 	return(0);
 }
 
@@ -61,4 +68,25 @@ extern "C" int doAbout(gpointer data)
 {
 	printf("doing about ...\n");
 	return(0);
+}
+
+extern "C" int enablePlug(gpointer data)
+{
+	plugData*		plugdata=(plugData*)data;
+
+	if(plugdata->plugData->unload==true)
+		{
+			gtk_widget_destroy(menuProjects);
+			gtk_widget_show_all(plugdata->mlist.menuBar);	
+		}
+	else
+		{
+			if(g_module_symbol(thisModule,"addMenus",(gpointer*)&module_plug_function))
+				module_plug_function(data);
+				printf("adding  plug menus from newproject\n");
+			gtk_widget_show_all(plugdata->mlist.menuBar);
+		}
+	printf("doing can enable from newproject...\n");
+	return(0);
+
 }

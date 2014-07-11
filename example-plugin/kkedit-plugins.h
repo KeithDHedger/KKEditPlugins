@@ -47,6 +47,19 @@ struct pageStruct
 };
 #endif
 
+#ifndef _PLUGINDATA_
+#define _PLUGINDATA_
+struct pluginData
+{
+	char*		name;
+	bool		enabled;
+	GModule*	module;
+	bool		loaded;
+	char*		path;
+	bool		unload;
+};
+#endif
+
 //plugins
 struct plugMenuList
 {
@@ -65,6 +78,7 @@ struct plugData
 {
 //menus
 	plugMenuList	mlist;
+	pluginData*		plugData;
 //install location of KKEdit data
 	const char*		dataDir;
 //global plugin folder defaults to DATADIR/plugins

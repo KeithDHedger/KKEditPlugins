@@ -11,3 +11,5 @@ distclean:
 	rm ${PLUGNAME}.o||true
 
 install:
+
+uninstall:

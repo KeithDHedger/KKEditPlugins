@@ -9,6 +9,7 @@
 #include <gmodule.h>
 #include <libgen.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "kkedit-plugins.h"
 #define MYEMAIL "kdhedger68713@gmail.com"
@@ -75,6 +76,8 @@ void newProject(GtkWidget* widget,gpointer data)
 			free(archive);
 			projname=gtk_entry_get_text((GtkEntry*)project);
 			appnamelower=strdup(gtk_entry_get_text((GtkEntry*)project));
+			for(unsigned int j=0;j<strlen(appnamelower);j++)
+				appnamelower[j]=tolower(appnamelower[j]);
 			asprintf(&command,"cd /tmp/xx/bones%s;find -iname \"*<>APP<>*\" -type d -exec rename \"<>APP<>\" \"%s\" '{}' \\;",name,appnamelower);
 			system(command);
 			free(command);

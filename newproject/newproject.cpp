@@ -30,6 +30,67 @@ extern "C" const gchar* g_module_unload(GModule *module)
 
 void newProject(GtkWidget* widget,gpointer data)
 {
+	const char*	name;
+	char*		archive;
+	plugData*	plugdata=(plugData*)data;
+
+	GtkWidget*	dialog;
+	GtkWidget*	dialogbox;
+	GtkWidget*	project;
+	GtkWidget*	createsvn;
+	bool		makesvn=true;
+	GtkWidget*	vbox;
+	int			response;
+	char*		command;
+	const char*		projname;
+	char*		appnamelower;
+
+	name=gtk_widget_get_name(widget);
+
+	asprintf(&archive,"mkdir /tmp/xx;cd /tmp/xx;tar -xvf %s/newproject/bones/bones%s.tar.gz",plugdata->lPlugFolder,name);
+	printf("command=%s\n",archive);
+	system(archive);
+
+	vbox=gtk_vbox_new(false,0);
+
+	dialog=gtk_dialog_new_with_buttons("New Project",NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
+	gtk_window_set_default_size((GtkWindow*)dialog,300,120);
+	dialogbox=gtk_dialog_get_content_area((GtkDialog*)dialog);
+	gtk_container_add(GTK_CONTAINER(dialogbox),vbox);
+
+	project=gtk_entry_new();
+	createsvn=gtk_check_button_new_with_label("Creat SVN Repo");
+	gtk_toggle_button_set_active((GtkToggleButton*)createsvn,makesvn);
+	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Project Name"),true,true,4);
+	gtk_box_pack_start((GtkBox*)vbox,project,true,true,4);
+	gtk_box_pack_start((GtkBox*)vbox,createsvn,true,true,4);
+
+	gtk_widget_show_all(dialog);
+	response=gtk_dialog_run(GTK_DIALOG(dialog));
+	if(response==GTK_RESPONSE_APPLY);
+		{
+			asprintf(&archive,"mkdir /tmp/xx;cd /tmp/xx;tar -xvf %s/newproject/bones/bones%s.tar.gz",plugdata->lPlugFolder,name);
+			system(archive);
+			makesvn=gtk_toggle_button_get_active((GtkToggleButton*)createsvn);
+			free(archive);
+			projname=gtk_entry_get_text((GtkEntry*)project);
+			appnamelower=strdup(gtk_entry_get_text((GtkEntry*)project));
+			asprintf(&command,"cd /tmp/xx/bones%s;find -iname \"*<>APP<>*\" -type d -exec rename \"<>APP<>\" \"%s\" '{}' \\;",name,appnamelower);
+			system(command);
+			free(command);
+			asprintf(&command,"cd /tmp/xx/bones%s;find -iname \"*<>APP<>*\" -type f -exec rename \"<>APP<>\" \"%s\" '{}' \\;",name,appnamelower);
+			system(command);
+			free(command);
+			asprintf(&command,"cd /tmp/xx/bones%s;find -iname \"*<>PROJ<>*\" -type d -exec rename \"<>PROJ<>\" \"%s\" '{}' \\; 2>/dev/null",name,projname);
+			system(command);
+			free(command);
+			asprintf(&command,"cd /tmp/xx/bones%s;find -iname \"*<>PROJ<>*\" -type f -exec rename \"<>PROJ<>\" \"%s\" '{}' \\; 2>/dev/null",name,projname);
+			system(command);
+			free(command);
+		}
+	gtk_widget_destroy((GtkWidget*)dialog);
+	free(appnamelower);
+	
 //	GtkWidget*	dialog;
 //	GtkWidget*	dialogbox;
 //	GtkWidget*	projects;
@@ -113,8 +174,10 @@ extern "C" int addMenus(gpointer data)
 							pclose(infofp);
 							free(infocommand);
 							info=basename(line);
-							sprintf(line,"New %.*s Project",(int)strlen(info)-5,info);
+							*(strstr(info,".info"))=0;
+							sprintf(line,"New %s Project",info);
 							menuitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW,NULL);
+							gtk_widget_set_name(menuitem,info);
 							gtk_widget_set_tooltip_text(menuitem,infoline);
 							gtk_menu_item_set_label((GtkMenuItem*)menuitem,line);
 							gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(newProject),plugdata);

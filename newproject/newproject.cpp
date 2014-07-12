@@ -80,8 +80,12 @@ extern "C" int addMenus(gpointer data)
 	GtkWidget*	menu;
 	char*		command;
 	FILE*		fp;
+	FILE*		infofp;
 	char*		folder;
 	char		line[1024];
+	char*		info;
+	char*		infocommand;
+	char		infoline[1024];
 
 	plugData*	plugdata=(plugData*)data;
 
@@ -91,19 +95,32 @@ extern "C" int addMenus(gpointer data)
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuProjects),menu);
 
 	folder=strdup(plugdata->plugData->path);
-	asprintf(&command,"find %s/bones -iname \"*.info\" ",dirname(folder));
+	asprintf(&command,"find %s/bones -iname \"*.info\"|sort",dirname(folder));
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
 			while(feof(fp)==0)
 				{
 					fgets(line,1024,fp);
-					line[strlen(line)-1]=0;
-					sprintf(line,"%s",basename(line));
-					menuitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW,NULL);
-					gtk_menu_item_set_label((GtkMenuItem*)menuitem,line);
-					gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(newProject),plugdata);
-					gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
+					if(strlen(line)>0)
+						{
+							line[strlen(line)-1]=0;
+							asprintf(&infocommand,"cat %s",line);
+							infofp=popen(infocommand,"r");
+							infoline[0]=0;
+							fgets(infoline,1024,infofp);
+							infoline[strlen(infoline)-1]=0;
+							pclose(infofp);
+							free(infocommand);
+							info=basename(line);
+							sprintf(line,"New %.*s Project",(int)strlen(info)-5,info);
+							menuitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW,NULL);
+							gtk_widget_set_tooltip_text(menuitem,infoline);
+							gtk_menu_item_set_label((GtkMenuItem*)menuitem,line);
+							gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(newProject),plugdata);
+							gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
+							line[0]=0;
+					}
 				}
 		}
 	pclose(fp);

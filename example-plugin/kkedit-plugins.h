@@ -95,6 +95,8 @@ struct plugData
 	GtkNotebook*	notebook;
 //cuurent tab
 	int				currentTab;
+//KKEdits temp folder
+	char*			tmpFolder;
 };
 
 #define USEFILE			-2

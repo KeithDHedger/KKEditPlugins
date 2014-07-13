@@ -11,10 +11,14 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "kkedit-plugins.h"
+#include <kkedit-plugins.h>
+
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
 #define VERSION "0.0.1"
+
+char*		SVNRepoPath;
+char*		projectsPath;
 
 GtkWidget*	menuProjects;
 int	(*module_plug_function)(gpointer globaldata);
@@ -45,8 +49,8 @@ void newProject(GtkWidget* widget,gpointer data)
 	char*		command;
 	const char*	projname;
 	char*		appnamelower;
-	const char*	svnrepo="/tmp/SVN";
-	const char*	projects="/tmp/Projects";
+//	const char*	SVNRepoPath="/tmp/SVN";
+//	const char*	projects="/tmp/Projects";
 
 	name=gtk_widget_get_name(widget);
 
@@ -104,19 +108,19 @@ void newProject(GtkWidget* widget,gpointer data)
 
 			if(makesvn==true)
 				{
-					asprintf(&command,"cd %s/NewProject/bones%s;svnadmin create \"%s/%s\"",plugdata->tmpFolder,name,svnrepo,projname);
+					asprintf(&command,"cd %s/NewProject/bones%s;svnadmin create \"%s/%s\"",plugdata->tmpFolder,name,SVNRepoPath,projname);
 					system(command);
 					free(command);
-					asprintf(&command,"cd %s/NewProject/bones%s;svn import . file://\"%s/%s\" -m \"Initial import\"",plugdata->tmpFolder,name,svnrepo,projname);
+					asprintf(&command,"cd %s/NewProject/bones%s;svn import . file://\"%s/%s\" -m \"Initial import\"",plugdata->tmpFolder,name,SVNRepoPath,projname);
 					system(command);
 					free(command);
-					asprintf(&command,"cd %s;svn checkout  file://\"%s/%s\"",projects,svnrepo,projname);
+					asprintf(&command,"cd %s;svn checkout  file://\"%s/%s\"",projectsPath,SVNRepoPath,projname);
 					system(command);
 					free(command);
 				}
 			else
 				{
-					asprintf(&command,"cp -r %s/NewProject/bones%s %s/%s",plugdata->tmpFolder,name,projects,projname);
+					asprintf(&command,"cp -r %s/NewProject/bones%s %s/%s",plugdata->tmpFolder,name,projectsPath,projname);
 					system(command);
 					free(command);
 				}
@@ -186,6 +190,23 @@ extern "C" int addMenus(gpointer data)
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->mlist.menuBar),menuProjects);					
 
+	asprintf(&projectsPath,"%s/Projects",getenv("HOME"));
+	asprintf(&SVNRepoPath,"%s/SVN",getenv("HOME"));
+	asprintf(&command,"cat %s/newproject.rc 2>/dev/null",plugdata->lPlugFolder);
+	fp=popen(command,"r");
+		if(fp!=NULL)
+			{
+				fgets(line,1024,fp);
+				line[strlen(line)-1]=0;
+				if(strlen(line)>0)
+					projectsPath=strdup(line);
+				fgets(line,1024,fp);
+				line[strlen(line)-1]=0;
+				if(strlen(line)>0)
+					SVNRepoPath=strdup(line);
+				pclose(fp);
+			}
+	printf("XXXXXXX\n%sXXXXXXXXXXXXX\n",plugdata->tmpFolder);
 	return(0);
 }
 
@@ -210,8 +231,8 @@ extern "C" int plugPrefs(gpointer data)
 	projects=gtk_entry_new();
 	svn=gtk_entry_new();
 
-	gtk_entry_set_text((GtkEntry*)projects,"/media/LinuxData/Development/Projects");
-	gtk_entry_set_text((GtkEntry*)svn,"/media/LinuxData/Development/SVN");
+	gtk_entry_set_text((GtkEntry*)projects,projectsPath);
+	gtk_entry_set_text((GtkEntry*)svn,SVNRepoPath);
 	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Projects Folder"),true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,projects,true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Subversion Folder"),true,true,4);

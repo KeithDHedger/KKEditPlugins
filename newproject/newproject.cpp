@@ -78,6 +78,8 @@ void newProject(GtkWidget* widget,gpointer data)
 			appnamelower=strdup(gtk_entry_get_text((GtkEntry*)project));
 			for(unsigned int j=0;j<strlen(appnamelower);j++)
 				appnamelower[j]=tolower(appnamelower[j]);
+
+//filenames
 			asprintf(&command,"cd /tmp/xx/bones%s;find -iname \"*<>APP<>*\" -type d -exec rename \"<>APP<>\" \"%s\" '{}' \\;",name,appnamelower);
 			system(command);
 			free(command);
@@ -88,6 +90,14 @@ void newProject(GtkWidget* widget,gpointer data)
 			system(command);
 			free(command);
 			asprintf(&command,"cd /tmp/xx/bones%s;find -iname \"*<>PROJ<>*\" -type f -exec rename \"<>PROJ<>\" \"%s\" '{}' \\; 2>/dev/null",name,projname);
+			system(command);
+			free(command);
+
+//in files
+			asprintf(&command,"cd /tmp/xx/bones%s;find -type f|xargs grep -lI \"<>APP<>\"|xargs sed -i 's/<>APP<>/%s/g'",name,appnamelower);
+			system(command);
+			free(command);
+			asprintf(&command,"cd /tmp/xx/bones%s;find -type f|xargs grep -lI \"<>PROJ<>\"|xargs sed -i 's/<>PROJ<>/%s/g'",name,projname);
 			system(command);
 			free(command);
 		}

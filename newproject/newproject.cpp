@@ -49,14 +49,8 @@ void newProject(GtkWidget* widget,gpointer data)
 	char*		command;
 	const char*	projname;
 	char*		appnamelower;
-//	const char*	SVNRepoPath="/tmp/SVN";
-//	const char*	projects="/tmp/Projects";
 
 	name=gtk_widget_get_name(widget);
-
-//	asprintf(&archive,"mkdir %s/NewProject;cd %s/NewProject;tar -xvf %s/newproject/bones/bones%s.tar.gz",plugdata->tmpFolder,plugdata->tmpFolder,plugdata->lPlugFolder,name);
-//	system(archive);
-
 	vbox=gtk_vbox_new(false,0);
 
 	dialog=gtk_dialog_new_with_buttons("New Project",NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
@@ -130,7 +124,6 @@ void newProject(GtkWidget* widget,gpointer data)
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
 	free(appnamelower);
-	
 }
 
 extern "C" int addMenus(gpointer data)
@@ -206,7 +199,6 @@ extern "C" int addMenus(gpointer data)
 					SVNRepoPath=strdup(line);
 				pclose(fp);
 			}
-	printf("XXXXXXX\n%sXXXXXXXXXXXXX\n",plugdata->tmpFolder);
 	return(0);
 }
 

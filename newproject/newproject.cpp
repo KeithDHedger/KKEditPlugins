@@ -115,7 +115,13 @@ void newProject(GtkWidget* widget,gpointer data)
 					system(command);
 					free(command);
 				}
-
+			else
+				{
+					asprintf(&command,"cp -r /tmp/xx/bones%s %s/%s",name,projects,projname);
+					system(command);
+					free(command);
+				}
+			system("rm -rf /tmp/xx/bones*");
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
 	free(appnamelower);

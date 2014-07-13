@@ -43,16 +43,15 @@ void newProject(GtkWidget* widget,gpointer data)
 	GtkWidget*	vbox;
 	int			response;
 	char*		command;
-	const char*		projname;
+	const char*	projname;
 	char*		appnamelower;
 	const char*	svnrepo="/tmp/SVN";
 	const char*	projects="/tmp/Projects";
 
 	name=gtk_widget_get_name(widget);
 
-	asprintf(&archive,"mkdir /tmp/xx;cd /tmp/xx;tar -xvf %s/newproject/bones/bones%s.tar.gz",plugdata->lPlugFolder,name);
-	printf("command=%s\n",archive);
-	system(archive);
+//	asprintf(&archive,"mkdir %s/NewProject;cd %s/NewProject;tar -xvf %s/newproject/bones/bones%s.tar.gz",plugdata->tmpFolder,plugdata->tmpFolder,plugdata->lPlugFolder,name);
+//	system(archive);
 
 	vbox=gtk_vbox_new(false,0);
 
@@ -72,7 +71,7 @@ void newProject(GtkWidget* widget,gpointer data)
 	response=gtk_dialog_run(GTK_DIALOG(dialog));
 	if(response==GTK_RESPONSE_APPLY);
 		{
-			asprintf(&archive,"mkdir /tmp/xx;cd /tmp/xx;tar -xvf %s/newproject/bones/bones%s.tar.gz",plugdata->lPlugFolder,name);
+			asprintf(&archive,"mkdir %s/NewProject;cd %s/NewProject;tar -xvf %s/newproject/bones/bones%s.tar.gz",plugdata->tmpFolder,plugdata->tmpFolder,plugdata->lPlugFolder,name);
 			system(archive);
 			makesvn=gtk_toggle_button_get_active((GtkToggleButton*)createsvn);
 			free(archive);
@@ -82,33 +81,33 @@ void newProject(GtkWidget* widget,gpointer data)
 				appnamelower[j]=tolower(appnamelower[j]);
 
 //filenames
-			asprintf(&command,"cd /tmp/xx/bones%s;find -iname \"*<>APP<>*\" -type d -exec rename \"<>APP<>\" \"%s\" '{}' \\;",name,appnamelower);
+			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>APP<>*\" -type d -exec rename \"<>APP<>\" \"%s\" '{}' \\;",plugdata->tmpFolder,name,appnamelower);
 			system(command);
 			free(command);
-			asprintf(&command,"cd /tmp/xx/bones%s;find -iname \"*<>APP<>*\" -type f -exec rename \"<>APP<>\" \"%s\" '{}' \\;",name,appnamelower);
+			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>APP<>*\" -type f -exec rename \"<>APP<>\" \"%s\" '{}' \\;",plugdata->tmpFolder,name,appnamelower);
 			system(command);
 			free(command);
-			asprintf(&command,"cd /tmp/xx/bones%s;find -iname \"*<>PROJ<>*\" -type d -exec rename \"<>PROJ<>\" \"%s\" '{}' \\; 2>/dev/null",name,projname);
+			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>PROJ<>*\" -type d -exec rename \"<>PROJ<>\" \"%s\" '{}' \\; 2>/dev/null",plugdata->tmpFolder,name,projname);
 			system(command);
 			free(command);
-			asprintf(&command,"cd /tmp/xx/bones%s;find -iname \"*<>PROJ<>*\" -type f -exec rename \"<>PROJ<>\" \"%s\" '{}' \\; 2>/dev/null",name,projname);
+			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>PROJ<>*\" -type f -exec rename \"<>PROJ<>\" \"%s\" '{}' \\; 2>/dev/null",plugdata->tmpFolder,name,projname);
 			system(command);
 			free(command);
 
 //in files
-			asprintf(&command,"cd /tmp/xx/bones%s;find -type f|xargs grep -lI \"<>APP<>\"|xargs sed -i 's/<>APP<>/%s/g'",name,appnamelower);
+			asprintf(&command,"cd %s/NewProject/bones%s;find -type f|xargs grep -lI \"<>APP<>\"|xargs sed -i 's/<>APP<>/%s/g'",plugdata->tmpFolder,name,appnamelower);
 			system(command);
 			free(command);
-			asprintf(&command,"cd /tmp/xx/bones%s;find -type f|xargs grep -lI \"<>PROJ<>\"|xargs sed -i 's/<>PROJ<>/%s/g'",name,projname);
+			asprintf(&command,"cd %s/NewProject/bones%s;find -type f|xargs grep -lI \"<>PROJ<>\"|xargs sed -i 's/<>PROJ<>/%s/g'",plugdata->tmpFolder,name,projname);
 			system(command);
 			free(command);
 
 			if(makesvn==true)
 				{
-					asprintf(&command,"cd /tmp/xx/bones%s;svnadmin create \"%s/%s\"",name,svnrepo,projname);
+					asprintf(&command,"cd %s/NewProject/bones%s;svnadmin create \"%s/%s\"",plugdata->tmpFolder,name,svnrepo,projname);
 					system(command);
 					free(command);
-					asprintf(&command,"cd /tmp/xx/bones%s;svn import . file://\"%s/%s\" -m \"Initial import\"",name,svnrepo,projname);
+					asprintf(&command,"cd %s/NewProject/bones%s;svn import . file://\"%s/%s\" -m \"Initial import\"",plugdata->tmpFolder,name,svnrepo,projname);
 					system(command);
 					free(command);
 					asprintf(&command,"cd %s;svn checkout  file://\"%s/%s\"",projects,svnrepo,projname);
@@ -117,11 +116,13 @@ void newProject(GtkWidget* widget,gpointer data)
 				}
 			else
 				{
-					asprintf(&command,"cp -r /tmp/xx/bones%s %s/%s",name,projects,projname);
+					asprintf(&command,"cp -r %s/NewProject/bones%s %s/%s",plugdata->tmpFolder,name,projects,projname);
 					system(command);
 					free(command);
 				}
-			system("rm -rf /tmp/xx/bones*");
+			asprintf(&command,"rm -r %s/NewProject",plugdata->tmpFolder);
+			system(command);
+			free(command);
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
 	free(appnamelower);

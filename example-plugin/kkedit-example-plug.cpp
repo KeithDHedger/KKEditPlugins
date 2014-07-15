@@ -14,13 +14,13 @@
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
 #define VERSION "0.0.6"
 
-GtkWidget*	examplemenu;
 int	(*module_plug_function)(gpointer globaldata);
+
+GtkWidget*	examplemenu;
 GtkWidget*	leftButton;
 GtkWidget*	rightButton;
 GtkWidget*	topLabel;
 GtkWidget*	bottomLabel;
-const char*	whattoop;
 
 //example of how to run an external command and send the output to the tool output window in KKEdit
 //command should be somthing like "ls /"
@@ -47,23 +47,27 @@ void runCommandAndOut(const char* command,plugData* plugdata)
 		}
 }
 
+//run when module loaded, not really a lot of use.
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
 	perror("doin init");
 	return(NULL);
 }
 
+//run when module unloaded, not really a lot of use.
 extern "C" const gchar* g_module_unload(GModule *module)
 {
 	perror("doin cleanup");
 	return(NULL);
 }
 
+//callback for the two buttons added by the demo
 void clickButton(GtkWidget* widget,gpointer data)
 {
 	runCommandAndOut(gtk_widget_get_name(widget),(plugData*)data);
 }
 
+//open the plug help in the doc viewer or browser from the menu item added by the demo
 void openPlugHelp(GtkWidget* widget,gpointer data)
 {
 	plugData*	pdata=(plugData*)data;
@@ -71,6 +75,7 @@ void openPlugHelp(GtkWidget* widget,gpointer data)
 	showDocView(USEURI,(char*)"KKEdit Plugin Help",(char*)"KKEdit Plugin Help");
 }
 
+//main function called after KKEdit has built it's main GUI to add extra GUI items.
 extern "C" int addToGui(gpointer data)
 {
 	GtkWidget*		menu;
@@ -86,7 +91,6 @@ extern "C" int addToGui(gpointer data)
 
 	leftButton=gtk_button_new_with_label("left side button\nat top");
 	gtk_box_pack_start(GTK_BOX(plugdata->leftUserBox),leftButton,false,false,0);
-//	whattoop="echo Left Button Clicked";
 	gtk_widget_set_name(leftButton,"echo Left Button Clicked");
 	gtk_signal_connect(GTK_OBJECT(leftButton),"clicked",G_CALLBACK(clickButton),plugdata);
 	gtk_widget_show_all(plugdata->leftUserBox);
@@ -111,36 +115,42 @@ extern "C" int addToGui(gpointer data)
 	return(0);
 }
 
+//run when buffer contents have changed etc ( as in when the save button is enabled/dimmed.
 extern "C" int setSensitive(gpointer data)
 {
 	printf("set sensitive\n");
 	return(0);
 }
 
+//run after openining a file
 extern "C" int openFile(gpointer data)
 {
 	printf("open file \n");
 	return(0);
 }
 
+//guess
 extern "C" int saveFile(gpointer data)
 {
 	printf("save file\n");
 	return(0);
 }
 
+//go on guess I dare ya
 extern "C" int newFile(gpointer data)
 {
 	printf("new file\n");
 	return(0);
 }
 
+//no wrong this is run just before a file is closed
 extern "C" int closeFile(gpointer data)
 {
 	printf("close file\n");
 	return(0);
 }
 
+//run when a new tab is created, runs before openfile/newfile.
 extern "C" int newTab(gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;
@@ -160,6 +170,7 @@ extern "C" int newTab(gpointer data)
 	return(0);
 }
 
+//run when tabs switched either manually or ecase of opening a new tab.
 extern "C" int switchTab(gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;
@@ -168,12 +179,14 @@ extern "C" int switchTab(gpointer data)
 	return(0);
 }
 
+//run from the 'Preferences' button in the pluginin prefs.
 extern "C" int plugPrefs(gpointer data)
 {
 	printf("doing plugPrefs from example-plugin ...\n");
 	return(0);
 }
 
+//run from the 'About' button in the pluginin prefs.
 extern "C" int doAbout(gpointer data)
 {
 printf("about from example plug\n");
@@ -207,7 +220,7 @@ printf("about from example plug\n");
 	return(0);
 }
 
-//return 0 if its safe to unload module
+//return 0 if its safe to unload module non zero to mark the plugin as disabled but don't unload it.
 extern "C" int enablePlug(gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;
@@ -224,6 +237,7 @@ extern "C" int enablePlug(gpointer data)
 	else
 		{
 //when calling a 'standard' function like 'addToGui' from within the plugin itself get the actual symbol as below
+//as you may have a number of plugins enbled with a similar function.
 			if(g_module_symbol(plugdata->modData->module,"addToGui",(gpointer*)&module_plug_function))
 				module_plug_function(data);
 			gtk_widget_show_all(plugdata->mlist.menuBar);

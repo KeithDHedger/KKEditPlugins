@@ -18,7 +18,13 @@ GtkWidget*	examplemenu;
 int	(*module_plug_function)(gpointer globaldata);
 GtkWidget*	leftButton;
 GtkWidget*	rightButton;
+GtkWidget*	topLabel;
+GtkWidget*	bottomLabel;
 
+//example of how to run an external command and send the output to the tool output window in KKEdit
+//cmmand should be somthing like "ls /"
+//plugdata is the standard data passed to functions in the plugin.
+//this is not used in the demo.
 void runCommandAndOut(char* command,plugData* plugdata)
 {
 	FILE*		fp=NULL;
@@ -80,8 +86,16 @@ extern "C" int addToGui(gpointer data)
 	gtk_box_pack_end(GTK_BOX(plugdata->rightUserBox),rightButton,false,false,0);
 	gtk_widget_show_all(plugdata->rightUserBox);
 
+	topLabel=gtk_label_new("Top user vbox demo label");
+	gtk_box_pack_end(GTK_BOX(plugdata->topUserBox),topLabel,true,true,0);
+	gtk_widget_show_all(plugdata->topUserBox);
+
+	bottomLabel=gtk_label_new("Bottom user vbox demo label");
+	gtk_box_pack_end(GTK_BOX(plugdata->bottomUserBox),bottomLabel,true,true,0);
+	gtk_widget_show_all(plugdata->bottomUserBox);
+
+
 	printf("Done adding GUI from example-plugin\n");
-	showToolOutput(true);
 	return(0);
 }
 
@@ -192,6 +206,8 @@ extern "C" int enablePlug(gpointer data)
 			gtk_widget_show_all(plugdata->mlist.menuBar);
 			gtk_widget_destroy(leftButton);
 			gtk_widget_destroy(rightButton);
+			gtk_widget_destroy(topLabel);
+			gtk_widget_destroy(bottomLabel);
 		}
 	else
 		{

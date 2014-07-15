@@ -19,69 +19,117 @@
       these functions will be run automatically and should be used for
       any initialization/clean up etc.<br>
       <br>
-      If your module has a function called 'addMenus' then this function
-      is called when KKEdit has finished setting up it's own menus and
-      your plugin can then add to the existing menus or add a new menu,
-      the structure that is passed to the 'addMenus' functions is
-      defined in 'kkedit-plugins.h' which is installed in /usr/include,
-      the basic structure is this:<br>
+      If your module has a function called 'addToGui' then this function
+      is called when KKEdit has finished setting up it's own GUI and
+      your plugin can then add to the existing GUI, the structure that
+      is passed to the 'addMenus' functions is defined in
+      'kkedit-plugins.h' which is installed in /usr/include, the basic
+      structure is this:<br>
       <div align="left">
         <table border="1" cellpadding="2" cellspacing="2" width="100%">
           <tbody>
             <tr>
-              <td bgcolor="#ffffff" valign="top">struct plugMenuList<br>
+              <td bgcolor="#ffffff" valign="top">struct moduleData<br>
                 {<br>
-                &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp; menuBar;<br>
-                &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp; menuFile;<br>
-                &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp; menuEdit;<br>
-                &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp; menuFunc;<br>
-                &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp; menuNav;<br>
-                &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp; menuTools;<br>
-                &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp; menuHelp;<br>
-                &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp; menuBookMark;<br>
-                &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp; menuView;<br>
+                &nbsp;&nbsp; &nbsp;char*&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                &nbsp;name;<br>
+                &nbsp;&nbsp; &nbsp;bool&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                &nbsp;enabled;<br>
+                &nbsp;&nbsp; &nbsp;GModule*&nbsp;&nbsp; &nbsp;module;<br>
+                &nbsp;&nbsp; &nbsp;bool&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                &nbsp;loaded;<br>
+                &nbsp;&nbsp; &nbsp;char*&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                &nbsp;path;<br>
+                &nbsp;&nbsp; &nbsp;bool&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                &nbsp;unload;<br>
+                };<br>
+                #endif<br>
+                <br>
+                //plugins<br>
+                struct plugMenuList<br>
+                {<br>
+                &nbsp;&nbsp; &nbsp;GtkWidget*&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp;menuBar;<br>
+                &nbsp;&nbsp; &nbsp;GtkWidget*&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp;menuFile;<br>
+                &nbsp;&nbsp; &nbsp;GtkWidget*&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp;menuEdit;<br>
+                &nbsp;&nbsp; &nbsp;GtkWidget*&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp;menuFunc;<br>
+                &nbsp;&nbsp; &nbsp;GtkWidget*&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp;menuNav;<br>
+                &nbsp;&nbsp; &nbsp;GtkWidget*&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp;menuTools;<br>
+                &nbsp;&nbsp; &nbsp;GtkWidget*&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp;menuHelp;<br>
+                &nbsp;&nbsp; &nbsp;GtkWidget*&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp;menuBookMark;<br>
+                &nbsp;&nbsp; &nbsp;GtkWidget*&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp;menuView;<br>
                 };<br>
                 <br>
                 struct plugData<br>
                 {<br>
                 //menus<br>
-                &nbsp;&nbsp;&nbsp; plugMenuList&nbsp;&nbsp;&nbsp; mlist;<br>
+                &nbsp;&nbsp; &nbsp;plugMenuList&nbsp;&nbsp; &nbsp;
+                mlist;<br>
+                &nbsp;&nbsp; &nbsp;moduleData*&nbsp;&nbsp; &nbsp;&nbsp;
+                modData;<br>
                 //install location of KKEdit data<br>
-                &nbsp;&nbsp;&nbsp; const char*&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp; dataDir;<br>
+                &nbsp;&nbsp; &nbsp;const char*&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp; dataDir;<br>
                 //global plugin folder defaults to DATADIR/plugins<br>
-                &nbsp;&nbsp;&nbsp; char*&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; gPlugFolder;<br>
+                &nbsp;&nbsp; &nbsp;char*&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; gPlugFolder;<br>
                 //local plugin folder defaults to ~/.KKEdit/plugins<br>
-                &nbsp;&nbsp;&nbsp; char*&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; lPlugFolder;<br>
+                &nbsp;&nbsp; &nbsp;char*&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lPlugFolder;<br>
                 //unused<br>
-                &nbsp;&nbsp;&nbsp; char*&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; htmlFile;<br>
+                &nbsp;&nbsp; &nbsp;char*&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; htmlFile;<br>
                 //location of variable that holds the uri to be
                 disp[layed by showDoc<br>
-                &nbsp;&nbsp;&nbsp; char**&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; thePage;<br>
+                &nbsp;&nbsp; &nbsp;char**&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                thePage;<br>
                 //current page MAYBE NULL!!<br>
-                &nbsp;&nbsp;&nbsp; pageStruct*&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp; page;<br>
-                //the main notebook<br>
-                &nbsp;&nbsp;&nbsp; GtkNotebook*&nbsp;&nbsp;&nbsp;
-                notebook;<br>
+                &nbsp;&nbsp; &nbsp;pageStruct*&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp; page;<br>
                 //cuurent tab<br>
-                &nbsp;&nbsp;&nbsp; int&nbsp;&nbsp;&nbsp;
-                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-                currentTab;<br>
-                };</td>
+                &nbsp;&nbsp; &nbsp;int&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; currentTab;<br>
+                //KKEdits temp folder<br>
+                &nbsp;&nbsp; &nbsp;char*&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                tmpFolder;<br>
+                //kkedits main window user box's<br>
+                //top<br>
+                &nbsp;&nbsp; &nbsp;GtkWidget*&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp;topUserBox;<br>
+                //left<br>
+                &nbsp;&nbsp; &nbsp;GtkWidget*&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp;leftUserBox;<br>
+                //right<br>
+                &nbsp;&nbsp; &nbsp;GtkWidget*&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp;rightUserBox;<br>
+                //bottom<br>
+                &nbsp;&nbsp; &nbsp;GtkWidget*&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp;bottomUserBox;<br>
+                //kkedit main window<br>
+                &nbsp;&nbsp; &nbsp;GtkWidget*&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp;mainWindow;<br>
+                //tool output window buffer;<br>
+                &nbsp;&nbsp; &nbsp;GtkTextBuffer*&nbsp;&nbsp;
+                toolOutBuffer;<br>
+                //tool output window<br>
+                &nbsp;&nbsp; &nbsp;GtkWidget*&nbsp;&nbsp;
+                &nbsp;&nbsp;&nbsp; &nbsp;toolOutWindow;<br>
+                };<br>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -125,6 +173,7 @@
 
 
 
+
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; GtkScrolledWindow*&nbsp;&nbsp;
                     pageWindow;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //private
@@ -138,10 +187,12 @@
 
 
 
+
                     //main text buffer for tab<br>
                     &nbsp;&nbsp;&nbsp; GtkSourceView*&nbsp;&nbsp;&nbsp;
                     &nbsp; &nbsp;&nbsp;&nbsp;
                     view;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -154,11 +205,13 @@
 
 
 
+
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; char*&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;
                     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
                     filePath;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -184,6 +237,7 @@
 
 
 
+
                     &nbsp; &nbsp; rebuildMenu;&nbsp;&nbsp;&nbsp;&nbsp;
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
@@ -196,6 +250,7 @@
                     &nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     iter;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -218,7 +273,9 @@
 
 
 
+
                     isFirst;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -237,10 +294,12 @@
 
 
 
+
                     //GFile used to track on disk changes to file<br>
                     &nbsp;&nbsp;&nbsp; GFileMonitor*&nbsp;&nbsp;&nbsp;
                     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
                     monitor;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -251,6 +310,7 @@
                     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
                     &nbsp;&nbsp;
                     itsMe;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -271,11 +331,13 @@
 
 
 
+
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; bool&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;
                     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
                     isSplit;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -288,11 +350,13 @@
 
 
 
+
                     //currently selected highlighting language<br>
                     &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
                     &nbsp;
                     tabVbox;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -317,51 +381,90 @@
             </table>
             <br>
           </div>
-          notebook=A pointer to the main GtkNotebook* widget.<br>
+          <br>
           currentTab=the currently selected tab.<br>
+          tmpFolder=KKEdits temporary folder.<br>
+          topUserBox, leftUserBox, rightUserBox, bottomUserBox=GtkVBox*
+          for the use of the plugin to add it's own extra GUI elements.<br>
+          mainWindow=The main KKEDit window.<br>
+          toolOutBuffer=GtkTextBuffer* of the tool output pane.<br>
+          toolOutWindow=GtkTextView* of the tool output pane, both of
+          these can be used by the plugin to send text to the normal
+          tool output pane.<br>
           <br>
           So this call back in the example plugin is setup and called
           like so:<br>
-          First add the extra menuitem to the 'Help' menu:<br>
+          First add the extra GUI elements:<br>
           <div align="left">
             <table border="1" cellpadding="2" cellspacing="2"
               width="100%">
               <tbody>
                 <tr>
                   <td bgcolor="#ffffff" valign="top">extern "C" int
-                    addMenus(gpointer data)<br>
+                    addToGui(gpointer data)<br>
                     {<br>
-                    &nbsp;&nbsp;&nbsp; printf("adding&nbsp; plug
-                    menus\n");<br>
-                    &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
-                    &nbsp;&nbsp;&nbsp; menuitem;<br>
-                    &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
-                    &nbsp;&nbsp;&nbsp; menu;<br>
-                    &nbsp;&nbsp;&nbsp; plugData*&nbsp;&nbsp;&nbsp;
-                    &nbsp; &nbsp; &nbsp; plugdata=(plugData*)data;<br>
+                    &nbsp;&nbsp; &nbsp;GtkWidget*&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp; &nbsp;menu;<br>
+                    &nbsp;&nbsp; &nbsp;plugData*&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp; &nbsp;plugdata=(plugData*)data;<br>
                     <br>
-                    &nbsp;&nbsp;&nbsp;
-menu=gtk_menu_item_get_submenu((GtkMenuItem*)plugdata-&gt;mlist.menuHelp);<br>
-                    &nbsp;&nbsp;&nbsp;
-                    menuitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,NULL);<br>
-                    &nbsp;&nbsp;&nbsp;
-                    gtk_menu_item_set_label((GtkMenuItem*)menuitem,"Plugin
+                    &nbsp;&nbsp; &nbsp;printf("Adding to GUI from
+                    example-plugin\n");<br>
+                    <br>
+                    &nbsp;&nbsp;
+&nbsp;menu=gtk_menu_item_get_submenu((GtkMenuItem*)plugdata-&gt;mlist.menuHelp);<br>
+                    &nbsp;&nbsp;
+&nbsp;examplemenu=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,NULL);<br>
+                    &nbsp;&nbsp;
+                    &nbsp;gtk_menu_item_set_label((GtkMenuItem*)examplemenu,"Plugin
                     Help");<br>
-                    &nbsp;&nbsp;&nbsp;
-gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(openPlugHelp),plugdata);<br>
-                    &nbsp;&nbsp;&nbsp;
-                    gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);<br>
+                    &nbsp;&nbsp;
+&nbsp;gtk_signal_connect(GTK_OBJECT(examplemenu),"activate",G_CALLBACK(openPlugHelp),plugdata);<br>
+                    &nbsp;&nbsp;
+                    &nbsp;gtk_menu_shell_append(GTK_MENU_SHELL(menu),examplemenu);<br>
                     <br>
-                    &nbsp;&nbsp;&nbsp; printf("done adding&nbsp; plug
-                    menus\n");<br>
-                    &nbsp;&nbsp;&nbsp; return(0);<br>
-                    }</td>
+                    &nbsp;&nbsp;
+                    &nbsp;leftButton=gtk_button_new_with_label("left
+                    side button\nat top");<br>
+                    &nbsp;&nbsp;
+&nbsp;gtk_box_pack_start(GTK_BOX(plugdata-&gt;leftUserBox),leftButton,false,false,0);<br>
+                    &nbsp;&nbsp;
+                    &nbsp;gtk_widget_show_all(plugdata-&gt;leftUserBox);<br>
+                    <br>
+                    &nbsp;&nbsp;
+                    &nbsp;rightButton=gtk_button_new_with_label("right
+                    side button\nat bottom");<br>
+                    &nbsp;&nbsp;
+&nbsp;gtk_box_pack_end(GTK_BOX(plugdata-&gt;rightUserBox),rightButton,false,false,0);<br>
+                    &nbsp;&nbsp;
+                    &nbsp;gtk_widget_show_all(plugdata-&gt;rightUserBox);<br>
+                    <br>
+                    &nbsp;&nbsp; &nbsp;topLabel=gtk_label_new("Top user
+                    vbox demo label");<br>
+                    &nbsp;&nbsp;
+&nbsp;gtk_box_pack_end(GTK_BOX(plugdata-&gt;topUserBox),topLabel,true,true,0);<br>
+                    &nbsp;&nbsp;
+                    &nbsp;gtk_widget_show_all(plugdata-&gt;topUserBox);<br>
+                    <br>
+                    &nbsp;&nbsp; &nbsp;bottomLabel=gtk_label_new("Bottom
+                    user vbox demo label");<br>
+                    &nbsp;&nbsp;
+&nbsp;gtk_box_pack_end(GTK_BOX(plugdata-&gt;bottomUserBox),bottomLabel,true,true,0);<br>
+                    &nbsp;&nbsp;
+                    &nbsp;gtk_widget_show_all(plugdata-&gt;bottomUserBox);<br>
+                    <br>
+                    <br>
+                    &nbsp;&nbsp; &nbsp;printf("Done adding GUI from
+                    example-plugin\n");<br>
+                    &nbsp;&nbsp; &nbsp;return(0);<br>
+                    }<br>
+                  </td>
                 </tr>
               </tbody>
             </table>
             <br>
           </div>
-          Then add the callback like so:<br>
+          Then add a callback like so:<br>
           <div align="left">
             <table border="1" cellpadding="2" cellspacing="2"
               width="100%">
@@ -377,7 +480,6 @@ asprintf(pdata-&gt;thePage,"file://%s/example-plugin/plughelp.html",(char*)pdata
                     &nbsp;&nbsp;&nbsp; showDocView(USEURI,(char*)"KKEdit
                     Plugin Help",(char*)"KKEdit Plugin Help");<br>
                     }<br>
-                    <br>
                   </td>
                 </tr>
               </tbody>
@@ -386,7 +488,7 @@ asprintf(pdata-&gt;thePage,"file://%s/example-plugin/plughelp.html",(char*)pdata
             <br>
             <div align="center">The data structure is supplied to the
               following functions as 'gpointer data' the same way as the
-              'addMenus' function above, and should be cast to a
+              'addToGui' function above, and should be cast to a
               'plugData*' pointer.<br>
               <br>
             </div>
@@ -445,169 +547,9 @@ asprintf(pdata-&gt;thePage,"file://%s/example-plugin/plughelp.html",(char*)pdata
               the example plugin not KKEdit.<br>
               <br>
               <br>
-              The full source for the example plugin is:<br>
-              <div align="left">
-                <table border="1" cellpadding="2" cellspacing="2"
-                  width="100%">
-                  <tbody>
-                    <tr>
-                      <td bgcolor="#ffffff" valign="top">/*<br>
-                        &nbsp; kkedit-example-plug.cpp<br>
-                        */<br>
-                        <br>
-                        #include &lt;stdio.h&gt;<br>
-                        #include &lt;stdlib.h&gt;<br>
-                        #include &lt;glib.h&gt;<br>
-                        #include &lt;gtk/gtk.h&gt;<br>
-                        #include &lt;gmodule.h&gt;<br>
-                        <br>
-                        #include "kkedit-plugins.h"<br>
-                        <br>
-                        extern "C" const gchar*
-                        g_module_check_init(GModule *module)<br>
-                        {<br>
-                        &nbsp;&nbsp;&nbsp; perror("doin ininit");<br>
-                        &nbsp;&nbsp;&nbsp; return(NULL);<br>
-                        }<br>
-                        <br>
-                        extern "C" const gchar* g_module_unload(GModule
-                        *module)<br>
-                        {<br>
-                        &nbsp;&nbsp;&nbsp; perror("doin cleanup");<br>
-                        &nbsp;&nbsp;&nbsp; return(NULL);<br>
-                        }<br>
-                        <br>
-                        void openPlugHelp(GtkWidget* widget,gpointer
-                        data)<br>
-                        {<br>
-                        &nbsp;&nbsp;&nbsp; plugData*&nbsp;&nbsp;&nbsp;
-                        pdata=(plugData*)data;<br>
-                        &nbsp;&nbsp;&nbsp;
-asprintf(pdata-&gt;thePage,"file://%s/example-plugin/plughelp.html",(char*)pdata-&gt;gPlugFolder);<br>
-                        &nbsp;&nbsp;&nbsp;
-                        showDocView(USEURI,(char*)"KKEdit Plugin
-                        Help",(char*)"KKEdit Plugin Help");<br>
-                        }<br>
-                        <br>
-                        extern "C" int addMenus(gpointer data)<br>
-                        {<br>
-                        &nbsp;&nbsp;&nbsp; printf("adding&nbsp; plug
-                        menus\n");<br>
-                        &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
-                        &nbsp;&nbsp;&nbsp; menuitem;<br>
-                        &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
-                        &nbsp;&nbsp;&nbsp; menu;<br>
-                        &nbsp;&nbsp;&nbsp; plugData*&nbsp;&nbsp;&nbsp;
-                        &nbsp;&nbsp;&nbsp; plugdata=(plugData*)data;<br>
-                        <br>
-                        &nbsp;&nbsp;&nbsp;
-menu=gtk_menu_item_get_submenu((GtkMenuItem*)plugdata-&gt;mlist.menuHelp);<br>
-                        &nbsp;&nbsp;&nbsp;
-                        menuitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,NULL);<br>
-                        &nbsp;&nbsp;&nbsp;
-                        gtk_menu_item_set_label((GtkMenuItem*)menuitem,"Plugin
-                        Help");<br>
-                        &nbsp;&nbsp;&nbsp;
-gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(openPlugHelp),plugdata);<br>
-                        &nbsp;&nbsp;&nbsp;
-                        gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);<br>
-                        <br>
-                        &nbsp;&nbsp;&nbsp; printf("done adding&nbsp;
-                        plug menus\n");<br>
-                        &nbsp;&nbsp;&nbsp; return(0);<br>
-                        }<br>
-                        <br>
-                        extern "C" int setSensitive(gpointer data)<br>
-                        {<br>
-                        &nbsp;&nbsp;&nbsp; printf("set sensitive\n");<br>
-                        &nbsp;&nbsp;&nbsp; return(0);<br>
-                        }<br>
-                        <br>
-                        extern "C" int openFile(gpointer data)<br>
-                        {<br>
-                        &nbsp;&nbsp;&nbsp; printf("open file \n");<br>
-                        &nbsp;&nbsp;&nbsp; return(0);<br>
-                        }<br>
-                        <br>
-                        extern "C" int saveFile(gpointer data)<br>
-                        {<br>
-                        &nbsp;&nbsp;&nbsp; printf("save file\n");<br>
-                        &nbsp;&nbsp;&nbsp; return(0);<br>
-                        }<br>
-                        <br>
-                        extern "C" int newFile(gpointer data)<br>
-                        {<br>
-                        &nbsp;&nbsp;&nbsp; printf("new file\n");<br>
-                        &nbsp;&nbsp;&nbsp; return(0);<br>
-                        }<br>
-                        <br>
-                        extern "C" int closeFile(gpointer data)<br>
-                        {<br>
-                        &nbsp;&nbsp;&nbsp; printf("close file\n");<br>
-                        &nbsp;&nbsp;&nbsp; return(0);<br>
-                        }<br>
-                        <br>
-                        extern "C" int newTab(gpointer data)<br>
-                        {<br>
-                        &nbsp;&nbsp;&nbsp; plugData*&nbsp;&nbsp;&nbsp;
-                        &nbsp;&nbsp;&nbsp; plugdata=(plugData*)data;<br>
-                        <br>
-                        &nbsp;&nbsp;&nbsp; printf("doing new tab\n");<br>
-                        <br>
-                        &nbsp;&nbsp;&nbsp;
-                        if(plugdata-&gt;page-&gt;filePath!=NULL)<br>
-                        &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-                        printf("filePath =
-                        %s\n",plugdata-&gt;page-&gt;filePath);<br>
-                        <br>
-                        &nbsp;&nbsp;&nbsp;
-                        if(plugdata-&gt;page-&gt;fileName!=NULL)<br>
-                        &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-                        printf("fileName =
-                        %s\n",plugdata-&gt;page-&gt;fileName);<br>
-                        <br>
-                        &nbsp;&nbsp;&nbsp;
-                        if(plugdata-&gt;page-&gt;dirName!=NULL)<br>
-                        &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-                        printf("dirName =
-                        %s\n",plugdata-&gt;page-&gt;dirName);<br>
-                        &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>
-                        &nbsp;&nbsp;&nbsp; printf("finished new tab\n");<br>
-                        &nbsp;&nbsp;&nbsp; return(0);<br>
-                        }<br>
-                        <br>
-                        extern "C" int switchTab(gpointer data)<br>
-                        {<br>
-                        &nbsp;&nbsp;&nbsp; plugData*&nbsp;&nbsp;&nbsp;
-                        &nbsp;&nbsp;&nbsp; plugdata=(plugData*)data;<br>
-                        &nbsp;&nbsp;&nbsp; printf("switching tab\n");<br>
-                        &nbsp;&nbsp;&nbsp; printf("new tab is
-                        %i\n",plugdata-&gt;currentTab);<br>
-                        &nbsp;&nbsp;&nbsp; return(0);<br>
-                        }<br>
-                        <br>
-                        extern "C" int plugPrefs(gpointer data)<br>
-                        {<br>
-                        &nbsp;&nbsp;&nbsp; plugData*&nbsp;&nbsp;&nbsp;
-                        &nbsp;&nbsp;&nbsp; plugdata=(plugData*)data;<br>
-                        <br>
-                        &nbsp;&nbsp;&nbsp; printf("doing plugPrefs from
-                        example-plugin ...\n");<br>
-                        &nbsp;&nbsp;&nbsp; return(0);<br>
-                        }<br>
-                        <br>
-                        extern "C" int doAbout(gpointer data)<br>
-                        {<br>
-                        &nbsp;&nbsp;&nbsp; printf("doing about from
-                        example-plugin ...\n");<br>
-                        &nbsp;&nbsp;&nbsp; return(0);<br>
-                        }<br>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-                <br>
-                <br>
+              The full source for the example plugin is in this folder (
+              usually /usr/share/KKEdit/plugins/example-plugin ).<br>
+              <div align="left"><br>
                 <div align="center">The full source and an example
                   Makefile is installed in gPlugFolder/example-plugin.<br>
                   As time goes by I will add a number of plugins which
@@ -628,9 +570,11 @@ gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(openPlugHelp),plug
 
 
 
+
                     Page</a><br>
                   <a
                     href="http://keithhedger.hostingsiteforfree.com/pages/kkedit/help.html">KKEdit
+
 
 
 

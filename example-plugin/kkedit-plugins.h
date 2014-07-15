@@ -91,8 +91,6 @@ struct plugData
 	char**			thePage;
 //current page MAYBE NULL!!
 	pageStruct*		page;
-//the main notebook
-	GtkNotebook*	notebook;
 //cuurent tab
 	int				currentTab;
 //KKEdits temp folder

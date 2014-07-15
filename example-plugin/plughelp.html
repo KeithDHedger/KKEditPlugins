@@ -174,6 +174,7 @@
 
 
 
+
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; GtkScrolledWindow*&nbsp;&nbsp;
                     pageWindow;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //private
@@ -188,10 +189,12 @@
 
 
 
+
                     //main text buffer for tab<br>
                     &nbsp;&nbsp;&nbsp; GtkSourceView*&nbsp;&nbsp;&nbsp;
                     &nbsp; &nbsp;&nbsp;&nbsp;
                     view;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -206,11 +209,13 @@
 
 
 
+
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; char*&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;
                     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
                     filePath;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -238,6 +243,7 @@
 
 
 
+
                     &nbsp; &nbsp; rebuildMenu;&nbsp;&nbsp;&nbsp;&nbsp;
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
@@ -250,6 +256,7 @@
                     &nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     iter;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -274,7 +281,9 @@
 
 
 
+
                     isFirst;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -295,10 +304,12 @@
 
 
 
+
                     //GFile used to track on disk changes to file<br>
                     &nbsp;&nbsp;&nbsp; GFileMonitor*&nbsp;&nbsp;&nbsp;
                     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
                     monitor;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -310,6 +321,7 @@
                     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
                     &nbsp;&nbsp;
                     itsMe;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -332,11 +344,13 @@
 
 
 
+
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; bool&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;
                     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
                     isSplit;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -351,11 +365,13 @@
 
 
 
+
                     //currently selected highlighting language<br>
                     &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
                     &nbsp;
                     tabVbox;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -464,7 +480,7 @@
             </table>
             <br>
           </div>
-          Then add a callback like so:<br>
+          Add a callback like so:<br>
           <div align="left">
             <table border="1" cellpadding="2" cellspacing="2"
               width="100%">
@@ -541,17 +557,24 @@ asprintf(pdata-&gt;thePage,"file://%s/example-plugin/plughelp.html",(char*)pdata
               'g_module_check_init' function should be used for setting
               the original preferences for the plugin ( if any ).<br>
               <br>
+              If your plugin contains a function called 'enablePlug' it
+              wil be run when enableing/disabling the plugin from the
+              prefs menu, if it is safe for the plugin to be unloaded,
+              do whatever needs to be done and return 0, any non-zero
+              return result will inform KKEdit not to unload the plugin
+              but it will be disabled at the next start up of KKEdit.<br>
+              &nbsp;<br>
               To see what gets run and when run KKEdit from the command
               line and brief messages will be printed as the various
               plugin functions are called, these messages are printed by
               the example plugin not KKEdit.<br>
-              <br>
               <br>
               The full source for the example plugin is in this folder (
               usually /usr/share/KKEdit/plugins/example-plugin ).<br>
               <div align="left"><br>
                 <div align="center">The full source and an example
                   Makefile is installed in gPlugFolder/example-plugin.<br>
+                  <br>
                   As time goes by I will add a number of plugins which
                   will be available on my site, if you write a plugin
                   and want to share it send it to me and I will post it
@@ -571,9 +594,11 @@ asprintf(pdata-&gt;thePage,"file://%s/example-plugin/plughelp.html",(char*)pdata
 
 
 
+
                     Page</a><br>
                   <a
                     href="http://keithhedger.hostingsiteforfree.com/pages/kkedit/help.html">KKEdit
+
 
 
 

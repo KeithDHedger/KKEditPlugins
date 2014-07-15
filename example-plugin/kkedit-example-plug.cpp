@@ -7,6 +7,7 @@
 #include <glib.h>
 #include <gtk/gtk.h>
 #include <gmodule.h>
+#include <string.h>
 
 #include "kkedit-plugins.h"
 #define MYEMAIL "kdhedger68713@gmail.com"
@@ -15,6 +16,29 @@
 
 GtkWidget*	examplemenu;
 int	(*module_plug_function)(gpointer globaldata);
+GtkWidget*	leftButton;
+GtkWidget*	rightButton;
+
+void runCommandAndOut(char* command,plugData* plugdata)
+{
+	FILE*		fp=NULL;
+	char		line[1024];
+	GtkTextIter	iter;
+
+	fp=popen(command,"r");
+	if(fp!=NULL)
+		{
+			while(fgets(line,1024,fp))
+				{
+					gtk_text_buffer_insert_at_cursor(plugdata->toolOutBuffer,line,strlen(line));
+					while(gtk_events_pending())
+						gtk_main_iteration();
+					gtk_text_buffer_get_end_iter(plugdata->toolOutBuffer,&iter);
+					gtk_text_view_scroll_to_iter((GtkTextView*)plugdata->toolOutWindow,&iter,0,true,0,0);
+				}
+			pclose(fp);
+		}
+}
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
@@ -35,11 +59,12 @@ void openPlugHelp(GtkWidget* widget,gpointer data)
 	showDocView(USEURI,(char*)"KKEdit Plugin Help",(char*)"KKEdit Plugin Help");
 }
 
-extern "C" int addMenus(gpointer data)
+extern "C" int addToGui(gpointer data)
 {
-	printf("adding  plug menus from example-plugin\n");
 	GtkWidget*		menu;
 	plugData*		plugdata=(plugData*)data;
+
+	printf("Adding to GUI from example-plugin\n");
 
 	menu=gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuHelp);
 	examplemenu=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,NULL);
@@ -47,7 +72,16 @@ extern "C" int addMenus(gpointer data)
 	gtk_signal_connect(GTK_OBJECT(examplemenu),"activate",G_CALLBACK(openPlugHelp),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu),examplemenu);
 
-	printf("done adding  plug menus\n");
+	leftButton=gtk_button_new_with_label("left side button\nat top");
+	gtk_box_pack_start(GTK_BOX(plugdata->leftUserBox),leftButton,false,false,0);
+	gtk_widget_show_all(plugdata->leftUserBox);
+
+	rightButton=gtk_button_new_with_label("right side button\nat bottom");
+	gtk_box_pack_end(GTK_BOX(plugdata->rightUserBox),rightButton,false,false,0);
+	gtk_widget_show_all(plugdata->rightUserBox);
+
+	printf("Done adding GUI from example-plugin\n");
+	showToolOutput(true);
 	return(0);
 }
 
@@ -152,15 +186,17 @@ extern "C" int enablePlug(gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;
 
-	if(plugdata->plugData->unload==true)
+	if(plugdata->modData->unload==true)
 		{
 			gtk_widget_destroy(examplemenu);
-			gtk_widget_show_all(plugdata->mlist.menuBar);	
+			gtk_widget_show_all(plugdata->mlist.menuBar);
+			gtk_widget_destroy(leftButton);
+			gtk_widget_destroy(rightButton);
 		}
 	else
 		{
 //when calling a 'standard' function like 'addMenus' from within the plugin itself get the actual symbol as below
-			if(g_module_symbol(plugdata->plugData->module,"addMenus",(gpointer*)&module_plug_function))
+			if(g_module_symbol(plugdata->modData->module,"addToGui",(gpointer*)&module_plug_function))
 				module_plug_function(data);
 			gtk_widget_show_all(plugdata->mlist.menuBar);
 		}

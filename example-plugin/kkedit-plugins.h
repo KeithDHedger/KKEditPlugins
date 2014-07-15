@@ -49,7 +49,7 @@ struct pageStruct
 
 #ifndef _PLUGINDATA_
 #define _PLUGINDATA_
-struct pluginData
+struct moduleData
 {
 	char*		name;
 	bool		enabled;
@@ -78,7 +78,7 @@ struct plugData
 {
 //menus
 	plugMenuList	mlist;
-	pluginData*		plugData;
+	moduleData*		modData;
 //install location of KKEdit data
 	const char*		dataDir;
 //global plugin folder defaults to DATADIR/plugins
@@ -97,12 +97,29 @@ struct plugData
 	int				currentTab;
 //KKEdits temp folder
 	char*			tmpFolder;
+//kkedits main window user box's
+//top
+	GtkWidget*		topUserBox;
+//left
+	GtkWidget*		leftUserBox;
+//right
+	GtkWidget*		rightUserBox;
+//bottom
+	GtkWidget*		bottomUserBox;
+//kkedit main window
+	GtkWidget*		mainWindow;
+//tool output window buffer;
+	GtkTextBuffer*	toolOutBuffer;
+//tool output window
+	GtkWidget*		toolOutWindow;
 };
 
 #define USEFILE			-2
 #define USEURI			-1
 
-extern void showDocView(int howtodisplay,char* text,const char* title);
-extern pageStruct* getPageStructPtr(int pagenum);
+extern void			showDocView(int howtodisplay,char* text,const char* title);
+extern pageStruct*	getPageStructPtr(int pagenum);
+void				showToolOutput(bool immediate);
+void				hideToolOutput(bool immediate);
 
 #endif

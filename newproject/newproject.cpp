@@ -33,6 +33,27 @@ extern "C" const gchar* g_module_unload(GModule *module)
 	return(NULL);
 }
 
+void runCommandAndOut(char* command,plugData* plugdata)
+{
+	FILE*		fp=NULL;
+	char		line[1024];
+	GtkTextIter	iter;
+
+	fp=popen(command,"r");
+	if(fp!=NULL)
+		{
+			while(fgets(line,1024,fp))
+				{
+					gtk_text_buffer_insert_at_cursor(plugdata->toolOutBuffer,line,strlen(line));
+					while(gtk_events_pending())
+						gtk_main_iteration();
+					gtk_text_buffer_get_end_iter(plugdata->toolOutBuffer,&iter);
+					gtk_text_view_scroll_to_iter((GtkTextView*)plugdata->toolOutWindow,&iter,0,true,0,0);
+				}
+			pclose(fp);
+		}
+}
+
 void newProject(GtkWidget* widget,gpointer data)
 {
 	const char*	name;
@@ -67,10 +88,11 @@ void newProject(GtkWidget* widget,gpointer data)
 
 	gtk_widget_show_all(dialog);
 	response=gtk_dialog_run(GTK_DIALOG(dialog));
-	if(response==GTK_RESPONSE_APPLY);
+	if(response==GTK_RESPONSE_APPLY)
 		{
+			showToolOutput(true);
 			asprintf(&archive,"mkdir %s/NewProject;cd %s/NewProject;tar -xvf %s/newproject/bones/bones%s.tar.gz",plugdata->tmpFolder,plugdata->tmpFolder,plugdata->lPlugFolder,name);
-			system(archive);
+			runCommandAndOut(archive,plugdata);
 			makesvn=gtk_toggle_button_get_active((GtkToggleButton*)createsvn);
 			free(archive);
 			projname=gtk_entry_get_text((GtkEntry*)project);
@@ -80,53 +102,54 @@ void newProject(GtkWidget* widget,gpointer data)
 
 //filenames
 			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>APP<>*\" -type d -exec rename \"<>APP<>\" \"%s\" '{}' \\;",plugdata->tmpFolder,name,appnamelower);
-			system(command);
+			runCommandAndOut(command,plugdata);
 			free(command);
 			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>APP<>*\" -type f -exec rename \"<>APP<>\" \"%s\" '{}' \\;",plugdata->tmpFolder,name,appnamelower);
-			system(command);
+			runCommandAndOut(command,plugdata);
 			free(command);
 			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>PROJ<>*\" -type d -exec rename \"<>PROJ<>\" \"%s\" '{}' \\; 2>/dev/null",plugdata->tmpFolder,name,projname);
-			system(command);
+			runCommandAndOut(command,plugdata);
 			free(command);
 			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>PROJ<>*\" -type f -exec rename \"<>PROJ<>\" \"%s\" '{}' \\; 2>/dev/null",plugdata->tmpFolder,name,projname);
-			system(command);
+			runCommandAndOut(command,plugdata);
 			free(command);
 
 //in files
 			asprintf(&command,"cd %s/NewProject/bones%s;find -type f|xargs grep -lI \"<>APP<>\"|xargs sed -i 's/<>APP<>/%s/g'",plugdata->tmpFolder,name,appnamelower);
-			system(command);
+			runCommandAndOut(command,plugdata);
 			free(command);
 			asprintf(&command,"cd %s/NewProject/bones%s;find -type f|xargs grep -lI \"<>PROJ<>\"|xargs sed -i 's/<>PROJ<>/%s/g'",plugdata->tmpFolder,name,projname);
-			system(command);
+			runCommandAndOut(command,plugdata);
 			free(command);
 
 			if(makesvn==true)
 				{
 					asprintf(&command,"cd %s/NewProject/bones%s;svnadmin create \"%s/%s\"",plugdata->tmpFolder,name,SVNRepoPath,projname);
-					system(command);
+					runCommandAndOut(command,plugdata);
 					free(command);
 					asprintf(&command,"cd %s/NewProject/bones%s;svn import . file://\"%s/%s\" -m \"Initial import\"",plugdata->tmpFolder,name,SVNRepoPath,projname);
-					system(command);
+					runCommandAndOut(command,plugdata);
 					free(command);
 					asprintf(&command,"cd %s;svn checkout  file://\"%s/%s\"",projectsPath,SVNRepoPath,projname);
-					system(command);
+					runCommandAndOut(command,plugdata);
 					free(command);
 				}
 			else
 				{
 					asprintf(&command,"cp -r %s/NewProject/bones%s %s/%s",plugdata->tmpFolder,name,projectsPath,projname);
-					system(command);
+					runCommandAndOut(command,plugdata);
 					free(command);
 				}
+	
 			asprintf(&command,"rm -r %s/NewProject",plugdata->tmpFolder);
 			system(command);
 			free(command);
+			free(appnamelower);
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
-	free(appnamelower);
 }
 
-extern "C" int addMenus(gpointer data)
+extern "C" int addToGui(gpointer data)
 {
 	GtkWidget*	menuitem;
 	GtkWidget*	menu;
@@ -146,7 +169,7 @@ extern "C" int addMenus(gpointer data)
 	menu=gtk_menu_new();
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuProjects),menu);
 
-	folder=strdup(plugdata->plugData->path);
+	folder=strdup(plugdata->modData->path);
 	asprintf(&command,"find %s/bones -iname \"*.info\"|sort",dirname(folder));
 	fp=popen(command,"r");
 	if(fp!=NULL)
@@ -244,7 +267,6 @@ extern "C" int plugPrefs(gpointer data)
 
 extern "C" int doAbout(gpointer data)
 {
-	printf("about from new project\n");
 	plugData*		plugdata=(plugData*)data;
 	char*			licencepath;
 	const char		copyright[] ="Copyright \xc2\xa9 2014 K.D.Hedger";
@@ -278,14 +300,14 @@ extern "C" int enablePlug(gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;
 
-	if(plugdata->plugData->unload==true)
+	if(plugdata->modData->unload==true)
 		{
 			gtk_widget_destroy(menuProjects);
 			gtk_widget_show_all(plugdata->mlist.menuBar);	
 		}
 	else
 		{
-			if(g_module_symbol(plugdata->plugData->module,"addMenus",(gpointer*)&module_plug_function))
+			if(g_module_symbol(plugdata->modData->module,"addToGui",(gpointer*)&module_plug_function))
 				module_plug_function(data);
 			gtk_widget_show_all(plugdata->mlist.menuBar);
 		}

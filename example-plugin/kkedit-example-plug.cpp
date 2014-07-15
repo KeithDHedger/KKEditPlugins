@@ -20,17 +20,18 @@ GtkWidget*	leftButton;
 GtkWidget*	rightButton;
 GtkWidget*	topLabel;
 GtkWidget*	bottomLabel;
+const char*	whattoop;
 
 //example of how to run an external command and send the output to the tool output window in KKEdit
-//cmmand should be somthing like "ls /"
+//command should be somthing like "ls /"
 //plugdata is the standard data passed to functions in the plugin.
-//this is not used in the demo.
-void runCommandAndOut(char* command,plugData* plugdata)
+void runCommandAndOut(const char* command,plugData* plugdata)
 {
 	FILE*		fp=NULL;
 	char		line[1024];
 	GtkTextIter	iter;
 
+	showToolOutput(true);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
@@ -58,6 +59,11 @@ extern "C" const gchar* g_module_unload(GModule *module)
 	return(NULL);
 }
 
+void clickButton(GtkWidget* widget,gpointer data)
+{
+	runCommandAndOut(gtk_widget_get_name(widget),(plugData*)data);
+}
+
 void openPlugHelp(GtkWidget* widget,gpointer data)
 {
 	plugData*	pdata=(plugData*)data;
@@ -80,13 +86,19 @@ extern "C" int addToGui(gpointer data)
 
 	leftButton=gtk_button_new_with_label("left side button\nat top");
 	gtk_box_pack_start(GTK_BOX(plugdata->leftUserBox),leftButton,false,false,0);
+//	whattoop="echo Left Button Clicked";
+	gtk_widget_set_name(leftButton,"echo Left Button Clicked");
+	gtk_signal_connect(GTK_OBJECT(leftButton),"clicked",G_CALLBACK(clickButton),plugdata);
 	gtk_widget_show_all(plugdata->leftUserBox);
 
 	rightButton=gtk_button_new_with_label("right side button\nat bottom");
 	gtk_box_pack_end(GTK_BOX(plugdata->rightUserBox),rightButton,false,false,0);
+	//whattoop="echo Right Button Clicked";
+	gtk_widget_set_name(rightButton,"echo Right Button Clicked");
+	gtk_signal_connect(GTK_OBJECT(rightButton),"clicked",G_CALLBACK(clickButton),plugdata);
 	gtk_widget_show_all(plugdata->rightUserBox);
 
-	topLabel=gtk_label_new("Top user vbox demo label");
+	topLabel=gtk_label_new("Top user vbox demo label\nSelect 'Edit->Plugin Prefs' to disable this plugin from the dialog box.\nUnselect 'kkedit-example-plug and click 'Apply'");
 	gtk_box_pack_end(GTK_BOX(plugdata->topUserBox),topLabel,true,true,0);
 	gtk_widget_show_all(plugdata->topUserBox);
 
@@ -211,7 +223,7 @@ extern "C" int enablePlug(gpointer data)
 		}
 	else
 		{
-//when calling a 'standard' function like 'addMenus' from within the plugin itself get the actual symbol as below
+//when calling a 'standard' function like 'addToGui' from within the plugin itself get the actual symbol as below
 			if(g_module_symbol(plugdata->modData->module,"addToGui",(gpointer*)&module_plug_function))
 				module_plug_function(data);
 			gtk_widget_show_all(plugdata->mlist.menuBar);

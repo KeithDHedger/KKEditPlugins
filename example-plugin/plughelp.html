@@ -22,7 +22,7 @@
       If your module has a function called 'addToGui' then this function
       is called when KKEdit has finished setting up it's own GUI and
       your plugin can then add to the existing GUI, the structure that
-      is passed to the 'addMenus' functions is defined in
+      is passed to the 'addToGui' functions is defined in
       'kkedit-plugins.h' which is installed in /usr/include, the basic
       structure is this:<br>
       <div align="left">
@@ -34,14 +34,14 @@
                 &nbsp;&nbsp; &nbsp;char*&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
                 &nbsp;name;<br>
                 &nbsp;&nbsp; &nbsp;bool&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-                &nbsp;enabled;<br>
-                &nbsp;&nbsp; &nbsp;GModule*&nbsp;&nbsp; &nbsp;module;<br>
+                &nbsp;&nbsp; enabled;<br>
+                &nbsp;&nbsp; &nbsp;GModule* module;<br>
                 &nbsp;&nbsp; &nbsp;bool&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-                &nbsp;loaded;<br>
+                &nbsp;&nbsp; loaded;<br>
                 &nbsp;&nbsp; &nbsp;char*&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
                 &nbsp;path;<br>
                 &nbsp;&nbsp; &nbsp;bool&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;
-                &nbsp;unload;<br>
+                &nbsp;&nbsp; unload;<br>
                 };<br>
                 #endif<br>
                 <br>
@@ -175,6 +175,7 @@
 
 
 
+
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; GtkScrolledWindow*&nbsp;&nbsp;
                     pageWindow;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //private
@@ -184,6 +185,7 @@
                     &nbsp;&nbsp;&nbsp; GtkSourceBuffer*&nbsp;&nbsp;
                     &nbsp;&nbsp; &nbsp;
                     buffer;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -200,10 +202,12 @@
 
 
 
+
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; GtkSourceView*&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp; &nbsp;&nbsp;
                     view2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -215,6 +219,7 @@
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;
                     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
                     filePath;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -244,6 +249,7 @@
 
 
 
+
                     &nbsp; &nbsp; rebuildMenu;&nbsp;&nbsp;&nbsp;&nbsp;
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
@@ -256,6 +262,7 @@
                     &nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     iter;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -282,7 +289,9 @@
 
 
 
+
                     isFirst;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -305,10 +314,12 @@
 
 
 
+
                     //GFile used to track on disk changes to file<br>
                     &nbsp;&nbsp;&nbsp; GFileMonitor*&nbsp;&nbsp;&nbsp;
                     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
                     monitor;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -321,6 +332,7 @@
                     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;
                     &nbsp;&nbsp;
                     itsMe;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -345,11 +357,13 @@
 
 
 
+
                     //private don't use<br>
                     &nbsp;&nbsp;&nbsp; bool&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;
                     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
                     isSplit;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -366,11 +380,13 @@
 
 
 
+
                     //currently selected highlighting language<br>
                     &nbsp;&nbsp;&nbsp; GtkWidget*&nbsp;&nbsp;&nbsp;
                     &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
                     &nbsp;
                     tabVbox;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
 
 
 
@@ -595,9 +611,11 @@ asprintf(pdata-&gt;thePage,"file://%s/example-plugin/plughelp.html",(char*)pdata
 
 
 
+
                     Page</a><br>
                   <a
                     href="http://keithhedger.hostingsiteforfree.com/pages/kkedit/help.html">KKEdit
+
 
 
 

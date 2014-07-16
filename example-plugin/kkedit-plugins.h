@@ -115,9 +115,9 @@ struct plugData
 #define USEFILE			-2
 #define USEURI			-1
 
-extern void			showDocView(int howtodisplay,char* text,const char* title);
-extern pageStruct*	getPageStructPtr(int pagenum);
-void				showToolOutput(bool immediate);
-void				hideToolOutput(bool immediate);
+void		showDocView(int howtodisplay,char* text,const char* title);
+pageStruct*	getPageStructPtr(int pagenum);
+void		showToolOutput(bool immediate);
+void		hideToolOutput(bool immediate);
 
 #endif

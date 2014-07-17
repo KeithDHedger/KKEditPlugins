@@ -12,7 +12,7 @@
 #include "kkedit-plugins.h"
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
-#define VERSION "0.0.6"
+#define VERSION "1.0.1"
 
 int	(*module_plug_function)(gpointer globaldata);
 

@@ -24,6 +24,7 @@ GtkWidget*		leftButton;
 GtkTreeStore*	store;
 GtkWidget*		treeview;
 char*			folderPath;
+GtkWidget*		scrollbox;
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
@@ -64,14 +65,16 @@ void theCallBack(GtkWidget* widget,gpointer data)
 	runCommandAndOut((char*)"echo clicked",plugdata);
 }
 
-void addFolderContents(char* folder)
+void addFolderContents(char* folder,GtkTreeIter* iter,bool root)
 {
-	GtkTreeIter		iter;
+//	GtkTreeIter		iter;
 	FILE*		fp=NULL;
 	char		line[1024];
 //	GtkTextIter	iter;
 	char*		command;
 	GtkTreeIter child_iter;
+	GtkTreeModel*		model;
+GtkTreePath *	path;
 
 	asprintf(&command,"find %s -maxdepth 1",folder);
 	fp=popen(command,"r");
@@ -80,10 +83,42 @@ void addFolderContents(char* folder)
 			while(fgets(line,1024,fp))
 				{
 					line[strlen(line)-1]=0;
-					gtk_tree_store_append ((GtkTreeStore*)store,&iter,NULL);
-					gtk_tree_store_set((GtkTreeStore*)store,&iter,COLUMN_FILENAME,line,-1);
-					if(g_file_test(line,G_FILE_TEST_IS_DIR)==true)
-						gtk_tree_store_append(store,&child_iter,&iter);
+					if(root==true)
+					{
+					gtk_tree_store_append ((GtkTreeStore*)store,iter,NULL);
+					gtk_tree_store_set((GtkTreeStore*)store,iter,COLUMN_FILENAME,line,-1);
+					if((g_file_test(line,G_FILE_TEST_IS_DIR)==true) || (g_file_test(line,G_FILE_TEST_IS_DIR)==true && g_file_test(line,G_FILE_TEST_IS_SYMLINK)==true))
+						{
+							gtk_tree_store_append(store,&child_iter,iter);
+							gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,line,-1);
+						}
+					}
+					else
+						{
+							//gtk_tree_store_clear(store);
+	model=gtk_tree_view_get_model((GtkTreeView*)treeview);
+							gtk_tree_model_iter_children(model,&child_iter,iter);
+//							gtk_tree_store_prepend(store,&child_iter,iter);
+							//GtkTreeIter  iter;
+ //path= gtk_tree_model_get_path(model,&child_iter);
+   //        while(gtk_tree_model_get_iter(model, &child_iter, path))
+     //      {
+          //   gtk_tree_store_remove(store, &child_iter);
+       //    }
+           //gtk_tree_store_append(store,iter,NULL);
+//           gtk_tree_store_remove(store, &child_iter);
+//							while(gtk_tree_store_remove(store,&child_iter));
+							//gtk_tree_store_remove
+//gtk_tree_store_append(store,&child_iter,iter);
+						//	gtk_tree_store_append(store,&child_iter,iter);
+							
+							//gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,line,-1);
+							gtk_tree_store_append(store,&child_iter,iter);
+							
+							gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,line,-1);
+							//printf("%s\n",line);
+							//gtk_tree_view_expand_all            ((GtkTreeView*)treeview);
+						}
 				}
 			pclose(fp);
 		}
@@ -112,19 +147,63 @@ void addFolderContents(char* folder)
 //	gtk_list_store_set((GtkListStore*)store,&iter,COLUMN_FILENAME,"data 3",-1);
 }
 
+void expandRow(GtkTreeView* treeview,GtkTreeIter* iter,GtkTreePath* path,gpointer user_data)
+{
+	GtkTreeModel*		model;
+	GtkTreeSelection*	selection=NULL;
+	GtkTreeIter			iters;
+	GtkTreeIter			child_iter;
+	char*				folder;
+	GtkTreeIter			c2;
+
+//	selection=gtk_tree_view_get_selection(treeview);
+//	if((selection!=NULL) && (gtk_tree_selection_get_selected(selection,&model,&iters)))
+//		{
+//			gtk_tree_model_get(model,&iters,COLUMN_FILENAME,&folder,-1);
+	//folder=gtk_tree_path_to_string(path);
+//	 gtk_tree_model_get(GtkTreeModel *tree_model,
+ //                                                        GtkTreeIter *iter,
+//   
+printf("%s\n",gtk_tree_path_to_string(path));
+	model=gtk_tree_view_get_model(treeview);
+	gtk_tree_model_get(model,iter,COLUMN_FILENAME,&folder,-1);
+	gtk_tree_model_iter_children(model,&child_iter,iter);
+
+while(gtk_tree_store_remove((GtkTreeStore*)store,&child_iter));
+//while(gtk_tree_store_remove((GtkTreeStore*)treeview,&child_iter)!=true);
+////	gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,folder,-1);
+
+	gtk_tree_store_append(store,&child_iter,iter);
+	gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,folder,-1);
+//	gtk_tree_store_append(store,&child_iter,iter);
+//	gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,folder,-1);
+
+//gtk_tree_model_get_iter_first       (tree_model,
+ //                                                        GtkTreeIter *iter);
+	gtk_widget_show_all(scrollbox);
+	addFolderContents(folder,iter,false);
+	printf("%s\n",folder);
+//		}
+}
+
 extern "C" int addToGui(gpointer data)
 {
 	plugData*	plugdata=(plugData*)data;
 	GtkTreeViewColumn *column;
 	GtkTreeModel*	model=NULL;
 	GtkCellRenderer *renderer;
+	GtkTreeIter		iter;
 
 	folderPath=strdup("/");
 	store=gtk_tree_store_new(NUM_COLUMNS,G_TYPE_STRING);
-	addFolderContents(folderPath);
+	addFolderContents(folderPath,&iter,true);
 	model=GTK_TREE_MODEL(store);
 	treeview=gtk_tree_view_new_with_model(model);
-	gtk_container_add(GTK_CONTAINER(plugdata->leftUserBox),treeview);
+	scrollbox=gtk_scrolled_window_new(NULL,NULL);
+	gtk_scrolled_window_set_policy((GtkScrolledWindow*)scrollbox,GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
+
+	gtk_container_add(GTK_CONTAINER(scrollbox),(GtkWidget*)treeview);
+	gtk_container_add(GTK_CONTAINER(plugdata->leftUserBox),scrollbox);
 
 //colom
 	renderer=gtk_cell_renderer_text_new();
@@ -139,6 +218,10 @@ extern "C" int addToGui(gpointer data)
 //	gtk_signal_connect(GTK_OBJECT(leftButton),"clicked",G_CALLBACK(theCallBack),plugdata);
 //	gtk_widget_show_all(plugdata->leftUserBox);
 	gtk_widget_show_all((GtkWidget*)plugdata->leftUserBox);
+//	g_signal_connect_after(treeview,"expand-collapse-cursor-row",G_CALLBACK(expandRow),NULL);
+//	g_signal_connect(treeview,"toggle-cursor-row",G_CALLBACK(expandRow),NULL);
+	g_signal_connect(treeview,"row-expanded",G_CALLBACK(expandRow),NULL);
+
 	return(0);
 }
 
@@ -219,7 +302,7 @@ extern "C" int enablePlug(gpointer data)
 
 	if(plugdata->modData->unload==true)
 		{
-			gtk_widget_destroy(treeview);
+			gtk_widget_destroy(scrollbox);
 		}
 	else
 		{

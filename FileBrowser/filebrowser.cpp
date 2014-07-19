@@ -16,9 +16,14 @@
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
 #define VERSION "0.0.1"
+#define NUM_COLUMNS 1
+#define COLUMN_FILENAME 0
 
 int	(*module_plug_function)(gpointer globaldata);
-GtkWidget*	leftButton;
+GtkWidget*		leftButton;
+GtkTreeStore*	store;
+GtkWidget*		treeview;
+char*			folderPath;
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
@@ -59,16 +64,81 @@ void theCallBack(GtkWidget* widget,gpointer data)
 	runCommandAndOut((char*)"echo clicked",plugdata);
 }
 
+void addFolderContents(char* folder)
+{
+	GtkTreeIter		iter;
+	FILE*		fp=NULL;
+	char		line[1024];
+//	GtkTextIter	iter;
+	char*		command;
+	GtkTreeIter child_iter;
+
+	asprintf(&command,"find %s -maxdepth 1",folder);
+	fp=popen(command,"r");
+	if(fp!=NULL)
+		{
+			while(fgets(line,1024,fp))
+				{
+					line[strlen(line)-1]=0;
+					gtk_tree_store_append ((GtkTreeStore*)store,&iter,NULL);
+					gtk_tree_store_set((GtkTreeStore*)store,&iter,COLUMN_FILENAME,line,-1);
+					if(g_file_test(line,G_FILE_TEST_IS_DIR)==true)
+						gtk_tree_store_append(store,&child_iter,&iter);
+				}
+			pclose(fp);
+		}
+
+//	plugdata=(moduleData*)data;
+//	gtk_tree_store_append ((GtkTreeStore*)store,&iter,NULL);
+//	gtk_tree_store_set((GtkTreeStore*)store,&iter,COLUMN_FILENAME,"data 1",-1);
+//	gtk_tree_store_append ((GtkTreeStore*)store,&iter,NULL);
+//	gtk_tree_store_set((GtkTreeStore*)store,&iter,COLUMN_FILENAME,"data 2",-1);
+//	gtk_tree_store_append ((GtkTreeStore*)store,&iter,NULL);
+//	gtk_tree_store_set((GtkTreeStore*)store,&iter,COLUMN_FILENAME,"data 3",-1);
+//
+//GtkTreeIter child_iter;
+//
+//	 gtk_tree_store_append (store, &child_iter, &iter);
+////	gtk_tree_store_append ((GtkTreeStore*)store,&iter,NULL);
+//	gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,"data 4",-1);
+	
+//	gtk_list_store_append((GtkListStore*)store,&iter);
+//	gtk_list_store_set((GtkListStore*)store,&iter,COLUMN_FILENAME,"data 1",-1);
+//	gtk_list_store_append((GtkListStore*)store,&iter);
+//	
+//
+//	gtk_list_store_set((GtkListStore*)store,&iter,COLUMN_FILENAME,"data 2",-1);
+//	gtk_list_store_append((GtkListStore*)store,&iter);
+//	gtk_list_store_set((GtkListStore*)store,&iter,COLUMN_FILENAME,"data 3",-1);
+}
+
 extern "C" int addToGui(gpointer data)
 {
 	plugData*	plugdata=(plugData*)data;
+	GtkTreeViewColumn *column;
+	GtkTreeModel*	model=NULL;
+	GtkCellRenderer *renderer;
 
-	leftButton=gtk_button_new_with_label("left side button\nat top");
-	gtk_box_pack_start(GTK_BOX(plugdata->leftUserBox),leftButton,false,false,0);
-	gtk_widget_set_name(leftButton,"echo Left Button Clicked");
-	gtk_signal_connect(GTK_OBJECT(leftButton),"clicked",G_CALLBACK(theCallBack),plugdata);
-	gtk_widget_show_all(plugdata->leftUserBox);
+	folderPath=strdup("/");
+	store=gtk_tree_store_new(NUM_COLUMNS,G_TYPE_STRING);
+	addFolderContents(folderPath);
+	model=GTK_TREE_MODEL(store);
+	treeview=gtk_tree_view_new_with_model(model);
+	gtk_container_add(GTK_CONTAINER(plugdata->leftUserBox),treeview);
 
+//colom
+	renderer=gtk_cell_renderer_text_new();
+	column=gtk_tree_view_column_new_with_attributes("Plug In",renderer,"text",COLUMN_FILENAME,NULL);
+//	gtk_tree_view_column_set_sort_column_id(column,COLUMN_FILENAME);
+	gtk_tree_view_append_column((GtkTreeView*)treeview,column);
+
+//	leftButton=gtk_button_new_with_label("left side button\nat top");
+//	gtk_box_pack_start(GTK_BOX(plugdata->leftUserBox),leftButton,false,false,0);
+	
+//	gtk_widget_set_name(leftButton,"echo Left Button Clicked");
+//	gtk_signal_connect(GTK_OBJECT(leftButton),"clicked",G_CALLBACK(theCallBack),plugdata);
+//	gtk_widget_show_all(plugdata->leftUserBox);
+	gtk_widget_show_all((GtkWidget*)plugdata->leftUserBox);
 	return(0);
 }
 
@@ -149,14 +219,12 @@ extern "C" int enablePlug(gpointer data)
 
 	if(plugdata->modData->unload==true)
 		{
-			gtk_widget_destroy(leftButton);
-			//gtk_widget_show_all(plugdata->mlist.menuBar);	
+			gtk_widget_destroy(treeview);
 		}
 	else
 		{
 			if(g_module_symbol(plugdata->modData->module,"addToGui",(gpointer*)&module_plug_function))
 				module_plug_function(data);
-			//gtk_widget_show_all(plugdata->mlist.menuBar);
 		}
 	return(0);
 }

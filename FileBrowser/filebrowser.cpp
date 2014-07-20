@@ -226,9 +226,7 @@ void expandRow2(GtkTreeView* treeview,GtkTreeIter* iter,GtkTreePath* path,gpoint
 //	gtk_tree_store_append((GtkTreeStore*)store,iter,NULL);
 	gtk_tree_store_set((GtkTreeStore*)store,iter,COLUMN_FILENAME,"XXXXXXXXXXX",-1);
 	if(gtk_tree_model_iter_next(model,&childiter)==false)
-		{
-			gtk_tree_store_append((GtkTreeStore*)store,&childiter,iter);
-		}
+		gtk_tree_store_append((GtkTreeStore*)store,&childiter,iter);
 }
 
 

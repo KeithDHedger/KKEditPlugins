@@ -57,24 +57,12 @@ void runCommandAndOut(char* command,plugData* plugdata)
 		}
 }
 
-void theCallBack(GtkWidget* widget,gpointer data)
-{
-	plugData*	plugdata=(plugData*)data;
-
-	showToolOutput(true);
-	runCommandAndOut((char*)"echo clicked",plugdata);
-}
-
 void addFolderContents(char* folder,GtkTreeIter* iter,bool root)
 {
-//	GtkTreeIter		iter;
 	FILE*		fp=NULL;
 	char		line[1024];
-//	GtkTextIter	iter;
 	char*		command;
 	GtkTreeIter child_iter;
-	GtkTreeModel*		model;
-GtkTreePath *	path;
 
 	asprintf(&command,"find %s -maxdepth 1|sort",folder);
 	fp=popen(command,"r");
@@ -83,136 +71,19 @@ GtkTreePath *	path;
 			while(fgets(line,1024,fp))
 				{
 					line[strlen(line)-1]=0;
-//					if(root==true)
-//					{
 					gtk_tree_store_append ((GtkTreeStore*)store,iter,NULL);
 					gtk_tree_store_set((GtkTreeStore*)store,iter,COLUMN_FILENAME,line,-1);
 //					if((g_file_test(line,G_FILE_TEST_IS_DIR)==true) || (g_file_test(line,G_FILE_TEST_IS_DIR)==true && g_file_test(line,G_FILE_TEST_IS_SYMLINK)==true))
 //						{
 							gtk_tree_store_append(store,&child_iter,iter);
 							gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,line,-1);
-//						}
-//					}
-//					else
-//						{
-//							//gtk_tree_store_clear(store);
-//	model=gtk_tree_view_get_model((GtkTreeView*)treeview);
-//							gtk_tree_model_iter_children(model,&child_iter,iter);
-////							gtk_tree_store_prepend(store,&child_iter,iter);
-//							//GtkTreeIter  iter;
-// //path= gtk_tree_model_get_path(model,&child_iter);
-//   //        while(gtk_tree_model_get_iter(model, &child_iter, path))
-//     //      {
-//          //   gtk_tree_store_remove(store, &child_iter);
-//       //    }
-//           //gtk_tree_store_append(store,iter,NULL);
-////           gtk_tree_store_remove(store, &child_iter);
-////							while(gtk_tree_store_remove(store,&child_iter));
-//							//gtk_tree_store_remove
-////gtk_tree_store_append(store,&child_iter,iter);
-//						//	gtk_tree_store_append(store,&child_iter,iter);
-//							
-//							//gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,line,-1);
-//							gtk_tree_store_append(store,&child_iter,iter);
-//							
-//							gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,line,-1);
-//							//printf("%sn",line);
-//							//gtk_tree_view_expand_all            ((GtkTreeView*)treeview);
-//						}
 				}
 			pclose(fp);
 		}
-
-//	plugdata=(moduleData*)data;
-//	gtk_tree_store_append ((GtkTreeStore*)store,&iter,NULL);
-//	gtk_tree_store_set((GtkTreeStore*)store,&iter,COLUMN_FILENAME,"data 1",-1);
-//	gtk_tree_store_append ((GtkTreeStore*)store,&iter,NULL);
-//	gtk_tree_store_set((GtkTreeStore*)store,&iter,COLUMN_FILENAME,"data 2",-1);
-//	gtk_tree_store_append ((GtkTreeStore*)store,&iter,NULL);
-//	gtk_tree_store_set((GtkTreeStore*)store,&iter,COLUMN_FILENAME,"data 3",-1);
-//
-//GtkTreeIter child_iter;
-//
-//	 gtk_tree_store_append (store, &child_iter, &iter);
-////	gtk_tree_store_append ((GtkTreeStore*)store,&iter,NULL);
-//	gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,"data 4",-1);
-	
-//	gtk_list_store_append((GtkListStore*)store,&iter);
-//	gtk_list_store_set((GtkListStore*)store,&iter,COLUMN_FILENAME,"data 1",-1);
-//	gtk_list_store_append((GtkListStore*)store,&iter);
-//	
-//
-//	gtk_list_store_set((GtkListStore*)store,&iter,COLUMN_FILENAME,"data 2",-1);
-//	gtk_list_store_append((GtkListStore*)store,&iter);
-//	gtk_list_store_set((GtkListStore*)store,&iter,COLUMN_FILENAME,"data 3",-1);
 }
 
-gboolean foreach_func (GtkTreeModel *model,
-                GtkTreePath  *path,
-                GtkTreeIter  *iter,
-                GList       **rowref_list)
-  {
-    guint  year_of_birth;
- 
-    g_assert ( rowref_list != NULL );
- 
- //   gtk_tree_model_get (model, iter, COL_YEAR_BORN, &year_of_birth, -1);
- 
-//    if ( year_of_birth > 1980 )
-//    {
-      GtkTreeRowReference  *rowref;
- 
-      rowref = gtk_tree_row_reference_new(model, path);
- 
-      *rowref_list = g_list_append(*rowref_list, rowref);
- //   }
- 
-    return FALSE; /* do not stop walking the store, call us with next row */
-  }
 
-//void expandRow(GtkTreeView* treeview,GtkTreeIter* iter,GtkTreePath* path,gpointer user_data)
-//{
-//	GtkTreeIter real_it;
-//	GtkTreePath* real_path;
-//	GtkTreeModel* filter = gtk_tree_view_get_model( treeview );
-//  //  PtkDirTree* tree = PTK_DIR_TREE( user_data );
-//	gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER( filter ), &real_it, iter );
-////    real_path = gtk_tree_model_filter_convert_path_to_child_path(GTK_TREE_MODEL_FILTER( filter ),path );
-//    //ptk_dir_tree_expand_row( tree, &real_it, real_path );
-// //   gtk_tree_path_free( real_path );
-//
-//}
 
-void expandRow2x(GtkTreeView* treeview,GtkTreeIter* iter,GtkTreePath* path,gpointer user_data)
-{
-
-	GtkTreeModel*		model;
-	bool				gotchild;
-	GtkTreeIter			childiter;
-	GtkTreeIter			parentiter;
-
-	model=gtk_tree_view_get_model(treeview);
-//	gtk_tree_model_iter_parent(model,&parentiter,iter);
-//gtk_tree_model_iter_nth_child       (model,&childiter,&parentiter,0);
-	//childiter=iter;
-	//gotchild=gtk_tree_model_iter_next(model,&childiter);
-//	gtk_tree_store_remove((GtkTreeStore*)store,iter);
-	gotchild=gtk_tree_model_iter_children(model,&childiter,iter);
-//gotchild=true;
-//		printf("%s\n",gtk_tree_path_to_string(path));
-
-	while(gotchild)
-		{
-		printf("YYYY\n");
-		printf("%s\n",gtk_tree_path_to_string(path));
-			gtk_tree_store_remove((GtkTreeStore*)store,&childiter);
-			//gotchild=gtk_tree_model_iter_next(model,&childiter);
-			gotchild=gtk_tree_model_iter_children(model,&childiter,iter);
-		}
-
-	gtk_tree_store_append((GtkTreeStore*)store,&childiter,iter);
-	gtk_tree_store_set((GtkTreeStore*)store,&childiter,COLUMN_FILENAME,"XXXXXXXXXXX",-1);
-}
 
 void addToIter(GtkTreeView* treeview,char* filename,GtkTreeIter* iter)
 {
@@ -225,24 +96,21 @@ void addToIter(GtkTreeView* treeview,char* filename,GtkTreeIter* iter)
 	childiter=*iter;
 
 	gtk_tree_store_set((GtkTreeStore*)store,iter,COLUMN_FILENAME,filename,-1);
-	if(gtk_tree_model_iter_next(model,&childiter)==false)
+	if((gtk_tree_model_iter_next(model,&childiter)==false) && (g_file_test(filename,G_FILE_TEST_IS_DIR)))
 		gtk_tree_store_append((GtkTreeStore*)store,&childiter,iter);
 
 }
 
-void addContents(GtkTreeView* treeview,GtkTreeIter* iter,char* name)
+bool addContents(GtkTreeView* treeview,GtkTreeIter* iter,char* name)
 {
-	FILE*		fp=NULL;
-	char		line[1024];
-	char*		command;
-	GtkTreeIter child_iter;
-	GtkTreeModel*		model;
-	GtkTreeIter			parentiter;
+	FILE*			fp=NULL;
+	char			line[1024];
+	char*			command;
+	GtkTreeModel*	model;
+	GtkTreeIter		parentiter;
 
 	model=gtk_tree_view_get_model(treeview);
 	gtk_tree_model_iter_parent(model,&parentiter,iter);
-
-
 
 	asprintf(&command,"find %s -maxdepth 1|sort",name);
 	fp=popen(command,"r");
@@ -257,191 +125,36 @@ void addContents(GtkTreeView* treeview,GtkTreeIter* iter,char* name)
 				}
 			pclose(fp);
 		}
+	return(gtk_tree_store_remove((GtkTreeStore*)store,iter));
 }
-
-void expandRow2(GtkTreeView* treeview,GtkTreeIter* iter,GtkTreePath* path,gpointer user_data)
-{
-
-	GtkTreeModel*		model;
-	bool				gotchild;
-	GtkTreeIter			childiter;
-	GtkTreeIter			parentiter;
-	model=gtk_tree_view_get_model(treeview);
-	gtk_tree_model_iter_parent(model,&parentiter,iter);
-	childiter=*iter;
-	char*				folder;
-//	gtk_tree_store_append((GtkTreeStore*)store,iter,NULL);
-/*
-	gtk_tree_store_set((GtkTreeStore*)store,iter,COLUMN_FILENAME,"XXXXXXXXXXX",-1);
-	if(gtk_tree_model_iter_next(model,&childiter)==false)
-		gtk_tree_store_append((GtkTreeStore*)store,&childiter,iter);
-*/
-	//gtk_tree_model_get(model,iter,COLUMN_FILENAME,&folder,-1);
-	//printf("folder=%s\n",(char*)user_data);
-	addContents(treeview,iter,(char*)user_data);
-//	addToIter(treeview,"file name 1",iter);
-//	if(gtk_tree_model_iter_next(model,iter)==false)
-//		gtk_tree_store_append((GtkTreeStore*)store,iter,&parentiter);
-//	addToIter(treeview,"file name 2",iter);
-}
-
 
 void expandRow(GtkTreeView* treeview,GtkTreeIter* iter,GtkTreePath* path,gpointer user_data)
 {
 	GtkTreeModel*		model;
 	bool				gotchild;
 	GtkTreeIter			childiter;
-	GtkTreeIter			parentiter;
 	char*				folder;
-	char*				folderpath;
+
 	model=gtk_tree_view_get_model(treeview);
 	gotchild=gtk_tree_model_iter_children(model,&childiter,iter);
 	gtk_tree_model_get(model,iter,COLUMN_FILENAME,&folder,-1);
-	//folderpath=strdup(folder);
-//	while(gtk_tree_store_remove((GtkTreeStore*)store,&childiter));
-//	gtk_tree_store_append((GtkTreeStore*)store,&childiter,iter);
-//	gtk_tree_store_set((GtkTreeStore*)store,&childiter,COLUMN_FILENAME,"XXXXXXXXXXX",-1);
-//	gtk_tree_store_append((GtkTreeStore*)store,&childiter,iter);
-//	gtk_tree_store_set((GtkTreeStore*)store,&childiter,COLUMN_FILENAME,"XXXXXXXXXXX",-1);
-		//printf("outer %s\nfolder %s\n",gtk_tree_path_to_string(path),folder);
 
-//printf("folderpath=%s\n",folderpath);
 	while(gotchild)
 		{
-		printf("XXXXX\n");
-			//gtk_tree_model_get_iter_from_string(model,&childiter,"6:1");
-			expandRow2(treeview,&childiter,path,folder);
-			gotchild=gtk_tree_model_iter_next(model,&childiter);
+			if(addContents(treeview,&childiter,(char*)folder))
+				gotchild=gtk_tree_model_iter_next(model,&childiter);
+			else
+				gotchild=false;
 		}
-
-//	gotchild=gtk_tree_model_iter_children(model,&childiter,iter);
-//	while(gotchild)
-//		{
-//		printf("XXXXXn");
-//			//gtk_tree_model_get_iter_from_string(model,&childiter,"6:1");
-//			expandRow2(treeview,iter,path,user_data);
-//			gotchild=gtk_tree_model_iter_next(model,iter);
-//		}
-
-
-//	gtk_tree_model_iter_parent(model,&parentiter,iter);
-//	gtk_tree_model_iter_nth_child       (model,&childiter,&parentiter,0);
-//	gtk_tree_store_remove((GtkTreeStore*)store,&childiter);
-
-}
-
-void expandRowXX(GtkTreeView* treeview,GtkTreeIter* iterXX,GtkTreePath* path,gpointer user_data)
-{
-	GtkTreeModel*		model;
-	GtkTreeSelection*	selection=NULL;
-	GtkTreeIter			iters;
-	GtkTreeIter			child_iter;
-	char*				folder;
-	GtkTreeIter			c2;
-
-//	selection=gtk_tree_view_get_selection(treeview);
-//	if((selection!=NULL) && (gtk_tree_selection_get_selected(selection,&model,&iters)))
-//		{
-//			gtk_tree_model_get(model,&iters,COLUMN_FILENAME,&folder,-1);
-	//folder=gtk_tree_path_to_string(path);
-//	 gtk_tree_model_get(GtkTreeModel *tree_model,
- //                                                        GtkTreeIter *iter,
-//   
-printf("%s\n",gtk_tree_path_to_string(path));
-	model=gtk_tree_view_get_model(treeview);
-	gtk_tree_model_get(model,iterXX,COLUMN_FILENAME,&folder,-1);
-	//gtk_tree_model_iter_children(model,&child_iter,iter);
-
-//while(gtk_tree_store_remove((GtkTreeStore*)store,&child_iter));
-//while(gtk_tree_store_remove((GtkTreeStore*)treeview,&child_iter)!=true);
-////	gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,folder,-1);
-
-//	gtk_tree_store_append(store,&child_iter,iter);
-//	gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,folder,-1);
-//	gtk_tree_store_append(store,&child_iter,iter);
-//	gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,folder,-1);
-
-//gtk_tree_model_get_iter_first       (tree_model,
- //                                                        GtkTreeIter *iter);
-//	gtk_widget_show_all(scrollbox);
-
- 
-//  void
-//  remove_people_born_after_1980 (void)
-//  {
-//     GList *rr_list = NULL;    /* list of GtkTreeRowReferences to remove */
-//     GList *node;
-// 
-//     gtk_tree_model_foreach(GTK_TREE_MODEL(store),
-//                            (GtkTreeModelForeachFunc) foreach_func,
-//                            &rr_list);
-// 
-////     for ( node = rr_list;  node != NULL;  node = node->next )
-////     {
-// //       GtkTreePath *path;
-// 
-// //       path = gtk_tree_row_reference_get_path((GtkTreeRowReference*)node->data);
-// 
-//        if (path)
-//        {
-//           GtkTreeIter  iter;
-// 
-//           if (gtk_tree_model_get_iter(GTK_TREE_MODEL(store), &iter, path))
-//           {
-//             gtk_list_store_remove(store, &iter);
-//           }
-// 
-//           /* FIXME/CHECK: Do we need to free the path here? */
-//        }
-//     }
-// 
-//     g_list_foreach(rr_list, (GFunc) gtk_tree_row_reference_free, NULL);
-//     g_list_free(rr_list);
-//  }
-
-GtkTreePath* childpath;
-childpath=gtk_tree_path_copy(path);
-gtk_tree_path_down(childpath);
-printf("PATH %s\n",gtk_tree_path_to_string(childpath));
-gtk_tree_model_get_iter(model,&c2,childpath);
-//bool flag=true;
-//
-while(gtk_tree_model_get_iter(model,&c2,childpath)==true)
-{
-//if (gtk_tree_model_get_iter(GTK_TREE_MODEL(store), &child_iter, path))
-//           {
-printf("PATH %s\n",gtk_tree_path_to_string(childpath));
-            gtk_tree_store_remove(store,&c2);
-            gtk_tree_path_next(childpath);
-            
-//           }
-//          else
-//          	flag=false;
-}
-// gtk_tree_path_down                  (path);
-//	gtk_tree_model_get_iter(model,&c2,path);
-//							gtk_tree_store_append(store,iter,NULL);
-//
-							gtk_tree_store_append(store,&child_iter,iterXX);
-							gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,folder,-1);
-
-printf("PATH EMPTY%s\n",gtk_tree_path_to_string(path));
-//gtk_tree_model_get_iter(model,&c2,path);
-//gtk_tree_model_get_iter_from_string (model,&c2,
- //                                                        const gchar *path_string);
-//gtk_tree_store_append(store,&c2,iterXX);
-//	addFolderContents(folder,iterXX,true);
-	printf("%s\n",folder);
-//		}
 }
 
 extern "C" int addToGui(gpointer data)
 {
-	plugData*	plugdata=(plugData*)data;
-	GtkTreeViewColumn *column;
-	GtkTreeModel*	model=NULL;
-	GtkCellRenderer *renderer;
-	GtkTreeIter		iter;
+	plugData*			plugdata=(plugData*)data;
+	GtkTreeViewColumn*	column;
+	GtkTreeModel*		model=NULL;
+	GtkCellRenderer*	renderer;
+	GtkTreeIter			iter;
 
 	folderPath=strdup("/");
 	store=gtk_tree_store_new(NUM_COLUMNS,G_TYPE_STRING);
@@ -457,18 +170,9 @@ extern "C" int addToGui(gpointer data)
 //colom
 	renderer=gtk_cell_renderer_text_new();
 	column=gtk_tree_view_column_new_with_attributes("Plug In",renderer,"text",COLUMN_FILENAME,NULL);
-//	gtk_tree_view_column_set_sort_column_id(column,COLUMN_FILENAME);
 	gtk_tree_view_append_column((GtkTreeView*)treeview,column);
 
-//	leftButton=gtk_button_new_with_label("left side button\nat top");
-//	gtk_box_pack_start(GTK_BOX(plugdata->leftUserBox),leftButton,false,false,0);
-	
-//	gtk_widget_set_name(leftButton,"echo Left Button Clicked");
-//	gtk_signal_connect(GTK_OBJECT(leftButton),"clicked",G_CALLBACK(theCallBack),plugdata);
-//	gtk_widget_show_all(plugdata->leftUserBox);
 	gtk_widget_show_all((GtkWidget*)plugdata->leftUserBox);
-//	g_signal_connect_after(treeview,"expand-collapse-cursor-row",G_CALLBACK(expandRow),NULL);
-//	g_signal_connect(treeview,"toggle-cursor-row",G_CALLBACK(expandRow),NULL);
 	g_signal_connect(treeview,"row-expanded",G_CALLBACK(expandRow),NULL);
 
 	return(0);

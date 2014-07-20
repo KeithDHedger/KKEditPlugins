@@ -16,8 +16,9 @@
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
 #define VERSION "0.0.1"
-#define NUM_COLUMNS 1
+#define NUM_COLUMNS 2
 #define COLUMN_FILENAME 0
+#define COLUMN_PATHNAME 1
 
 int	(*module_plug_function)(gpointer globaldata);
 GtkWidget*		leftButton;
@@ -63,16 +64,18 @@ void addFolderContents(char* folder,GtkTreeIter* iter,bool root)
 	char		line[1024];
 	char*		command;
 	GtkTreeIter child_iter;
+	char*		pathname;
 
-	asprintf(&command,"find %s -maxdepth 1|sort",folder);
+	asprintf(&command,"ls -1 %s|sort",folder);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
 			while(fgets(line,1024,fp))
 				{
 					line[strlen(line)-1]=0;
+					asprintf(&pathname,"%s%s",folder,line);
 					gtk_tree_store_append ((GtkTreeStore*)store,iter,NULL);
-					gtk_tree_store_set((GtkTreeStore*)store,iter,COLUMN_FILENAME,line,-1);
+					gtk_tree_store_set((GtkTreeStore*)store,iter,COLUMN_FILENAME,line,COLUMN_PATHNAME,pathname,-1);
 //					if((g_file_test(line,G_FILE_TEST_IS_DIR)==true) || (g_file_test(line,G_FILE_TEST_IS_DIR)==true && g_file_test(line,G_FILE_TEST_IS_SYMLINK)==true))
 //						{
 							gtk_tree_store_append(store,&child_iter,iter);
@@ -85,18 +88,20 @@ void addFolderContents(char* folder,GtkTreeIter* iter,bool root)
 
 
 
-void addToIter(GtkTreeView* treeview,char* filename,GtkTreeIter* iter)
+void addToIter(GtkTreeView* treeview,char* filename,GtkTreeIter* iter,char* folderpath)
 {
 	GtkTreeModel*		model;
 	GtkTreeIter			childiter;
 	GtkTreeIter			parentiter;
+	char*				pathname;
 
+	asprintf(&pathname,"%s/%s",folderpath,filename);
 	model=gtk_tree_view_get_model(treeview);
 	gtk_tree_model_iter_parent(model,&parentiter,iter);
 	childiter=*iter;
 
-	gtk_tree_store_set((GtkTreeStore*)store,iter,COLUMN_FILENAME,filename,-1);
-	if((gtk_tree_model_iter_next(model,&childiter)==false) && (g_file_test(filename,G_FILE_TEST_IS_DIR)))
+	gtk_tree_store_set((GtkTreeStore*)store,iter,COLUMN_FILENAME,filename,COLUMN_PATHNAME,pathname,-1);
+	if((gtk_tree_model_iter_next(model,&childiter)==false) && (g_file_test(pathname,G_FILE_TEST_IS_DIR)))
 		gtk_tree_store_append((GtkTreeStore*)store,&childiter,iter);
 
 }
@@ -108,23 +113,47 @@ bool addContents(GtkTreeView* treeview,GtkTreeIter* iter,char* name)
 	char*			command;
 	GtkTreeModel*	model;
 	GtkTreeIter		parentiter;
+	char*			folderpath;
+	GtkTreeIter*	cleariter;
 
 	model=gtk_tree_view_get_model(treeview);
 	gtk_tree_model_iter_parent(model,&parentiter,iter);
 
-	asprintf(&command,"find %s -maxdepth 1|sort",name);
+	cleariter=gtk_tree_iter_copy(iter);
+
+//if( gtk_tree_model_iter_n_children      (model,cleariter)>0)
+//	{
+//	printf("okn");
+//	}
+//else
+//	printf("non");
+
+//	while(gtk_tree_model_iter_next(model,cleariter)==true)
+//			gtk_tree_store_remove((GtkTreeStore*)store,cleariter);
+
+//printf("XXXXXXXXXXXXX\n");
+	asprintf(&command,"ls -1 %s|sort",name);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
 			while(fgets(line,1024,fp))
 				{
 					line[strlen(line)-1]=0;
-					addToIter(treeview,line,iter);
+					addToIter(treeview,line,iter,name);
 					if(gtk_tree_model_iter_next(model,iter)==false)
 						gtk_tree_store_append((GtkTreeStore*)store,iter,&parentiter);
 				}
 			pclose(fp);
 		}
+
+//bool retval=false;
+//while(gtk_tree_model_iter_next(model,iter)==true)
+//	{
+//		retval=gtk_tree_store_remove((GtkTreeStore*)store,iter);
+//	}
+//
+//return(retval);
+//printf("ZZZZZZZZZZ\n");
 	return(gtk_tree_store_remove((GtkTreeStore*)store,iter));
 }
 
@@ -134,13 +163,18 @@ void expandRow(GtkTreeView* treeview,GtkTreeIter* iter,GtkTreePath* path,gpointe
 	bool				gotchild;
 	GtkTreeIter			childiter;
 	char*				folder;
+	GtkTreeIter*	cleariter;
 
 	model=gtk_tree_view_get_model(treeview);
 	gotchild=gtk_tree_model_iter_children(model,&childiter,iter);
-	gtk_tree_model_get(model,iter,COLUMN_FILENAME,&folder,-1);
+	gtk_tree_model_get(model,iter,COLUMN_PATHNAME,&folder,-1);
+//	cleariter=gtk_tree_iter_copy(&childiter);
 
 	while(gotchild)
 		{
+//			while(gtk_tree_model_iter_next(model,cleariter)==true)
+//			gtk_tree_store_remove((GtkTreeStore*)store,cleariter);
+
 			if(addContents(treeview,&childiter,(char*)folder))
 				gotchild=gtk_tree_model_iter_next(model,&childiter);
 			else
@@ -157,7 +191,7 @@ extern "C" int addToGui(gpointer data)
 	GtkTreeIter			iter;
 
 	folderPath=strdup("/");
-	store=gtk_tree_store_new(NUM_COLUMNS,G_TYPE_STRING);
+	store=gtk_tree_store_new(NUM_COLUMNS,G_TYPE_STRING,G_TYPE_STRING);
 	addFolderContents(folderPath,&iter,true);
 	model=GTK_TREE_MODEL(store);
 	treeview=gtk_tree_view_new_with_model(model);

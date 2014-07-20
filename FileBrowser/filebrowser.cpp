@@ -76,49 +76,49 @@ void addFolderContents(char* folder,GtkTreeIter* iter,bool root)
 	GtkTreeModel*		model;
 GtkTreePath *	path;
 
-	asprintf(&command,"find %s -maxdepth 1",folder);
+	asprintf(&command,"find %s -maxdepth 1|sort",folder);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
 			while(fgets(line,1024,fp))
 				{
 					line[strlen(line)-1]=0;
-					if(root==true)
-					{
+//					if(root==true)
+//					{
 					gtk_tree_store_append ((GtkTreeStore*)store,iter,NULL);
 					gtk_tree_store_set((GtkTreeStore*)store,iter,COLUMN_FILENAME,line,-1);
-					if((g_file_test(line,G_FILE_TEST_IS_DIR)==true) || (g_file_test(line,G_FILE_TEST_IS_DIR)==true && g_file_test(line,G_FILE_TEST_IS_SYMLINK)==true))
-						{
+//					if((g_file_test(line,G_FILE_TEST_IS_DIR)==true) || (g_file_test(line,G_FILE_TEST_IS_DIR)==true && g_file_test(line,G_FILE_TEST_IS_SYMLINK)==true))
+//						{
 							gtk_tree_store_append(store,&child_iter,iter);
 							gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,line,-1);
-						}
-					}
-					else
-						{
-							//gtk_tree_store_clear(store);
-	model=gtk_tree_view_get_model((GtkTreeView*)treeview);
-							gtk_tree_model_iter_children(model,&child_iter,iter);
-//							gtk_tree_store_prepend(store,&child_iter,iter);
-							//GtkTreeIter  iter;
- //path= gtk_tree_model_get_path(model,&child_iter);
-   //        while(gtk_tree_model_get_iter(model, &child_iter, path))
-     //      {
-          //   gtk_tree_store_remove(store, &child_iter);
-       //    }
-           //gtk_tree_store_append(store,iter,NULL);
-//           gtk_tree_store_remove(store, &child_iter);
-//							while(gtk_tree_store_remove(store,&child_iter));
-							//gtk_tree_store_remove
-//gtk_tree_store_append(store,&child_iter,iter);
-						//	gtk_tree_store_append(store,&child_iter,iter);
-							
-							//gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,line,-1);
-							gtk_tree_store_append(store,&child_iter,iter);
-							
-							gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,line,-1);
-							//printf("%s\n",line);
-							//gtk_tree_view_expand_all            ((GtkTreeView*)treeview);
-						}
+//						}
+//					}
+//					else
+//						{
+//							//gtk_tree_store_clear(store);
+//	model=gtk_tree_view_get_model((GtkTreeView*)treeview);
+//							gtk_tree_model_iter_children(model,&child_iter,iter);
+////							gtk_tree_store_prepend(store,&child_iter,iter);
+//							//GtkTreeIter  iter;
+// //path= gtk_tree_model_get_path(model,&child_iter);
+//   //        while(gtk_tree_model_get_iter(model, &child_iter, path))
+//     //      {
+//          //   gtk_tree_store_remove(store, &child_iter);
+//       //    }
+//           //gtk_tree_store_append(store,iter,NULL);
+////           gtk_tree_store_remove(store, &child_iter);
+////							while(gtk_tree_store_remove(store,&child_iter));
+//							//gtk_tree_store_remove
+////gtk_tree_store_append(store,&child_iter,iter);
+//						//	gtk_tree_store_append(store,&child_iter,iter);
+//							
+//							//gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,line,-1);
+//							gtk_tree_store_append(store,&child_iter,iter);
+//							
+//							gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,line,-1);
+//							//printf("%sn",line);
+//							//gtk_tree_view_expand_all            ((GtkTreeView*)treeview);
+//						}
 				}
 			pclose(fp);
 		}
@@ -147,7 +147,131 @@ GtkTreePath *	path;
 //	gtk_list_store_set((GtkListStore*)store,&iter,COLUMN_FILENAME,"data 3",-1);
 }
 
+gboolean foreach_func (GtkTreeModel *model,
+                GtkTreePath  *path,
+                GtkTreeIter  *iter,
+                GList       **rowref_list)
+  {
+    guint  year_of_birth;
+ 
+    g_assert ( rowref_list != NULL );
+ 
+ //   gtk_tree_model_get (model, iter, COL_YEAR_BORN, &year_of_birth, -1);
+ 
+//    if ( year_of_birth > 1980 )
+//    {
+      GtkTreeRowReference  *rowref;
+ 
+      rowref = gtk_tree_row_reference_new(model, path);
+ 
+      *rowref_list = g_list_append(*rowref_list, rowref);
+ //   }
+ 
+    return FALSE; /* do not stop walking the store, call us with next row */
+  }
+
+//void expandRow(GtkTreeView* treeview,GtkTreeIter* iter,GtkTreePath* path,gpointer user_data)
+//{
+//	GtkTreeIter real_it;
+//	GtkTreePath* real_path;
+//	GtkTreeModel* filter = gtk_tree_view_get_model( treeview );
+//  //  PtkDirTree* tree = PTK_DIR_TREE( user_data );
+//	gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER( filter ), &real_it, iter );
+////    real_path = gtk_tree_model_filter_convert_path_to_child_path(GTK_TREE_MODEL_FILTER( filter ),path );
+//    //ptk_dir_tree_expand_row( tree, &real_it, real_path );
+// //   gtk_tree_path_free( real_path );
+//
+//}
+void expandRow2x(GtkTreeView* treeview,GtkTreeIter* iter,GtkTreePath* path,gpointer user_data)
+{
+
+	GtkTreeModel*		model;
+	bool				gotchild;
+	GtkTreeIter			childiter;
+	GtkTreeIter			parentiter;
+
+	model=gtk_tree_view_get_model(treeview);
+//	gtk_tree_model_iter_parent(model,&parentiter,iter);
+//gtk_tree_model_iter_nth_child       (model,&childiter,&parentiter,0);
+	//childiter=iter;
+	//gotchild=gtk_tree_model_iter_next(model,&childiter);
+//	gtk_tree_store_remove((GtkTreeStore*)store,iter);
+	gotchild=gtk_tree_model_iter_children(model,&childiter,iter);
+//gotchild=true;
+//		printf("%s\n",gtk_tree_path_to_string(path));
+
+	while(gotchild)
+		{
+		printf("YYYY\n");
+		printf("%s\n",gtk_tree_path_to_string(path));
+			gtk_tree_store_remove((GtkTreeStore*)store,&childiter);
+			//gotchild=gtk_tree_model_iter_next(model,&childiter);
+			gotchild=gtk_tree_model_iter_children(model,&childiter,iter);
+		}
+
+	gtk_tree_store_append((GtkTreeStore*)store,&childiter,iter);
+	gtk_tree_store_set((GtkTreeStore*)store,&childiter,COLUMN_FILENAME,"XXXXXXXXXXX",-1);
+}
+
+void expandRow2(GtkTreeView* treeview,GtkTreeIter* iter,GtkTreePath* path,gpointer user_data)
+{
+
+	GtkTreeModel*		model;
+	bool				gotchild;
+	GtkTreeIter			childiter;
+	GtkTreeIter			parentiter;
+	model=gtk_tree_view_get_model(treeview);
+	gtk_tree_model_iter_parent(model,&parentiter,iter);
+	childiter=*iter;
+//	gtk_tree_store_append((GtkTreeStore*)store,iter,NULL);
+	gtk_tree_store_set((GtkTreeStore*)store,iter,COLUMN_FILENAME,"XXXXXXXXXXX",-1);
+	if(gtk_tree_model_iter_next(model,&childiter)==false)
+		{
+			gtk_tree_store_append((GtkTreeStore*)store,&childiter,iter);
+		}
+}
+
+
 void expandRow(GtkTreeView* treeview,GtkTreeIter* iter,GtkTreePath* path,gpointer user_data)
+{
+	GtkTreeModel*		model;
+	bool				gotchild;
+	GtkTreeIter			childiter;
+	GtkTreeIter			parentiter;
+
+	model=gtk_tree_view_get_model(treeview);
+	gotchild=gtk_tree_model_iter_children(model,&childiter,iter);
+//	while(gtk_tree_store_remove((GtkTreeStore*)store,&childiter));
+//	gtk_tree_store_append((GtkTreeStore*)store,&childiter,iter);
+//	gtk_tree_store_set((GtkTreeStore*)store,&childiter,COLUMN_FILENAME,"XXXXXXXXXXX",-1);
+//	gtk_tree_store_append((GtkTreeStore*)store,&childiter,iter);
+//	gtk_tree_store_set((GtkTreeStore*)store,&childiter,COLUMN_FILENAME,"XXXXXXXXXXX",-1);
+		printf("outer %s\n",gtk_tree_path_to_string(path));
+	while(gotchild)
+		{
+		printf("XXXXX\n");
+			//gtk_tree_model_get_iter_from_string(model,&childiter,"6:1");
+			expandRow2(treeview,&childiter,path,user_data);
+			gotchild=gtk_tree_model_iter_next(model,&childiter);
+		}
+
+//	gotchild=gtk_tree_model_iter_children(model,&childiter,iter);
+//	while(gotchild)
+//		{
+//		printf("XXXXXn");
+//			//gtk_tree_model_get_iter_from_string(model,&childiter,"6:1");
+//			expandRow2(treeview,iter,path,user_data);
+//			gotchild=gtk_tree_model_iter_next(model,iter);
+//		}
+
+
+//	gtk_tree_model_iter_parent(model,&parentiter,iter);
+//	gtk_tree_model_iter_nth_child       (model,&childiter,&parentiter,0);
+//	gtk_tree_store_remove((GtkTreeStore*)store,&childiter);
+
+}
+
+void expandRowXX(GtkTreeView* treeview,GtkTreeIter* iterXX,GtkTreePath* path,gpointer user_data)
 {
 	GtkTreeModel*		model;
 	GtkTreeSelection*	selection=NULL;
@@ -166,22 +290,88 @@ void expandRow(GtkTreeView* treeview,GtkTreeIter* iter,GtkTreePath* path,gpointe
 //   
 printf("%s\n",gtk_tree_path_to_string(path));
 	model=gtk_tree_view_get_model(treeview);
-	gtk_tree_model_get(model,iter,COLUMN_FILENAME,&folder,-1);
-	gtk_tree_model_iter_children(model,&child_iter,iter);
+	gtk_tree_model_get(model,iterXX,COLUMN_FILENAME,&folder,-1);
+	//gtk_tree_model_iter_children(model,&child_iter,iter);
 
-while(gtk_tree_store_remove((GtkTreeStore*)store,&child_iter));
+//while(gtk_tree_store_remove((GtkTreeStore*)store,&child_iter));
 //while(gtk_tree_store_remove((GtkTreeStore*)treeview,&child_iter)!=true);
 ////	gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,folder,-1);
 
-	gtk_tree_store_append(store,&child_iter,iter);
-	gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,folder,-1);
+//	gtk_tree_store_append(store,&child_iter,iter);
+//	gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,folder,-1);
 //	gtk_tree_store_append(store,&child_iter,iter);
 //	gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,folder,-1);
 
 //gtk_tree_model_get_iter_first       (tree_model,
  //                                                        GtkTreeIter *iter);
-	gtk_widget_show_all(scrollbox);
-	addFolderContents(folder,iter,false);
+//	gtk_widget_show_all(scrollbox);
+
+ 
+//  void
+//  remove_people_born_after_1980 (void)
+//  {
+//     GList *rr_list = NULL;    /* list of GtkTreeRowReferences to remove */
+//     GList *node;
+// 
+//     gtk_tree_model_foreach(GTK_TREE_MODEL(store),
+//                            (GtkTreeModelForeachFunc) foreach_func,
+//                            &rr_list);
+// 
+////     for ( node = rr_list;  node != NULL;  node = node->next )
+////     {
+// //       GtkTreePath *path;
+// 
+// //       path = gtk_tree_row_reference_get_path((GtkTreeRowReference*)node->data);
+// 
+//        if (path)
+//        {
+//           GtkTreeIter  iter;
+// 
+//           if (gtk_tree_model_get_iter(GTK_TREE_MODEL(store), &iter, path))
+//           {
+//             gtk_list_store_remove(store, &iter);
+//           }
+// 
+//           /* FIXME/CHECK: Do we need to free the path here? */
+//        }
+//     }
+// 
+//     g_list_foreach(rr_list, (GFunc) gtk_tree_row_reference_free, NULL);
+//     g_list_free(rr_list);
+//  }
+
+GtkTreePath* childpath;
+childpath=gtk_tree_path_copy(path);
+gtk_tree_path_down(childpath);
+printf("PATH %s\n",gtk_tree_path_to_string(childpath));
+gtk_tree_model_get_iter(model,&c2,childpath);
+//bool flag=true;
+//
+while(gtk_tree_model_get_iter(model,&c2,childpath)==true)
+{
+//if (gtk_tree_model_get_iter(GTK_TREE_MODEL(store), &child_iter, path))
+//           {
+printf("PATH %s\n",gtk_tree_path_to_string(childpath));
+            gtk_tree_store_remove(store,&c2);
+            gtk_tree_path_next(childpath);
+            
+//           }
+//          else
+//          	flag=false;
+}
+// gtk_tree_path_down                  (path);
+//	gtk_tree_model_get_iter(model,&c2,path);
+//							gtk_tree_store_append(store,iter,NULL);
+//
+							gtk_tree_store_append(store,&child_iter,iterXX);
+							gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,folder,-1);
+
+printf("PATH EMPTY%s\n",gtk_tree_path_to_string(path));
+//gtk_tree_model_get_iter(model,&c2,path);
+//gtk_tree_model_get_iter_from_string (model,&c2,
+ //                                                        const gchar *path_string);
+//gtk_tree_store_append(store,&c2,iterXX);
+//	addFolderContents(folder,iterXX,true);
 	printf("%s\n",folder);
 //		}
 }
@@ -202,9 +392,9 @@ extern "C" int addToGui(gpointer data)
 	scrollbox=gtk_scrolled_window_new(NULL,NULL);
 	gtk_scrolled_window_set_policy((GtkScrolledWindow*)scrollbox,GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
 
+	gtk_widget_set_size_request((GtkWidget*)plugdata->leftUserBox,150,-1);
 	gtk_container_add(GTK_CONTAINER(scrollbox),(GtkWidget*)treeview);
 	gtk_container_add(GTK_CONTAINER(plugdata->leftUserBox),scrollbox);
-
 //colom
 	renderer=gtk_cell_renderer_text_new();
 	column=gtk_tree_view_column_new_with_attributes("Plug In",renderer,"text",COLUMN_FILENAME,NULL);

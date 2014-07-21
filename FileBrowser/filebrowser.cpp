@@ -113,25 +113,14 @@ bool addContents(GtkTreeView* treeview,GtkTreeIter* iter,char* name)
 	char*			command;
 	GtkTreeModel*	model;
 	GtkTreeIter		parentiter;
-	char*			folderpath;
-	GtkTreeIter*	cleariter;
+//	char*			folderpath;
+//	GtkTreeIter*	cleariter;
 
 	model=gtk_tree_view_get_model(treeview);
 	gtk_tree_model_iter_parent(model,&parentiter,iter);
 
-	cleariter=gtk_tree_iter_copy(iter);
+//	cleariter=gtk_tree_iter_copy(iter);
 
-//if( gtk_tree_model_iter_n_children      (model,cleariter)>0)
-//	{
-//	printf("okn");
-//	}
-//else
-//	printf("non");
-
-//	while(gtk_tree_model_iter_next(model,cleariter)==true)
-//			gtk_tree_store_remove((GtkTreeStore*)store,cleariter);
-
-//printf("XXXXXXXXXXXXX\n");
 	asprintf(&command,"ls -1 %s|sort",name);
 	fp=popen(command,"r");
 	if(fp!=NULL)
@@ -145,15 +134,6 @@ bool addContents(GtkTreeView* treeview,GtkTreeIter* iter,char* name)
 				}
 			pclose(fp);
 		}
-
-//bool retval=false;
-//while(gtk_tree_model_iter_next(model,iter)==true)
-//	{
-//		retval=gtk_tree_store_remove((GtkTreeStore*)store,iter);
-//	}
-//
-//return(retval);
-//printf("ZZZZZZZZZZ\n");
 	return(gtk_tree_store_remove((GtkTreeStore*)store,iter));
 }
 
@@ -163,17 +143,25 @@ void expandRow(GtkTreeView* treeview,GtkTreeIter* iter,GtkTreePath* path,gpointe
 	bool				gotchild;
 	GtkTreeIter			childiter;
 	char*				folder;
-	GtkTreeIter*	cleariter;
+	GtkTreeIter*		cleariter;
+	GtkTreeIter			childchild;
 
 	model=gtk_tree_view_get_model(treeview);
 	gotchild=gtk_tree_model_iter_children(model,&childiter,iter);
 	gtk_tree_model_get(model,iter,COLUMN_PATHNAME,&folder,-1);
-//	cleariter=gtk_tree_iter_copy(&childiter);
+	cleariter=gtk_tree_iter_copy(&childiter);
+
+	gtk_tree_model_iter_next(model,cleariter);
+	if(gtk_tree_store_iter_is_valid((GtkTreeStore*)store,cleariter))
+		while(gtk_tree_store_remove((GtkTreeStore*)store,cleariter));
+
+	cleariter=gtk_tree_iter_copy(&childiter);
+	gtk_tree_model_iter_children(model,&childchild,cleariter);
+	if(gtk_tree_store_iter_is_valid((GtkTreeStore*)store,&childchild))
+		gtk_tree_store_remove((GtkTreeStore*)store,&childchild);
 
 	while(gotchild)
 		{
-//			while(gtk_tree_model_iter_next(model,cleariter)==true)
-//			gtk_tree_store_remove((GtkTreeStore*)store,cleariter);
 
 			if(addContents(treeview,&childiter,(char*)folder))
 				gotchild=gtk_tree_model_iter_next(model,&childiter);

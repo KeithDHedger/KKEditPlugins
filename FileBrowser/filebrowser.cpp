@@ -60,34 +60,6 @@ void runCommandAndOut(char* command,plugData* plugdata)
 		}
 }
 
-void addFolderContentsXX(char* folder,GtkTreeIter* iter,bool root)
-{
-	FILE*		fp=NULL;
-	char		line[1024];
-	char*		command;
-	GtkTreeIter child_iter;
-	char*		pathname;
-
-	asprintf(&command,"ls -1 %s|sort",folder);
-	fp=popen(command,"r");
-	if(fp!=NULL)
-		{
-			while(fgets(line,1024,fp))
-				{
-					line[strlen(line)-1]=0;
-					asprintf(&pathname,"%s%s",folder,line);
-					gtk_tree_store_append ((GtkTreeStore*)store,iter,NULL);
-					gtk_tree_store_set((GtkTreeStore*)store,iter,COLUMN_FILENAME,line,COLUMN_PATHNAME,pathname,-1);
-					if((g_file_test(pathname,G_FILE_TEST_IS_DIR)==true))
-						{
-							gtk_tree_store_append(store,&child_iter,iter);
-							gtk_tree_store_set((GtkTreeStore*)store,&child_iter,COLUMN_FILENAME,line,-1);
-						}
-				}
-			pclose(fp);
-		}
-}
-
 void addFolderContents(char* folder,GtkTreeIter* iter,bool root)
 {
 	GtkTreeIter child_iter;
@@ -201,28 +173,23 @@ void onColWidthChange(GObject* gobject,GParamSpec* pspec,gpointer data)
 		gtk_widget_set_size_request((GtkWidget*)leftBox,100,-1);
 }
 
-void onRowActivated (GtkTreeView        *treeview,
-                       GtkTreePath        *path,
-                       GtkTreeViewColumn  *col,
-                       gpointer            userdata)
-  {
-    GtkTreeModel *model;
-    GtkTreeIter   iter;
+void onRowActivated(GtkTreeView* treeview, GtkTreePath* path,GtkTreeViewColumn* col,gpointer userdata)
+{
+	GtkTreeModel*	model;
+	GtkTreeIter		iter;
+	gchar*			name;
+	char*			command;
  
-    g_print ("A row has been double-clicked!\n");
- 
-    model = gtk_tree_view_get_model(treeview);
- 
-    if (gtk_tree_model_get_iter(model, &iter, path))
-    {
-       gchar *name;
- 
-       gtk_tree_model_get(model, &iter, COLUMN_PATHNAME, &name, -1);
- 
-       g_print ("Double-clicked row contains name %s\n", name);
- 
-       g_free(name);
-    }
+	model=gtk_tree_view_get_model(treeview);
+
+	if(gtk_tree_model_get_iter(model,&iter,path))
+		{
+			gtk_tree_model_get(model,&iter,COLUMN_PATHNAME,&name,-1);
+			asprintf(&command,"xdg-open %s",name);
+			system(command);
+			free(command);
+			free(name);
+		}
 }
   
 extern "C" int addToGui(gpointer data)
@@ -232,6 +199,9 @@ extern "C" int addToGui(gpointer data)
 	GtkTreeModel*		model=NULL;
 	GtkCellRenderer*	renderer;
 	GtkTreeIter			iter;
+	const char*			hostname=NULL;
+
+	hostname=getenv("HOSTNAME");
 
 	folderPath=strdup("/");
 	store=gtk_tree_store_new(NUM_COLUMNS,G_TYPE_STRING,G_TYPE_STRING);
@@ -247,10 +217,12 @@ extern "C" int addToGui(gpointer data)
 
 //colom
 	renderer=gtk_cell_renderer_text_new();
-	column=gtk_tree_view_column_new_with_attributes("StarBug",renderer,"text",COLUMN_FILENAME,NULL);
+	column=gtk_tree_view_column_new_with_attributes(hostname,renderer,"text",COLUMN_FILENAME,NULL);
 	gtk_tree_view_column_set_resizable (column,true);
 	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column((GtkTreeView*)treeview,column);
+	if(hostname==NULL)
+		gtk_tree_view_set_headers_visible((GtkTreeView*)treeview,false);
 
 	gtk_widget_show_all((GtkWidget*)plugdata->leftUserBox);
 	g_signal_connect(treeview,"row-expanded",G_CALLBACK(expandRow),column);
@@ -340,6 +312,8 @@ extern "C" int enablePlug(gpointer data)
 	if(plugdata->modData->unload==true)
 		{
 			gtk_widget_destroy(scrollbox);
+			gtk_widget_set_size_request((GtkWidget*)plugdata->leftUserBox,0,-1);
+			gtk_widget_show_all((GtkWidget*)plugdata->leftUserBox);
 		}
 	else
 		{

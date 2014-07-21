@@ -16,9 +16,10 @@
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
 #define VERSION "0.0.4"
-#define NUM_COLUMNS 2
-#define COLUMN_FILENAME 0
-#define COLUMN_PATHNAME 1
+#define NUM_COLUMNS 3
+#define COLUMN_ICON 0
+#define COLUMN_FILENAME 1
+#define COLUMN_PATHNAME 2
 
 int	(*module_plug_function)(gpointer globaldata);
 GtkWidget*		leftButton;
@@ -83,11 +84,20 @@ void addToIter(GtkTreeView* treeview,char* filename,GtkTreeIter* iter,char* fold
 	else
 		asprintf(&pathname,"/%s",filename);
 
+char* mime;
+mime=g_content_type_guess(pathname,NULL,0,NULL);
+printf("mime for %s=%s icon=%s\n",pathname,mime,g_content_type_get_generic_icon_name(mime));
+GIcon *         icon=   g_content_type_get_icon             (mime);
+//printfg_content_type_get_generic_icon_name
+//printf("path to icon=%s\n",g_icon_to_string(icon));
+//GVariant *         var= g_icon_serialize                    (icon);
+//printf("var=%s\n",g_variant_get_string (var,NULL));
 	model=gtk_tree_view_get_model(treeview);
 	gtk_tree_model_iter_parent(model,&parentiter,iter);
 	childiter=*iter;
+char* iname=g_content_type_get_generic_icon_name(mime);
 
-	gtk_tree_store_set((GtkTreeStore*)store,iter,COLUMN_FILENAME,filename,COLUMN_PATHNAME,pathname,-1);
+	gtk_tree_store_set((GtkTreeStore*)store,iter,COLUMN_ICON,iname,COLUMN_FILENAME,filename,COLUMN_PATHNAME,pathname,-1);
 	if((gtk_tree_model_iter_next(model,&childiter)==false) && (g_file_test(pathname,G_FILE_TEST_IS_DIR)))
 		gtk_tree_store_append((GtkTreeStore*)store,&childiter,iter);
 }
@@ -204,7 +214,7 @@ extern "C" int addToGui(gpointer data)
 	hostname=getenv("HOSTNAME");
 
 	folderPath=strdup("/");
-	store=gtk_tree_store_new(NUM_COLUMNS,G_TYPE_STRING,G_TYPE_STRING);
+	store=gtk_tree_store_new(NUM_COLUMNS,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_STRING);
 	addFolderContents(folderPath,&iter,true);
 	model=GTK_TREE_MODEL(store);
 	treeview=gtk_tree_view_new_with_model(model);
@@ -215,14 +225,19 @@ extern "C" int addToGui(gpointer data)
 	gtk_container_add(GTK_CONTAINER(scrollbox),(GtkWidget*)treeview);
 	gtk_container_add(GTK_CONTAINER(plugdata->leftUserBox),(GtkWidget*)scrollbox);
 
-//colom
+//col icon
+	renderer=gtk_cell_renderer_pixbuf_new();
+	column=gtk_tree_view_column_new_with_attributes("icon",renderer,"icon-name",COLUMN_ICON,NULL);
+	gtk_tree_view_append_column((GtkTreeView*)treeview,column);
+
+//colom file
 	renderer=gtk_cell_renderer_text_new();
 	column=gtk_tree_view_column_new_with_attributes(hostname,renderer,"text",COLUMN_FILENAME,NULL);
 	gtk_tree_view_column_set_resizable (column,true);
 	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column((GtkTreeView*)treeview,column);
-	if(hostname==NULL)
-		gtk_tree_view_set_headers_visible((GtkTreeView*)treeview,false);
+//	if(hostname==NULL)
+//		gtk_tree_view_set_headers_visible((GtkTreeView*)treeview,false);
 
 	gtk_widget_show_all((GtkWidget*)plugdata->leftUserBox);
 	g_signal_connect(treeview,"row-expanded",G_CALLBACK(expandRow),column);
@@ -233,46 +248,6 @@ extern "C" int addToGui(gpointer data)
 	leftBox=(GtkWidget*)plugdata->leftUserBox;
 	return(0);
 }
-
-//extern "C" int plugPrefs(gpointer data)
-//{
-//	GtkWidget*	dialog;
-//	GtkWidget*	dialogbox;
-//	GtkWidget*	projects;
-//	GtkWidget*	svn;
-//	GtkWidget*	vbox;
-//	int			response;
-//	char*		command;
-//	plugData*	plugdata=(plugData*)data;
-//
-//	vbox=gtk_vbox_new(false,0);
-//
-//	dialog=gtk_dialog_new_with_buttons("FileBrowser",NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
-//	gtk_window_set_default_size((GtkWindow*)dialog,300,120);
-//	dialogbox=gtk_dialog_get_content_area((GtkDialog*)dialog);
-//	gtk_container_add(GTK_CONTAINER(dialogbox),vbox);
-//
-//	projects=gtk_entry_new();
-//	svn=gtk_entry_new();
-//
-//	gtk_entry_set_text((GtkEntry*)projects,projectsPath);
-//	gtk_entry_set_text((GtkEntry*)svn,SVNRepoPath);
-//	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Projects Folder"),true,true,4);
-//	gtk_box_pack_start((GtkBox*)vbox,projects,true,true,4);
-//	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Subversion Folder"),true,true,4);
-//	gtk_box_pack_start((GtkBox*)vbox,svn,true,true,4);
-//
-//	gtk_widget_show_all(dialog);
-//	response=gtk_dialog_run(GTK_DIALOG(dialog));
-//	if(response==GTK_RESPONSE_APPLY);
-//		{
-//			asprintf(&command,"echo %s>%s/filebrowser.rc;echo %s>>%s/filebrowser.rc",gtk_entry_get_text((GtkEntry*)projects),plugdata->lPlugFolder,gtk_entry_get_text((GtkEntry*)svn),plugdata->lPlugFolder);
-//			system(command);
-//			free(command);
-//		}
-//	gtk_widget_destroy((GtkWidget*)dialog);
-//	return(0);
-//}
 
 extern "C" int doAbout(gpointer data)
 {

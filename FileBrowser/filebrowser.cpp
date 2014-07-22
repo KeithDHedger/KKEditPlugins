@@ -16,10 +16,9 @@
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
 #define VERSION "0.0.4"
-#define NUM_COLUMNS 3
-#define COLUMN_ICON 0
-#define COLUMN_FILENAME 1
-#define COLUMN_PATHNAME 2
+#define NUM_COLUMNS 2
+#define COLUMN_FILENAME 0
+#define COLUMN_PATHNAME 1
 
 int	(*module_plug_function)(gpointer globaldata);
 GtkWidget*		leftButton;
@@ -84,20 +83,11 @@ void addToIter(GtkTreeView* treeview,char* filename,GtkTreeIter* iter,char* fold
 	else
 		asprintf(&pathname,"/%s",filename);
 
-char* mime;
-mime=g_content_type_guess(pathname,NULL,0,NULL);
-printf("mime for %s=%s icon=%s\n",pathname,mime,g_content_type_get_generic_icon_name(mime));
-GIcon *         icon=   g_content_type_get_icon             (mime);
-//printfg_content_type_get_generic_icon_name
-//printf("path to icon=%s\n",g_icon_to_string(icon));
-//GVariant *         var= g_icon_serialize                    (icon);
-//printf("var=%s\n",g_variant_get_string (var,NULL));
 	model=gtk_tree_view_get_model(treeview);
 	gtk_tree_model_iter_parent(model,&parentiter,iter);
 	childiter=*iter;
-char* iname=g_content_type_get_generic_icon_name(mime);
 
-	gtk_tree_store_set((GtkTreeStore*)store,iter,COLUMN_ICON,iname,COLUMN_FILENAME,filename,COLUMN_PATHNAME,pathname,-1);
+	gtk_tree_store_set((GtkTreeStore*)store,iter,COLUMN_FILENAME,filename,COLUMN_PATHNAME,pathname,-1);
 	if((gtk_tree_model_iter_next(model,&childiter)==false) && (g_file_test(pathname,G_FILE_TEST_IS_DIR)))
 		gtk_tree_store_append((GtkTreeStore*)store,&childiter,iter);
 }
@@ -214,7 +204,7 @@ extern "C" int addToGui(gpointer data)
 	hostname=getenv("HOSTNAME");
 
 	folderPath=strdup("/");
-	store=gtk_tree_store_new(NUM_COLUMNS,G_TYPE_STRING,G_TYPE_STRING,G_TYPE_STRING);
+	store=gtk_tree_store_new(NUM_COLUMNS,G_TYPE_STRING,G_TYPE_STRING);
 	addFolderContents(folderPath,&iter,true);
 	model=GTK_TREE_MODEL(store);
 	treeview=gtk_tree_view_new_with_model(model);
@@ -225,19 +215,15 @@ extern "C" int addToGui(gpointer data)
 	gtk_container_add(GTK_CONTAINER(scrollbox),(GtkWidget*)treeview);
 	gtk_container_add(GTK_CONTAINER(plugdata->leftUserBox),(GtkWidget*)scrollbox);
 
-//col icon
-	renderer=gtk_cell_renderer_pixbuf_new();
-	column=gtk_tree_view_column_new_with_attributes("icon",renderer,"icon-name",COLUMN_ICON,NULL);
-	gtk_tree_view_append_column((GtkTreeView*)treeview,column);
-
 //colom file
 	renderer=gtk_cell_renderer_text_new();
 	column=gtk_tree_view_column_new_with_attributes(hostname,renderer,"text",COLUMN_FILENAME,NULL);
 	gtk_tree_view_column_set_resizable (column,true);
 	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column((GtkTreeView*)treeview,column);
-//	if(hostname==NULL)
-//		gtk_tree_view_set_headers_visible((GtkTreeView*)treeview,false);
+
+	if(hostname==NULL)
+		gtk_tree_view_set_headers_visible((GtkTreeView*)treeview,false);
 
 	gtk_widget_show_all((GtkWidget*)plugdata->leftUserBox);
 	g_signal_connect(treeview,"row-expanded",G_CALLBACK(expandRow),column);

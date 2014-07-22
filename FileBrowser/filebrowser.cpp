@@ -11,6 +11,10 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #include <kkedit-plugins.h>
 
 #define MYEMAIL "kdhedger68713@gmail.com"
@@ -21,46 +25,17 @@
 #define COLUMN_PATHNAME 1
 
 int	(*module_plug_function)(gpointer globaldata);
+
 GtkWidget*		leftButton;
 GtkTreeStore*	store;
 GtkWidget*		treeview;
-char*			folderPath;
 GtkWidget*		scrollbox;
 GtkWidget*		leftBox;
 bool			flag=false;
+GtkWidget*		hideMenu;
+bool			showing;
 
-extern "C" const gchar* g_module_check_init(GModule *module)
-{
-	return(NULL);
-}
-
-extern "C" const gchar* g_module_unload(GModule *module)
-{
-	return(NULL);
-}
-
-void runCommandAndOut(char* command,plugData* plugdata)
-{
-	FILE*		fp=NULL;
-	char		line[1024];
-	GtkTextIter	iter;
-
-	fp=popen(command,"r");
-	if(fp!=NULL)
-		{
-			while(fgets(line,1024,fp))
-				{
-					gtk_text_buffer_insert_at_cursor(plugdata->toolOutBuffer,line,strlen(line));
-					while(gtk_events_pending())
-						gtk_main_iteration();
-					gtk_text_buffer_get_end_iter(plugdata->toolOutBuffer,&iter);
-					gtk_text_view_scroll_to_iter((GtkTextView*)plugdata->toolOutWindow,&iter,0,true,0,0);
-				}
-			pclose(fp);
-		}
-}
-
-void addFolderContents(char* folder,GtkTreeIter* iter,bool root)
+void addFolderContents(const char* folder,GtkTreeIter* iter,bool root)
 {
 	GtkTreeIter child_iter;
 
@@ -191,7 +166,68 @@ void onRowActivated(GtkTreeView* treeview, GtkTreePath* path,GtkTreeViewColumn* 
 			free(name);
 		}
 }
-  
+
+void touch(char* path)
+{
+	int	fd;
+
+	fd=open(path,O_WRONLY|O_CREAT,DEFFILEMODE);
+	if(fd!=-1)
+		close(fd);
+}
+
+void showHideBrowser(plugData* pdata)
+{
+	char*	filepath;
+
+	asprintf(&filepath,"%s/filebrowser.rc",pdata->lPlugFolder);
+
+	if(showing==true)
+		{
+			gtk_widget_show_all(pdata->leftUserBox);
+			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,"Hide Browser");
+			touch(filepath);
+		}
+	else
+		{
+			unlink(filepath);
+			gtk_widget_hide_all(pdata->leftUserBox);
+			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,"Show Browser");
+		}
+	free(filepath);
+}
+
+void toggleBrowser(GtkWidget* widget,gpointer data)
+{
+	showing=!showing;
+	showHideBrowser((plugData*)data);
+}
+
+extern "C" int setSensitive(gpointer data)
+{
+	showHideBrowser((plugData*)data);
+	return(0);
+}
+
+extern "C" int switchTab(gpointer data)
+{
+	showHideBrowser((plugData*)data);
+	return(0);
+}
+
+void doStartUpCheck(plugData* pdata)
+{
+	char*	filepath;
+
+	asprintf(&filepath,"%s/filebrowser.rc",pdata->lPlugFolder);
+	if(g_file_test(filepath,G_FILE_TEST_EXISTS))
+		showing=true;
+	else
+		showing=false;
+
+	free(filepath);
+}
+
 extern "C" int addToGui(gpointer data)
 {
 	plugData*			plugdata=(plugData*)data;
@@ -200,12 +236,18 @@ extern "C" int addToGui(gpointer data)
 	GtkCellRenderer*	renderer;
 	GtkTreeIter			iter;
 	const char*			hostname=NULL;
+	GtkWidget*			menu;
 
 	hostname=getenv("HOSTNAME");
 
-	folderPath=strdup("/");
+	menu=gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuView);
+	hideMenu=gtk_menu_item_new_with_label("Hide Browser");
+	gtk_signal_connect(GTK_OBJECT(hideMenu),"activate",G_CALLBACK(toggleBrowser),plugdata);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu),hideMenu);
+	gtk_widget_show_all(plugdata->mlist.menuView);
+
 	store=gtk_tree_store_new(NUM_COLUMNS,G_TYPE_STRING,G_TYPE_STRING);
-	addFolderContents(folderPath,&iter,true);
+	addFolderContents("/",&iter,true);
 	model=GTK_TREE_MODEL(store);
 	treeview=gtk_tree_view_new_with_model(model);
 	gtk_tree_view_set_enable_tree_lines((GtkTreeView*)treeview,true);
@@ -225,13 +267,14 @@ extern "C" int addToGui(gpointer data)
 	if(hostname==NULL)
 		gtk_tree_view_set_headers_visible((GtkTreeView*)treeview,false);
 
-	gtk_widget_show_all((GtkWidget*)plugdata->leftUserBox);
 	g_signal_connect(treeview,"row-expanded",G_CALLBACK(expandRow),column);
 	g_signal_connect(treeview,"row-collapsed",G_CALLBACK(collapseRow),column);
 	g_signal_connect((GtkWidget*)column,"notify::width",G_CALLBACK(onColWidthChange),column);
 	g_signal_connect(treeview,"row-activated",G_CALLBACK(onRowActivated),NULL);
 
 	leftBox=(GtkWidget*)plugdata->leftUserBox;
+	gtk_widget_show_all((GtkWidget*)plugdata->leftUserBox);
+	doStartUpCheck(plugdata);
 	return(0);
 }
 
@@ -273,8 +316,9 @@ extern "C" int enablePlug(gpointer data)
 	if(plugdata->modData->unload==true)
 		{
 			gtk_widget_destroy(scrollbox);
+			gtk_widget_destroy(hideMenu);
 			gtk_widget_set_size_request((GtkWidget*)plugdata->leftUserBox,0,-1);
-			gtk_widget_show_all((GtkWidget*)plugdata->leftUserBox);
+			//gtk_widget_show_all((GtkWidget*)plugdata->leftUserBox);
 		}
 	else
 		{

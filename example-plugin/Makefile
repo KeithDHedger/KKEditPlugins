@@ -13,3 +13,6 @@ distclean:
 install:
 
 uninstall:
+
+check:
+	echo "OK"

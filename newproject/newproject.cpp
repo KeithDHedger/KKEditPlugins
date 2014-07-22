@@ -15,7 +15,7 @@
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
-#define VERSION "0.0.1"
+#define VERSION "0.0.5"
 
 char*		SVNRepoPath;
 char*		projectsPath;
@@ -70,6 +70,12 @@ void newProject(GtkWidget* widget,gpointer data)
 	char*		command;
 	const char*	projname;
 	char*		appnamelower;
+	int			ret;
+
+	ret=system("which svn 2>&1 >/dev/null");
+	ret=WEXITSTATUS(ret);
+	if(ret!=0)
+		makesvn=false;
 
 	name=gtk_widget_get_name(widget);
 	vbox=gtk_vbox_new(false,0);
@@ -86,11 +92,17 @@ void newProject(GtkWidget* widget,gpointer data)
 	gtk_box_pack_start((GtkBox*)vbox,project,true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,createsvn,true,true,4);
 
+	gtk_dialog_set_default_response((GtkDialog*)dialog,GTK_RESPONSE_APPLY);
 	gtk_widget_show_all(dialog);
 	response=gtk_dialog_run(GTK_DIALOG(dialog));
 	if(response==GTK_RESPONSE_APPLY)
 		{
 			showToolOutput(true);
+
+			asprintf(&command,"mkdir -vp %s;mkdir -vp %s",projectsPath,SVNRepoPath);
+			runCommandAndOut(command,plugdata);
+			free(command);
+
 			asprintf(&archive,"mkdir %s/NewProject;cd %s/NewProject;tar -xvf %s/newproject/bones/bones%s.tar.gz",plugdata->tmpFolder,plugdata->tmpFolder,plugdata->lPlugFolder,name);
 			runCommandAndOut(archive,plugdata);
 			makesvn=gtk_toggle_button_get_active((GtkToggleButton*)createsvn);
@@ -101,16 +113,16 @@ void newProject(GtkWidget* widget,gpointer data)
 				appnamelower[j]=tolower(appnamelower[j]);
 
 //filenames
-			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>APP<>*\" -type d -exec rename \"<>APP<>\" \"%s\" '{}' \\;",plugdata->tmpFolder,name,appnamelower);
+			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>APP<>*\" -type d -exec bash -c 'mv $0 ${0/<>APP<>/%s}' '{}' \\; 2>/dev/null",plugdata->tmpFolder,name,appnamelower);
 			runCommandAndOut(command,plugdata);
 			free(command);
-			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>APP<>*\" -type f -exec rename \"<>APP<>\" \"%s\" '{}' \\;",plugdata->tmpFolder,name,appnamelower);
+			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>APP<>*\" -type f -exec bash -c 'mv $0 ${0/<>APP<>/%s}' '{}'  \\; 2>/dev/null",plugdata->tmpFolder,name,appnamelower);
 			runCommandAndOut(command,plugdata);
 			free(command);
-			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>PROJ<>*\" -type d -exec rename \"<>PROJ<>\" \"%s\" '{}' \\; 2>/dev/null",plugdata->tmpFolder,name,projname);
+			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>PROJ<>*\" -type d -exec bash -c 'mv $0 ${0/<>PROJ<>/%s}' '{}'  \\; 2>/dev/null",plugdata->tmpFolder,name,projname);
 			runCommandAndOut(command,plugdata);
 			free(command);
-			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>PROJ<>*\" -type f -exec rename \"<>PROJ<>\" \"%s\" '{}' \\; 2>/dev/null",plugdata->tmpFolder,name,projname);
+			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>PROJ<>*\" -type f -exec bash -c 'mv $0 ${0/<>PROJ<>/%s}' '{}'  \\; 2>/dev/null",plugdata->tmpFolder,name,projname);
 			runCommandAndOut(command,plugdata);
 			free(command);
 
@@ -208,7 +220,7 @@ extern "C" int addToGui(gpointer data)
 
 	asprintf(&projectsPath,"%s/Projects",getenv("HOME"));
 	asprintf(&SVNRepoPath,"%s/SVN",getenv("HOME"));
-	asprintf(&command,"cat %s/newproject.rc 2>/dev/null",plugdata->lPlugFolder);
+	asprintf(&command,"cat %s/newproject.rc",plugdata->lPlugFolder);
 	fp=popen(command,"r");
 		if(fp!=NULL)
 			{
@@ -258,6 +270,10 @@ extern "C" int plugPrefs(gpointer data)
 	if(response==GTK_RESPONSE_APPLY);
 		{
 			asprintf(&command,"echo %s>%s/newproject.rc;echo %s>>%s/newproject.rc",gtk_entry_get_text((GtkEntry*)projects),plugdata->lPlugFolder,gtk_entry_get_text((GtkEntry*)svn),plugdata->lPlugFolder);
+			free(projectsPath);
+			free(SVNRepoPath);
+			projectsPath=strdup(gtk_entry_get_text((GtkEntry*)projects));
+			SVNRepoPath=strdup(gtk_entry_get_text((GtkEntry*)svn));
 			system(command);
 			free(command);
 		}
@@ -274,7 +290,7 @@ extern "C" int doAbout(gpointer data)
 	char*			licence;
 	GtkAboutDialog*	about;
 
-	const char*	authors[]= {"K.D.Hedger <"MYEMAIL">\n",MYWEBSITE,"\nMore by the same author\n","Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
+	const char*	authors[]= {"K.D.Hedger <"MYEMAIL">\n",MYWEBSITE,"\nMore by the same author\n","KKEdit\nhttp://gtk-apps.org/content/show.php?content=158161\n","Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
 
 	asprintf(&licencepath,"%s/docs/gpl-3.0.txt",plugdata->dataDir);
 

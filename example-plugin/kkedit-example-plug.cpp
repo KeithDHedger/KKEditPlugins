@@ -93,7 +93,11 @@ extern "C" int addToGui(gpointer data)
 	gtk_box_pack_start(GTK_BOX(plugdata->leftUserBox),leftButton,false,false,0);
 	gtk_widget_set_name(leftButton,"echo Left Button Clicked");
 	gtk_signal_connect(GTK_OBJECT(leftButton),"clicked",G_CALLBACK(clickButton),plugdata);
+
+	gtk_widget_show(leftButton);
+	//setVisiblity(true,true);
 	gtk_widget_show_all(plugdata->leftUserBox);
+	leftVisibleRef(true);
 
 	rightButton=gtk_button_new_with_label("right side button\nat bottom");
 	gtk_box_pack_end(GTK_BOX(plugdata->rightUserBox),rightButton,false,false,0);
@@ -233,6 +237,9 @@ extern "C" int enablePlug(gpointer data)
 			gtk_widget_destroy(rightButton);
 			gtk_widget_destroy(topLabel);
 			gtk_widget_destroy(bottomLabel);
+			//gtk_widget_hide(plugdata->leftUserBox);
+			setVisiblity(false,true);
+			gtk_widget_hide(plugdata->rightUserBox);
 		}
 	else
 		{

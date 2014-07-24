@@ -181,20 +181,28 @@ void showHideBrowser(plugData* pdata)
 	char*	filepath;
 
 	asprintf(&filepath,"%s/filebrowser.rc",pdata->lPlugFolder);
-
+	leftVisibleRef(false);
 	if(showing==true)
 		{
-			gtk_widget_show_all(pdata->leftUserBox);
-			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,"Hide Browser");
-			touch(filepath);
+			if(setVisiblity(true,true))
+				{
+			//gtk_widget_show_all(pdata->leftUserBox);
+					gtk_menu_item_set_label((GtkMenuItem*)hideMenu,"Hide Browser");
+					touch(filepath);
+				}
 		}
 	else
 		{
-			unlink(filepath);
-			gtk_widget_hide_all(pdata->leftUserBox);
-			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,"Show Browser");
+				if(setVisiblity(false,true))
+					{
+						unlink(filepath);
+			//setVisiblity(false,true);
+			//gtk_widget_hide_all(pdata->leftUserBox);
+						gtk_menu_item_set_label((GtkMenuItem*)hideMenu,"Show Browser");
+					}
 		}
 	free(filepath);
+	leftVisibleRef(true);
 }
 
 void toggleBrowser(GtkWidget* widget,gpointer data)
@@ -205,13 +213,13 @@ void toggleBrowser(GtkWidget* widget,gpointer data)
 
 extern "C" int setSensitive(gpointer data)
 {
-	showHideBrowser((plugData*)data);
+//	showHideBrowser((plugData*)data);
 	return(0);
 }
 
 extern "C" int switchTab(gpointer data)
 {
-	showHideBrowser((plugData*)data);
+//	showHideBrowser((plugData*)data);
 	return(0);
 }
 
@@ -273,8 +281,13 @@ extern "C" int addToGui(gpointer data)
 	g_signal_connect(treeview,"row-activated",G_CALLBACK(onRowActivated),NULL);
 
 	leftBox=(GtkWidget*)plugdata->leftUserBox;
-	gtk_widget_show_all((GtkWidget*)plugdata->leftUserBox);
+//	gtk_widget_show_all((GtkWidget*)plugdata->leftUserBox);
 	doStartUpCheck(plugdata);
+//	setVisiblity(true,true);
+//	if(showing==true)
+	setVisiblity(showing,true);
+//	leftVisibleRef(true);
+	showHideBrowser(plugdata);
 	return(0);
 }
 
@@ -317,7 +330,8 @@ extern "C" int enablePlug(gpointer data)
 		{
 			gtk_widget_destroy(scrollbox);
 			gtk_widget_destroy(hideMenu);
-			gtk_widget_set_size_request((GtkWidget*)plugdata->leftUserBox,0,-1);
+			//gtk_widget_set_size_request((GtkWidget*)plugdata->leftUserBox,0,-1);
+			setVisiblity(false,true);
 			//gtk_widget_show_all((GtkWidget*)plugdata->leftUserBox);
 		}
 	else

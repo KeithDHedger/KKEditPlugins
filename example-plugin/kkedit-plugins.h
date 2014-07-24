@@ -100,8 +100,10 @@ struct plugData
 	GtkWidget*		topUserBox;
 //left
 	GtkWidget*		leftUserBox;
+	GtkWidget*		mainWindowHPane;
 //right
 	GtkWidget*		rightUserBox;
+	GtkWidget*		secondWindowHPane;
 //bottom
 	GtkWidget*		bottomUserBox;
 //kkedit main window
@@ -110,6 +112,9 @@ struct plugData
 	GtkTextBuffer*	toolOutBuffer;
 //tool output window
 	GtkWidget*		toolOutWindow;
+
+//left user box visiblity != 0 don't hide/show
+	int				leftBoxVisibilLock;
 };
 
 #define USEFILE			-2
@@ -119,5 +124,7 @@ void		showDocView(int howtodisplay,char* text,const char* title);
 pageStruct*	getPageStructPtr(int pagenum);
 void		showToolOutput(bool immediate);
 void		hideToolOutput(bool immediate);
+bool		setVisiblity(bool visible,bool left);
+void		leftVisibleRef(bool ref);
 
 #endif

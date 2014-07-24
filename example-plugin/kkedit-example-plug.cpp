@@ -94,17 +94,16 @@ extern "C" int addToGui(gpointer data)
 	gtk_widget_set_name(leftButton,"echo Left Button Clicked");
 	gtk_signal_connect(GTK_OBJECT(leftButton),"clicked",G_CALLBACK(clickButton),plugdata);
 
+	showSide(true);
 	gtk_widget_show(leftButton);
-	//setVisiblity(true,true);
-	gtk_widget_show_all(plugdata->leftUserBox);
-	leftVisibleRef(true);
 
 	rightButton=gtk_button_new_with_label("right side button\nat bottom");
 	gtk_box_pack_end(GTK_BOX(plugdata->rightUserBox),rightButton,false,false,0);
-	//whattoop="echo Right Button Clicked";
 	gtk_widget_set_name(rightButton,"echo Right Button Clicked");
 	gtk_signal_connect(GTK_OBJECT(rightButton),"clicked",G_CALLBACK(clickButton),plugdata);
-	gtk_widget_show_all(plugdata->rightUserBox);
+
+	showSide(false);
+	gtk_widget_show(rightButton);
 
 	topLabel=gtk_label_new("Top user vbox demo label\nSelect 'Edit->Plugin Prefs' to disable this plugin from the dialog box.\nUnselect 'kkedit-example-plug and click 'Apply'");
 	gtk_box_pack_end(GTK_BOX(plugdata->topUserBox),topLabel,true,true,0);
@@ -237,8 +236,8 @@ extern "C" int enablePlug(gpointer data)
 			gtk_widget_destroy(rightButton);
 			gtk_widget_destroy(topLabel);
 			gtk_widget_destroy(bottomLabel);
-			//gtk_widget_hide(plugdata->leftUserBox);
-			setVisiblity(false,true);
+			hideSide(true);
+			hideSide(false);
 			gtk_widget_hide(plugdata->rightUserBox);
 		}
 	else

@@ -113,8 +113,9 @@ struct plugData
 //tool output window
 	GtkWidget*		toolOutWindow;
 
-//left user box visiblity != 0 don't hide/show
-	int				leftBoxVisibilLock;
+//leftright user box visiblity ref
+	int				leftShow;
+	int				rightShow;
 };
 
 #define USEFILE			-2
@@ -124,7 +125,7 @@ void		showDocView(int howtodisplay,char* text,const char* title);
 pageStruct*	getPageStructPtr(int pagenum);
 void		showToolOutput(bool immediate);
 void		hideToolOutput(bool immediate);
-bool		setVisiblity(bool visible,bool left);
-void		leftVisibleRef(bool ref);
+void showSide(bool left);
+void hideSide(bool left);
 
 #endif

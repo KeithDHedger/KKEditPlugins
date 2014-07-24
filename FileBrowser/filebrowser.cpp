@@ -19,7 +19,7 @@
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
-#define VERSION "0.0.4"
+#define VERSION "0.0.5"
 #define NUM_COLUMNS 2
 #define COLUMN_FILENAME 0
 #define COLUMN_PATHNAME 1
@@ -119,7 +119,6 @@ void expandRow(GtkTreeView* treeview,GtkTreeIter* iter,GtkTreePath* path,gpointe
 
 	while(gotchild)
 		{
-
 			if(addContents(treeview,&childiter,(char*)folder))
 				gotchild=gtk_tree_model_iter_next(model,&childiter);
 			else
@@ -176,39 +175,34 @@ void touch(char* path)
 		close(fd);
 }
 
-void showHideBrowser(plugData* pdata)
+void showHideBrowser(plugData* pdata,bool startup)
 {
 	char*	filepath;
 
 	asprintf(&filepath,"%s/filebrowser.rc",pdata->lPlugFolder);
-	leftVisibleRef(false);
 	if(showing==true)
 		{
-			if(setVisiblity(true,true))
-				{
-			//gtk_widget_show_all(pdata->leftUserBox);
-					gtk_menu_item_set_label((GtkMenuItem*)hideMenu,"Hide Browser");
-					touch(filepath);
-				}
+			gtk_widget_show_all(scrollbox);
+			if(pdata->leftShow==0 && startup==false)
+				showSide(true);
+			touch(filepath);
+			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,"Hide Browser");
 		}
 	else
 		{
-				if(setVisiblity(false,true))
-					{
-						unlink(filepath);
-			//setVisiblity(false,true);
-			//gtk_widget_hide_all(pdata->leftUserBox);
-						gtk_menu_item_set_label((GtkMenuItem*)hideMenu,"Show Browser");
-					}
+			gtk_widget_hide(scrollbox);
+			unlink(filepath);
+			if(pdata->leftShow==1 && startup==false)
+				hideSide(true);
+			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,"Show Browser");
 		}
 	free(filepath);
-	leftVisibleRef(true);
 }
 
 void toggleBrowser(GtkWidget* widget,gpointer data)
 {
 	showing=!showing;
-	showHideBrowser((plugData*)data);
+	showHideBrowser((plugData*)data,false);
 }
 
 extern "C" int setSensitive(gpointer data)
@@ -281,13 +275,9 @@ extern "C" int addToGui(gpointer data)
 	g_signal_connect(treeview,"row-activated",G_CALLBACK(onRowActivated),NULL);
 
 	leftBox=(GtkWidget*)plugdata->leftUserBox;
-//	gtk_widget_show_all((GtkWidget*)plugdata->leftUserBox);
 	doStartUpCheck(plugdata);
-//	setVisiblity(true,true);
-//	if(showing==true)
-	setVisiblity(showing,true);
-//	leftVisibleRef(true);
-	showHideBrowser(plugdata);
+	showHideBrowser(plugdata,true);
+	showSide(true);
 	return(0);
 }
 
@@ -330,9 +320,7 @@ extern "C" int enablePlug(gpointer data)
 		{
 			gtk_widget_destroy(scrollbox);
 			gtk_widget_destroy(hideMenu);
-			//gtk_widget_set_size_request((GtkWidget*)plugdata->leftUserBox,0,-1);
-			setVisiblity(false,true);
-			//gtk_widget_show_all((GtkWidget*)plugdata->leftUserBox);
+			hideSide(true);
 		}
 	else
 		{

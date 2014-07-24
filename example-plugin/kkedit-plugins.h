@@ -125,7 +125,7 @@ void		showDocView(int howtodisplay,char* text,const char* title);
 pageStruct*	getPageStructPtr(int pagenum);
 void		showToolOutput(bool immediate);
 void		hideToolOutput(bool immediate);
-void showSide(bool left);
-void hideSide(bool left);
+void		showSide(bool left);
+void		hideSide(bool left);
 
 #endif

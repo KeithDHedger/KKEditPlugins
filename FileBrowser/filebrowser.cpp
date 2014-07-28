@@ -78,7 +78,7 @@ bool addContents(GtkTreeView* treeview,GtkTreeIter* iter,char* name)
 	model=gtk_tree_view_get_model(treeview);
 	gtk_tree_model_iter_parent(model,&parentiter,iter);
 
-	asprintf(&command,"ls -1 %s|sort",name);
+	asprintf(&command,"ls -1 \"%s\"|sort",name);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
@@ -133,7 +133,7 @@ void collapseRow(GtkTreeView* treeview,GtkTreeIter* iter,GtkTreePath* path,gpoin
 
 	if(strcmp(pathstring,"0")==0)
 		flag=false;
-	free(pathstring);
+	debugFree(pathstring,"pathstring");
 }
 
 void onColWidthChange(GObject* gobject,GParamSpec* pspec,gpointer data)
@@ -147,22 +147,43 @@ void onColWidthChange(GObject* gobject,GParamSpec* pspec,gpointer data)
 		gtk_widget_set_size_request((GtkWidget*)leftBox,100,-1);
 }
 
+const char* getApp(char* name)
+{
+	GFile*		file=g_file_new_for_path(name);
+	GFileInfo*	file_info=g_file_query_info(file,"standard::*",G_FILE_QUERY_INFO_NONE,NULL,NULL);
+
+    const char*	content_type=g_file_info_get_content_type(file_info);
+    GAppInfo*	app_info=g_app_info_get_default_for_type(content_type,false);
+
+	return(g_app_info_get_executable(app_info));
+}
+
 void onRowActivated(GtkTreeView* treeview, GtkTreePath* path,GtkTreeViewColumn* col,gpointer userdata)
 {
 	GtkTreeModel*	model;
 	GtkTreeIter		iter;
 	gchar*			name;
 	char*			command;
- 
+	GdkModifierType	mask;
+	const char*		app;
+
+	gdk_window_get_pointer(NULL,NULL,NULL,&mask);
+
 	model=gtk_tree_view_get_model(treeview);
 
 	if(gtk_tree_model_get_iter(model,&iter,path))
 		{
 			gtk_tree_model_get(model,&iter,COLUMN_PATHNAME,&name,-1);
-			asprintf(&command,"xdg-open %s",name);
-			system(command);
-			free(command);
-			free(name);
+			app=getApp(name);
+			asprintf(&command,"%s '%s'",app,name);
+			
+			if (GDK_CONTROL_MASK & mask )
+				runCommand(command,NULL,false,TOOL_ASYNC,true,NULL);
+			else
+				runCommand(command,NULL,false,TOOL_ASYNC,false,NULL);
+				
+			debugFree(command,"comand from runcommand");
+			debugFree(name,"name from runcommand");
 		}
 }
 
@@ -196,7 +217,7 @@ void showHideBrowser(plugData* pdata,bool startup)
 				hideSide(true);
 			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,"Show Browser");
 		}
-	free(filepath);
+	debugFree(filepath,"filepath");
 }
 
 void toggleBrowser(GtkWidget* widget,gpointer data)
@@ -227,9 +248,17 @@ void doStartUpCheck(plugData* pdata)
 	else
 		showing=false;
 
-	free(filepath);
+	debugFree(filepath,"filepath");
 }
 
+gboolean            rightClick                      (GtkWidget *widget,
+                                                        GdkEvent  *event,
+                                                        gpointer   user_data) 
+{
+	
+return(false);
+}
+                                                        
 extern "C" int addToGui(gpointer data)
 {
 	plugData*			plugdata=(plugData*)data;
@@ -273,6 +302,7 @@ extern "C" int addToGui(gpointer data)
 	g_signal_connect(treeview,"row-collapsed",G_CALLBACK(collapseRow),column);
 	g_signal_connect((GtkWidget*)column,"notify::width",G_CALLBACK(onColWidthChange),column);
 	g_signal_connect(treeview,"row-activated",G_CALLBACK(onRowActivated),NULL);
+	g_signal_connect(treeview,"button-press-event",G_CALLBACK(rightClick),column);
 
 	leftBox=(GtkWidget*)plugdata->leftUserBox;
 	doStartUpCheck(plugdata);
@@ -307,8 +337,8 @@ extern "C" int doAbout(gpointer data)
 
 	gtk_dialog_run(GTK_DIALOG(about));
 	gtk_widget_destroy((GtkWidget*)about);
-	free(licence);
-	free(licencepath);
+	debugFree(licence,"licence");
+	debugFree(licencepath,"licencepath");
 	return(0);
 }
 

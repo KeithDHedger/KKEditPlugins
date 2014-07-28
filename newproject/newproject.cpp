@@ -221,6 +221,7 @@ extern "C" int addToGui(gpointer data)
 	asprintf(&projectsPath,"%s/Projects",getenv("HOME"));
 	asprintf(&SVNRepoPath,"%s/SVN",getenv("HOME"));
 	asprintf(&command,"cat %s/newproject.rc",plugdata->lPlugFolder);
+
 	fp=popen(command,"r");
 		if(fp!=NULL)
 			{

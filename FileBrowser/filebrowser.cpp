@@ -19,7 +19,7 @@
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
-#define VERSION "0.0.5"
+#define VERSION "0.0.6"
 #define NUM_COLUMNS 3
 #define COLUMN_FILENAME 1
 #define COLUMN_PATHNAME 2
@@ -37,6 +37,7 @@ GtkWidget*		hideMenu;
 bool			showing;
 bool			colflag=false;
 int				colsize=0;
+bool			showInvisible;
 
 GdkPixbuf* getPixBuf(char* name)
 {
@@ -59,7 +60,6 @@ GdkPixbuf* getPixBuf(char* name)
 					pix=gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),(const gchar*)newname,16,(GtkIconLookupFlags)(GTK_ICON_LOOKUP_USE_BUILTIN|GTK_ICON_LOOKUP_FORCE_SVG|GTK_ICON_LOOKUP_GENERIC_FALLBACK|GTK_ICON_LOOKUP_FORCE_SIZE),NULL);
 					debugFree(newname,"getPixBuf newname");
 				}
-			
 		}
 	else if(G_IS_FILE_ICON(icon))
 		{

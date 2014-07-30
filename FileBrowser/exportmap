@@ -4,6 +4,7 @@ global:	addToGui;
 		enablePlug;
 		setSensitive;
 		switchTab;
+		plugPrefs;
 
 local: *;
 

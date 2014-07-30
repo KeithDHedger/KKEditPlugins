@@ -26,3 +26,6 @@ uninstall:
 	else \
 		rm -rv "${USERINSTALLDIR}/${FILES}"; \
 	fi
+
+makepkg:
+	cd .. && tar -cvzf FileBrowser.tar.gz FileBrowser

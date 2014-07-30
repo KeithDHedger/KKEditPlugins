@@ -1,9 +1,9 @@
-0.0.5
-Added 'Show Invisible Foiles' To Prefs.
+0.0.5-0.0.6
+Added 'Show Invisible Files' To Prefs.
 Added Prefs.
 Added 'Control Click' to open item as root.
 Added Icons.
-Fixed not opeing files/folders with spaces in the names.
+Fixed not opening files/folders with spaces in the names.
 
 0.0.1-0.0.4
 First launch of browser plugin.

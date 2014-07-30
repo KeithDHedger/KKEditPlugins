@@ -39,6 +39,57 @@ bool			colflag=false;
 int				colsize=0;
 bool			showInvisible;
 
+void touch(char* path)
+{
+	int	fd;
+
+	fd=open(path,O_WRONLY|O_CREAT,DEFFILEMODE);
+	if(fd!=-1)
+		close(fd);
+}
+
+void showHideInvisibles(plugData* pdata)
+{
+	char*	filepath;
+
+	asprintf(&filepath,"%s/filebrowser.inv",pdata->lPlugFolder);
+	if(showInvisible==true)
+		touch(filepath);
+	else
+		unlink(filepath);
+	debugFree(filepath,"filepath");
+}
+
+extern "C" int plugPrefs(gpointer data)
+{
+	plugData*	plugdata=(plugData*)data;
+	GtkWidget*	dialog;
+	GtkWidget*	dialogbox;
+	GtkWidget*	showinvis;
+	GtkWidget*	vbox;
+	int			response;
+	vbox=gtk_vbox_new(false,0);
+
+	dialog=gtk_dialog_new_with_buttons("File Browser Plug In Prefs",NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
+	dialogbox=gtk_dialog_get_content_area((GtkDialog*)dialog);
+	gtk_container_add(GTK_CONTAINER(dialogbox),vbox);
+
+	showinvis=gtk_check_button_new_with_label("Show Invisible File/Folders");
+	gtk_toggle_button_set_active((GtkToggleButton*)showinvis,showInvisible);
+	gtk_box_pack_start((GtkBox*)vbox,showinvis,true,true,4);
+
+	gtk_dialog_set_default_response((GtkDialog*)dialog,GTK_RESPONSE_APPLY);
+	gtk_widget_show_all(dialog);
+	response=gtk_dialog_run(GTK_DIALOG(dialog));
+	if(response==GTK_RESPONSE_APPLY)
+		{
+			showInvisible=gtk_toggle_button_get_active((GtkToggleButton*)showinvis);
+			showHideInvisibles(plugdata);
+		}
+	gtk_widget_destroy((GtkWidget*)dialog);
+	return(0);
+}
+
 GdkPixbuf* getPixBuf(char* name)
 {
 	GFile*				file=g_file_new_for_path(name);
@@ -118,7 +169,11 @@ bool addContents(GtkTreeView* treeview,GtkTreeIter* iter,char* name)
 	model=gtk_tree_view_get_model(treeview);
 	gtk_tree_model_iter_parent(model,&parentiter,iter);
 
-	asprintf(&command,"ls -1 \"%s\"|sort",name);
+	if(showInvisible==true)
+		asprintf(&command,"ls -1 -A \"%s\"|sort",name);
+	else
+		asprintf(&command,"ls -1 \"%s\"|sort",name);
+
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
@@ -237,15 +292,6 @@ void onRowActivated(GtkTreeView* treeview, GtkTreePath* path,GtkTreeViewColumn* 
 		}
 }
 
-void touch(char* path)
-{
-	int	fd;
-
-	fd=open(path,O_WRONLY|O_CREAT,DEFFILEMODE);
-	if(fd!=-1)
-		close(fd);
-}
-
 void showHideBrowser(plugData* pdata,bool startup)
 {
 	char*	filepath;
@@ -295,6 +341,14 @@ void doStartUpCheck(plugData* pdata)
 		showing=true;
 	else
 		showing=false;
+
+	debugFree(filepath,"filepath");
+
+	asprintf(&filepath,"%s/filebrowser.inv",pdata->lPlugFolder);
+	if(g_file_test(filepath,G_FILE_TEST_EXISTS))
+		showInvisible=true;
+	else
+		showInvisible=false;
 
 	debugFree(filepath,"filepath");
 }

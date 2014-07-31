@@ -5,6 +5,7 @@ global:	addToGui;
 		setSensitive;
 		switchTab;
 		plugPrefs;
+		addToTab;
 
 local: *;
 

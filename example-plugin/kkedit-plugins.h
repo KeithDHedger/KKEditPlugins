@@ -125,6 +125,8 @@ struct plugData
 	GtkTextBuffer*	toolOutBuffer;
 //tool output window
 	GtkWidget*		toolOutWindow;
+//tab popup menu
+	GtkWidget*		tabPopUpMenu;
 
 //leftright user box visiblity ref
 	int				leftShow;

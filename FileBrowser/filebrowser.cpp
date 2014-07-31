@@ -38,6 +38,7 @@ bool			showing;
 bool			colflag=false;
 int				colsize=0;
 bool			showInvisible;
+gchar*			node=NULL;
 
 void touch(char* path)
 {
@@ -352,7 +353,85 @@ void doStartUpCheck(plugData* pdata)
 
 	debugFree(filepath,"filepath");
 }
-                                                        
+
+gboolean getNode(GtkTreeModel *model,GtkTreePath *path,GtkTreeIter *iter,gpointer data)
+{
+	char*	name=NULL;
+	char*	thispath=NULL;
+	bool	retval=false;
+
+	thispath=gtk_tree_path_to_string(path);
+	if(node!=NULL && thispath!=NULL)
+		{
+			if((strlen(thispath)<strlen(node)) || (strcmp(thispath,node)==0))
+				{
+					debugFree(thispath,"filebrowser getnode thispath");
+					return(false);
+				}
+		}
+
+	gtk_tree_model_get(model,iter,COLUMN_FILENAME,&name,-1);
+	if(name!=NULL)
+		{
+			if(strcmp(name,(char*)data)==0)
+				{
+					debugFree(node,"filebrowser getnode node");
+					node=gtk_tree_path_to_string(path);
+					gtk_tree_view_expand_row((GtkTreeView*)treeview,path,false);
+					retval=true;
+				}
+			debugFree(name,"filebrowser getnode name");
+		}
+	debugFree(thispath,"filebrowser getnode thispath");
+	return(retval);
+}
+
+void doTabMenu(GtkWidget *widget,gpointer data)
+{
+	plugData*		plugdata=(plugData*)data;
+	pageStruct*		page=plugdata->page;
+	char*			ptr=strdup(page->filePath);
+	GtkTreeModel*	model=NULL;
+	GtkTreePath*	scrollpath;
+
+	gtk_tree_view_collapse_all((GtkTreeView *)treeview);
+
+	ptr=strtok(ptr,"/");
+
+	model=GTK_TREE_MODEL(store);
+	gtk_tree_model_foreach(model,getNode,(gpointer)"/");
+
+	while(ptr!=NULL)
+		{
+			gtk_tree_model_foreach(model,getNode,ptr);
+			ptr=strtok(NULL,"/");
+		}
+
+	scrollpath=gtk_tree_path_new_from_string(node);
+	gtk_tree_view_set_cursor((GtkTreeView *)treeview,scrollpath,NULL,false);
+	gtk_tree_view_scroll_to_cell((GtkTreeView *)treeview,scrollpath,NULL,true,0.5,0.5);
+	debugFree(node,"filebrowser doTabMenu node");
+	node=NULL;
+
+	showing=false;
+	toggleBrowser(NULL,plugdata);
+}
+
+extern "C" int addToTab(gpointer data)
+{
+	GtkWidget*	menuitem;
+	GtkWidget*	image;
+	plugData*	plugdata=(plugData*)data;
+
+	menuitem=gtk_image_menu_item_new_with_label("Open In Browser");
+	image=gtk_image_new_from_stock(GTK_STOCK_OPEN,GTK_ICON_SIZE_MENU);
+	gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
+	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->tabPopUpMenu),menuitem);
+	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(doTabMenu),(void*)plugdata);
+
+	return(0);
+}
+                                                      
 extern "C" int addToGui(gpointer data)
 {
 	plugData*			plugdata=(plugData*)data;

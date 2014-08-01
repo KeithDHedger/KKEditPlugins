@@ -431,7 +431,22 @@ extern "C" int addToTab(gpointer data)
 
 	return(0);
 }
-                                                      
+
+//extern "C" int addToContext(gpointer data)
+//{
+//	GtkWidget*	menuitem;
+//	GtkWidget*	image;
+//	plugData*	plugdata=(plugData*)data;
+//
+//	menuitem=gtk_image_menu_item_new_with_label("Open In Browser");
+//	image=gtk_image_new_from_stock(GTK_STOCK_OPEN,GTK_ICON_SIZE_MENU);
+//	gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
+//	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->contextPopUpMenu),menuitem);
+//	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(doTabMenu),(void*)plugdata);
+//
+//	return(0);
+//}
+
 extern "C" int addToGui(gpointer data)
 {
 	plugData*			plugdata=(plugData*)data;

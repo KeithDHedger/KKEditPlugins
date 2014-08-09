@@ -7,7 +7,6 @@ global:	addToGui;
 		plugPrefs;
 		addToTab;
 
-
 local: *;
 
 };

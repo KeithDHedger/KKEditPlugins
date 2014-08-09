@@ -1,8 +1,9 @@
 PLUGNAME=kkedit-example-plug
-PACKAGENAME=$PLUGNAME
+PACKAGENAME=${PLUGNAME}
 FILES=lib${PLUGNAME}.so
 USERINSTALLDIR=${HOME}/.KKEdit/plugins
 ROOTINSTALLDIR=/usr/share/KKEdit/plugins
+FOLDER=example-plugin
 
 all:
 	gcc -DKKEDITHASH=\"${KKEDITHASH}\" -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs gtk+-2.0 gmodule-2.0 glib-2.0 gtksourceview-2.0` -o ${PLUGNAME}.o
@@ -29,4 +30,4 @@ uninstall:
 	fi
 
 makepkg:
-	cd .. && tar -cvzf ${PACKAGENAME}.tar.gz ${PACKAGENAME}
+	cd .. && tar -cvzf ${PACKAGENAME}.tar.gz ${FOLDER}

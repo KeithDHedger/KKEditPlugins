@@ -234,14 +234,18 @@ void collapseRow(GtkTreeView* treeview,GtkTreeIter* iter,GtkTreePath* path,gpoin
 
 void onColWidthChange(GObject* gobject,GParamSpec* pspec,gpointer data)
 {
-	gint intval;
+	gint			intval;
+	GtkRequisition	requisition;
+	GtkWidget*		vbar=gtk_scrolled_window_get_vscrollbar((GtkScrolledWindow *)scrollbox);
+
 	g_object_get(data,"width",&intval,NULL);
+	gtk_widget_size_request(vbar,&requisition);
 
 	if(flag==true)
 		{
 			if(colflag==false)
 				{
-					colsize=intval+16;
+					colsize=intval+requisition.width;
 					colflag=true;
 					return;
 				}

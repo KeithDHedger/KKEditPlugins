@@ -1,4 +1,5 @@
 0.0.5-0.0.6
+Fixed bug when using gnome 0 width scrollbars.
 Added 'Open In Browser' to tab popup menu.
 Added 'Show Invisible Files' To Prefs.
 Added Prefs.

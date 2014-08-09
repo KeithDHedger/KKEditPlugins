@@ -1,6 +1,5 @@
 PLUGNAME=newproject
-PACKAGENAME=$PLUGNAME
-FILES=lib${PLUGNAME}.so bones
+PACKAGENAME=${PLUGNAME}
 ROOTINSTALLDIR=/usr/share/KKEdit/plugins
 USERINSTALLDIR=${HOME}/.KKEdit/plugins
 
@@ -17,10 +16,10 @@ distclean:
 install:
 	if [ ${USER} = "root" ];then \
 		mkdir -vp "${ROOTINSTALLDIR}/${PLUGNAME}"; \
-		cp -rv ${FILES} "${ROOTINSTALLDIR}/${PLUGNAME}"; \
+		cp -rv lib${PLUGNAME}.so bones "${ROOTINSTALLDIR}/${PLUGNAME}"; \
 	else \
 		mkdir -vp "${USERINSTALLDIR}/${PLUGNAME}"; \
-		cp -rv ${FILES} "${USERINSTALLDIR}/${PLUGNAME}"; \
+		cp -rv lib${PLUGNAME}.so bones "${USERINSTALLDIR}/${PLUGNAME}"; \
 	fi
 
 uninstall:

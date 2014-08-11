@@ -54,6 +54,30 @@ void runCommandAndOut(char* command,plugData* plugdata)
 		}
 }
 
+void openNewFiles(char* projectsPath,const char* projname)
+{
+	FILE*	fp=NULL;
+	char	line[1024];
+	char*	command;
+	char*	filepath;
+
+	asprintf(&command,"cat %s/%s/filestoopen",projectsPath,projname);
+	fp=popen(command,"r");
+	if(fp!=NULL)
+		{
+			while(fgets(line,1024,fp))
+				{
+					line[strlen(line)-1]=0;
+					asprintf(&filepath,"%s/%s/%s",projectsPath,projname,line);
+					openFile((const gchar*)filepath,0,false);
+					free(filepath);
+				}
+			pclose(fp);
+		}
+
+	free(command);
+}
+
 void newProject(GtkWidget* widget,gpointer data)
 {
 	const char*	name;
@@ -152,11 +176,13 @@ void newProject(GtkWidget* widget,gpointer data)
 					runCommandAndOut(command,plugdata);
 					free(command);
 				}
-	
+
 			asprintf(&command,"rm -r %s/NewProject",plugdata->tmpFolder);
 			system(command);
 			free(command);
 			free(appnamelower);
+			//printf("%s/%s\n",projectsPath,projname);
+			openNewFiles(projectsPath,projname);
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
 }

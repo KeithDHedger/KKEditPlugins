@@ -18,7 +18,8 @@
 #define VERSION "0.0.1"
 
 GtkWidget*	menuMount;
-
+char*		mountPoint=NULL;
+void doTabMenu(GtkWidget *widget,gpointer data);
 int	(*module_plug_function)(gpointer globaldata);
 
 extern "C" const gchar* g_module_check_init(GModule *module)
@@ -26,8 +27,19 @@ extern "C" const gchar* g_module_check_init(GModule *module)
 	return(NULL);
 }
 
+void unMountSSHFS(GtkWidget* widget,gpointer data)
+{
+	plugData*	plugdata=(plugData*)data;
+	char*		command;
+
+	asprintf(&command,"fusermount -u %s 2>&1 >/dev/null",mountPoint);
+	system(command);
+	free(command);
+}
+
 extern "C" const gchar* g_module_unload(GModule *module)
 {
+	unMountSSHFS(NULL,NULL);
 	return(NULL);
 }
 
@@ -55,17 +67,86 @@ void runCommandAndOut(char* command,plugData* plugdata)
 void mountSSHFS(GtkWidget* widget,gpointer data)
 {
 	plugData*	plugdata=(plugData*)data;
+	GtkWidget*	dialog;
+	GtkWidget*	dialogbox;
+	GtkWidget*	host;
+	GtkWidget*	user;
+	GtkWidget*	passwd;
+	GtkWidget*	vbox;
+	int			response;
+	char*		command;
+	char*		remotedirname;
+	char*		remotefilename;
 
-	showToolOutput(true);
-	runCommandAndOut((char*)"ls /",plugdata);
-}
+	vbox=gtk_vbox_new(false,0);
 
-void unMountSSHFS(GtkWidget* widget,gpointer data)
-{
-	plugData*	plugdata=(plugData*)data;
+	dialog=gtk_dialog_new_with_buttons("RemoteEdit",NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
+	gtk_window_set_default_size((GtkWindow*)dialog,300,120);
+	dialogbox=gtk_dialog_get_content_area((GtkDialog*)dialog);
+	gtk_container_add(GTK_CONTAINER(dialogbox),vbox);
 
-	showToolOutput(true);
-	runCommandAndOut((char*)"ls /",plugdata);
+	host=gtk_entry_new();
+	user=gtk_entry_new();
+	passwd=gtk_entry_new();
+	gtk_entry_set_visibility((GtkEntry*)passwd,false);
+
+	gtk_entry_set_text((GtkEntry*)host,"192.168.1.66:/etc/fstab");
+	gtk_entry_set_text((GtkEntry*)user,"keithhedger");
+	gtk_entry_set_text((GtkEntry*)passwd,"hogandnana");
+
+	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Remote File"),true,true,4);
+	gtk_box_pack_start((GtkBox*)vbox,host,true,true,4);
+	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("User Name"),true,true,4);
+	gtk_box_pack_start((GtkBox*)vbox,user,true,true,4);
+	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Password"),true,true,4);
+	gtk_box_pack_start((GtkBox*)vbox,passwd,true,true,4);
+
+	gtk_widget_show_all(dialog);
+	response=gtk_dialog_run(GTK_DIALOG(dialog));
+	if(response==GTK_RESPONSE_APPLY);
+		{
+
+			command=strdup(gtk_entry_get_text((GtkEntry*)host));
+			remotedirname=strdup(dirname(command));
+	printf("xxxxxx %s\n",remotedirname);
+			free(command);
+
+	if(mountPoint!=NULL)
+		free(mountPoint);
+	asprintf(&mountPoint,"%s/%s",plugdata->tmpFolder,remotedirname);
+
+	asprintf(&command,"mkdir -vp %s",mountPoint);
+	system(command);
+	free(command);
+
+
+
+			command=strdup(gtk_entry_get_text((GtkEntry*)host));
+			remotefilename=strdup(basename(command));
+			free(command);
+
+			asprintf(&command,"echo %s|sshfs -o password_stdin %s@%s %s",gtk_entry_get_text((GtkEntry*)passwd),gtk_entry_get_text((GtkEntry*)user),remotedirname,mountPoint);
+//			asprintf(&command,"echo %s>%s/remoteedit.rc;echo %s>>%s/remoteedit.rc",gtk_entry_get_text((GtkEntry*)projects),plugdata->lPlugFolder,gtk_entry_get_text((GtkEntry*)svn),plugdata->lPlugFolder);
+	printf("%s\n",command);
+system(command);
+free(command);
+
+asprintf(&command,"%s/%s",mountPoint,remotefilename);
+openFile((const gchar*)command,0,true);
+free(remotefilename);
+free(remotedirname);
+
+	printf("%s\n",command);
+//			system(command);
+//			free(command);
+//			//doTabMenu(NULL,data);
+//			GModule *mainmod=g_module_open("/home/keithhedger/.KKEdit/plugins/libfilebrowser.so",G_MODULE_BIND_LAZY);
+//	int retval=-1;
+//			if(g_module_symbol(mainmod,"doTabMenu",(gpointer*)&module_plug_function))
+//				retval=module_plug_function((void*)plugdata);
+			//doTabMenu(NULL,data);
+		}
+	gtk_widget_destroy((GtkWidget*)dialog);
 }
 
 extern "C" int addToGui(gpointer data)
@@ -73,7 +154,7 @@ extern "C" int addToGui(gpointer data)
 	GtkWidget*	menuitem;
 	GtkWidget*	menu;
 	GtkWidget*	image;
-
+	char*		command;
 	plugData*	plugdata=(plugData*)data;
 
 	menuMount=gtk_menu_item_new_with_label("_Remote Edit");
@@ -95,6 +176,13 @@ extern "C" int addToGui(gpointer data)
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->mlist.menuBar),menuMount);					
 
+//	if(mountPoint!=NULL)
+//		free(mountPoint);
+//	asprintf(&mountPoint,"%s/sshmount",plugdata->tmpFolder);
+//
+//	asprintf(&command,"mkdir -vp %s",mountPoint);
+//	system(command);
+//	free(command);
 	return(0);
 }
 

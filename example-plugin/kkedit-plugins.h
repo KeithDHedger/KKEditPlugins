@@ -92,6 +92,7 @@ struct plugData
 //menus
 	plugMenuList	mlist;
 	moduleData*		modData;
+//	GList*			plugins;
 //install location of KKEdit data
 	const char*		dataDir;
 //global plugin folder defaults to DATADIR/plugins

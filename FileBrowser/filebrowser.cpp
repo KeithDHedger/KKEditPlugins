@@ -390,10 +390,12 @@ gboolean getNode(GtkTreeModel *model,GtkTreePath *path,GtkTreeIter *iter,gpointe
 	return(retval);
 }
 
-void doTabMenu(GtkWidget *widget,gpointer data)
+extern "C" void doTabMenu(GtkWidget *widget,gpointer data)
 {
+printf("XXXX\n");
 	plugData*		plugdata=(plugData*)data;
 	pageStruct*		page=plugdata->page;
+printf("ZZZZZZ\n");
 	char*			ptr=strdup(page->filePath);
 	GtkTreeModel*	model=NULL;
 	GtkTreePath*	scrollpath;

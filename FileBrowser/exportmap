@@ -6,6 +6,7 @@ global:	addToGui;
 		switchTab;
 		plugPrefs;
 		addToTab;
+		doTabMenu;
 
 local: *;
 

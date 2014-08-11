@@ -17,9 +17,7 @@
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
 #define VERSION "0.0.1"
 
-char*		SVNRepoPath;
-char*		projectsPath;
-GtkWidget*	menuProjects;
+GtkWidget*	menuMount;
 
 int	(*module_plug_function)(gpointer globaldata);
 
@@ -54,7 +52,15 @@ void runCommandAndOut(char* command,plugData* plugdata)
 		}
 }
 
-void theCallBack(GtkWidget* widget,gpointer data)
+void mountSSHFS(GtkWidget* widget,gpointer data)
+{
+	plugData*	plugdata=(plugData*)data;
+
+	showToolOutput(true);
+	runCommandAndOut((char*)"ls /",plugdata);
+}
+
+void unMountSSHFS(GtkWidget* widget,gpointer data)
 {
 	plugData*	plugdata=(plugData*)data;
 
@@ -66,25 +72,35 @@ extern "C" int addToGui(gpointer data)
 {
 	GtkWidget*	menuitem;
 	GtkWidget*	menu;
+	GtkWidget*	image;
 
 	plugData*	plugdata=(plugData*)data;
 
-	menuProjects=gtk_menu_item_new_with_label("_NewKKeditPlug Menu");
-	gtk_menu_item_set_use_underline((GtkMenuItem*)menuProjects,true);
+	menuMount=gtk_menu_item_new_with_label("_Remote Edit");
+	gtk_menu_item_set_use_underline((GtkMenuItem*)menuMount,true);
 	menu=gtk_menu_new();
-	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuProjects),menu);
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuMount),menu);
 
-	menuitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW,NULL);
-	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(theCallBack),plugdata);
+	menuitem=gtk_image_menu_item_new_with_label("Mount SSHFS");
+	image=gtk_image_new_from_stock(GTK_STOCK_CONNECT,GTK_ICON_SIZE_MENU);
+	gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
+	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(mountSSHFS),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
 
-	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->mlist.menuBar),menuProjects);					
+	menuitem=gtk_image_menu_item_new_with_label("Un-Mount SSHFS");
+	image=gtk_image_new_from_stock(GTK_STOCK_DISCONNECT,GTK_ICON_SIZE_MENU);
+	gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
+	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(unMountSSHFS),plugdata);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
+
+	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->mlist.menuBar),menuMount);					
 
 	return(0);
 }
 
 extern "C" int plugPrefs(gpointer data)
 {
+/*
 	GtkWidget*	dialog;
 	GtkWidget*	dialogbox;
 	GtkWidget*	projects;
@@ -151,6 +167,7 @@ extern "C" int doAbout(gpointer data)
 	gtk_widget_destroy((GtkWidget*)about);
 	free(licence);
 	free(licencepath);
+*/
 	return(0);
 }
 
@@ -160,7 +177,7 @@ extern "C" int enablePlug(gpointer data)
 
 	if(plugdata->modData->unload==true)
 		{
-			gtk_widget_destroy(menuProjects);
+			gtk_widget_destroy(menuMount);
 			gtk_widget_show_all(plugdata->mlist.menuBar);	
 		}
 	else

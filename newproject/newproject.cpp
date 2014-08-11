@@ -15,7 +15,7 @@
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
-#define VERSION "0.0.5"
+#define VERSION "0.0.6"
 
 char*		SVNRepoPath;
 char*		projectsPath;

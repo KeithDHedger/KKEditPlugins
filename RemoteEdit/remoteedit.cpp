@@ -11,6 +11,10 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include <kkedit-plugins.h>
 
 #define MYEMAIL "kdhedger68713@gmail.com"
@@ -18,7 +22,7 @@
 #define VERSION "0.0.1"
 
 GtkWidget*	menuMount;
-char*		mountPoint=NULL;
+//char*		mountPoint=NULL;
 void doTabMenu(GtkWidget *widget,gpointer data);
 int	(*module_plug_function)(gpointer globaldata);
 
@@ -29,14 +33,18 @@ extern "C" const gchar* g_module_check_init(GModule *module)
 
 void unMountSSHFS(GtkWidget* widget,gpointer data)
 {
-//	plugData*	plugdata=(plugData*)data;
+
 	char*		command;
 
-	asprintf(&command,"fusermount -u %s 2>&1 >/dev/null",(char*)data);
-	system(command);
-	free(command);
-	gtk_widget_destroy(widget);
-	gtk_widget_show_all(menuMount);
+	if(data!=NULL)
+		{
+			asprintf(&command,"fusermount -u %s 2>&1 >/dev/null",(char*)data);
+			system(command);
+			free(command);
+			
+			gtk_widget_destroy(widget);
+			gtk_widget_show_all(menuMount);
+		}
 }
 
 extern "C" const gchar* g_module_unload(GModule *module)
@@ -82,6 +90,8 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 	GtkWidget*	menuitem;
 	GtkWidget*	menu;
 	GtkWidget*	image;
+	char*		mountpoint=NULL;
+	struct stat	sb;
 
 	vbox=gtk_vbox_new(false,0);
 
@@ -95,7 +105,7 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 	passwd=gtk_entry_new();
 	gtk_entry_set_visibility((GtkEntry*)passwd,false);
 
-	gtk_entry_set_text((GtkEntry*)host,"192.168.1.66:/etc/fstab");
+	gtk_entry_set_text((GtkEntry*)host,"192.168.1.66:/etc/fuse.conf");
 	gtk_entry_set_text((GtkEntry*)user,"keithhedger");
 	gtk_entry_set_text((GtkEntry*)passwd,"hogandnana");
 
@@ -115,38 +125,39 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 			remotedirname=strdup(dirname(command));
 			free(command);
 
-			if(mountPoint!=NULL)
-				free(mountPoint);
-			asprintf(&mountPoint,"%s/%s",plugdata->tmpFolder,remotedirname);
+			asprintf(&mountpoint,"%s/%s",plugdata->tmpFolder,remotedirname);
 
-			asprintf(&command,"mkdir -vp %s",mountPoint);
-			system(command);
-			free(command);
+			stat(mountpoint, &sb);
+			if(!S_ISDIR(sb.st_mode))
+				{
+					asprintf(&command,"mkdir -vp %s",mountpoint);
+					system(command);
+					free(command);
+
+					asprintf(&command,"echo %s|sshfs -o password_stdin %s@%s %s",gtk_entry_get_text((GtkEntry*)passwd),gtk_entry_get_text((GtkEntry*)user),remotedirname,mountpoint);
+					system(command);
+					free(command);
+
+					asprintf(&command,"Un-Mount %s",remotedirname);
+					menuitem=gtk_image_menu_item_new_with_label(command);
+					image=gtk_image_new_from_stock(GTK_STOCK_DISCONNECT,GTK_ICON_SIZE_MENU);
+					gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
+					gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(unMountSSHFS),mountpoint);
+					menu=gtk_menu_item_get_submenu(GTK_MENU_ITEM(menuMount));
+					gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
+					gtk_widget_show_all(menuMount);
+
+					free(command);
+				}
 
 			command=strdup(gtk_entry_get_text((GtkEntry*)host));
 			remotefilename=strdup(basename(command));
 			free(command);
 
-			asprintf(&command,"echo %s|sshfs -o password_stdin %s@%s %s",gtk_entry_get_text((GtkEntry*)passwd),gtk_entry_get_text((GtkEntry*)user),remotedirname,mountPoint);
-			system(command);
-			free(command);
-
-			asprintf(&command,"%s/%s",mountPoint,remotefilename);
+			asprintf(&command,"%s/%s",mountpoint,remotefilename);
 			openFile((const gchar*)command,0,true);
-
-			asprintf(&command,"Un-Mount %s",remotedirname);
-			menuitem=gtk_image_menu_item_new_with_label(command);
-			image=gtk_image_new_from_stock(GTK_STOCK_DISCONNECT,GTK_ICON_SIZE_MENU);
-			gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
-			gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(unMountSSHFS),mountPoint);
-			menu=gtk_menu_item_get_submenu(GTK_MENU_ITEM(menuMount));
-			gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
-			gtk_widget_show_all(menuMount);
-
-			free(command);
 			free(remotefilename);
 			free(remotedirname);
-
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
 }

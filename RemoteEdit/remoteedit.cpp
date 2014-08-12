@@ -29,12 +29,14 @@ extern "C" const gchar* g_module_check_init(GModule *module)
 
 void unMountSSHFS(GtkWidget* widget,gpointer data)
 {
-	plugData*	plugdata=(plugData*)data;
+//	plugData*	plugdata=(plugData*)data;
 	char*		command;
 
-	asprintf(&command,"fusermount -u %s 2>&1 >/dev/null",mountPoint);
+	asprintf(&command,"fusermount -u %s 2>&1 >/dev/null",(char*)data);
 	system(command);
 	free(command);
+	gtk_widget_destroy(widget);
+	gtk_widget_show_all(menuMount);
 }
 
 extern "C" const gchar* g_module_unload(GModule *module)
@@ -77,6 +79,9 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 	char*		command;
 	char*		remotedirname;
 	char*		remotefilename;
+	GtkWidget*	menuitem;
+	GtkWidget*	menu;
+	GtkWidget*	image;
 
 	vbox=gtk_vbox_new(false,0);
 
@@ -103,48 +108,45 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 
 	gtk_widget_show_all(dialog);
 	response=gtk_dialog_run(GTK_DIALOG(dialog));
-	if(response==GTK_RESPONSE_APPLY);
+	
+	if(response==GTK_RESPONSE_APPLY)
 		{
-
 			command=strdup(gtk_entry_get_text((GtkEntry*)host));
 			remotedirname=strdup(dirname(command));
-	printf("xxxxxx %s\n",remotedirname);
 			free(command);
 
-	if(mountPoint!=NULL)
-		free(mountPoint);
-	asprintf(&mountPoint,"%s/%s",plugdata->tmpFolder,remotedirname);
+			if(mountPoint!=NULL)
+				free(mountPoint);
+			asprintf(&mountPoint,"%s/%s",plugdata->tmpFolder,remotedirname);
 
-	asprintf(&command,"mkdir -vp %s",mountPoint);
-	system(command);
-	free(command);
-
-
+			asprintf(&command,"mkdir -vp %s",mountPoint);
+			system(command);
+			free(command);
 
 			command=strdup(gtk_entry_get_text((GtkEntry*)host));
 			remotefilename=strdup(basename(command));
 			free(command);
 
 			asprintf(&command,"echo %s|sshfs -o password_stdin %s@%s %s",gtk_entry_get_text((GtkEntry*)passwd),gtk_entry_get_text((GtkEntry*)user),remotedirname,mountPoint);
-//			asprintf(&command,"echo %s>%s/remoteedit.rc;echo %s>>%s/remoteedit.rc",gtk_entry_get_text((GtkEntry*)projects),plugdata->lPlugFolder,gtk_entry_get_text((GtkEntry*)svn),plugdata->lPlugFolder);
-	printf("%s\n",command);
-system(command);
-free(command);
+			system(command);
+			free(command);
 
-asprintf(&command,"%s/%s",mountPoint,remotefilename);
-openFile((const gchar*)command,0,true);
-free(remotefilename);
-free(remotedirname);
+			asprintf(&command,"%s/%s",mountPoint,remotefilename);
+			openFile((const gchar*)command,0,true);
 
-	printf("%s\n",command);
-//			system(command);
-//			free(command);
-//			//doTabMenu(NULL,data);
-//			GModule *mainmod=g_module_open("/home/keithhedger/.KKEdit/plugins/libfilebrowser.so",G_MODULE_BIND_LAZY);
-//	int retval=-1;
-//			if(g_module_symbol(mainmod,"doTabMenu",(gpointer*)&module_plug_function))
-//				retval=module_plug_function((void*)plugdata);
-			//doTabMenu(NULL,data);
+			asprintf(&command,"Un-Mount %s",remotedirname);
+			menuitem=gtk_image_menu_item_new_with_label(command);
+			image=gtk_image_new_from_stock(GTK_STOCK_DISCONNECT,GTK_ICON_SIZE_MENU);
+			gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
+			gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(unMountSSHFS),mountPoint);
+			menu=gtk_menu_item_get_submenu(GTK_MENU_ITEM(menuMount));
+			gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
+			gtk_widget_show_all(menuMount);
+
+			free(command);
+			free(remotefilename);
+			free(remotedirname);
+
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
 }
@@ -162,17 +164,18 @@ extern "C" int addToGui(gpointer data)
 	menu=gtk_menu_new();
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuMount),menu);
 
-	menuitem=gtk_image_menu_item_new_with_label("Mount SSHFS");
+	menuitem=gtk_image_menu_item_new_with_label("Open Remote File");
 	image=gtk_image_new_from_stock(GTK_STOCK_CONNECT,GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
 	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(mountSSHFS),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
 
-	menuitem=gtk_image_menu_item_new_with_label("Un-Mount SSHFS");
-	image=gtk_image_new_from_stock(GTK_STOCK_DISCONNECT,GTK_ICON_SIZE_MENU);
-	gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
-	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(unMountSSHFS),plugdata);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
+//	menuitem=gtk_image_menu_item_new_with_label("Un-Mount SSHFS");
+//	image=gtk_image_new_from_stock(GTK_STOCK_DISCONNECT,GTK_ICON_SIZE_MENU);
+//	gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
+//	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(unMountSSHFS),plugdata);
+//	gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
+//
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->mlist.menuBar),menuMount);					
 

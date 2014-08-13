@@ -36,7 +36,6 @@ struct remoteFiles
 int	(*module_plug_function)(gpointer globaldata);
 
 GtkWidget*	menuMount;
-GList*		remoteFilesList=NULL;
 char*		dialogUser=strdup(getenv("USER"));
 char*		dialogFile=strdup("");
 
@@ -146,27 +145,6 @@ void doRemote(GtkWidget* widget,gpointer data)
 		}
 }
 
-extern "C" int saveFile(gpointer data)
-{
-	plugData*		plugdata=(plugData*)data;
-	printf("save file %s\n",plugdata->page->filePath);
-	GList*			checklist=NULL;
-
-	checklist=g_list_first(remoteFilesList);
-
-	while(checklist!=NULL)
-		{
-			if(strcmp(plugdata->page->filePath,((remoteFiles*)(checklist->data))->localFilePath)==0)
-				{
-//					printf("found %s = %s\n",plugdata->page->filePath,((remoteFiles*)(checklist->data))->localFilePath);
-					doRemote(((remoteFiles*)(checklist->data))->saveMenuItem,checklist->data);
-					return(0);
-				}
-			checklist=g_list_next(checklist);
-		}
-	return(0);
-}
-
 void mountSSHFS(GtkWidget* widget,gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;
@@ -191,16 +169,8 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 	host=gtk_entry_new();
 	user=gtk_entry_new();
 
-
-//	gtk_entry_set_text((GtkEntry*)host,"192.168.1.66:/etc/fstab");
-//	gtk_entry_set_text((GtkEntry*)user,getenv("USER"));
-//	if(dialogFile!=NULL)
-		gtk_entry_set_text((GtkEntry*)host,dialogFile);
-
-//	if(dialogUser!=NULL)	
-		gtk_entry_set_text((GtkEntry*)user,dialogUser);
-//	else
-//		gtk_entry_set_text((GtkEntry*)user,getenv("USER"));
+	gtk_entry_set_text((GtkEntry*)host,dialogFile);
+	gtk_entry_set_text((GtkEntry*)user,dialogUser);
 
 	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Remote File"),true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,host,true,true,4);
@@ -235,15 +205,10 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 			gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(doRemote),remote);
 			gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);	
 
-			remote->saveMenuItem=gtk_menu_item_new_with_label("Save To Remote File");
+			remote->saveMenuItem=gtk_menu_item_new_with_label("Export To Remote File");
 			gtk_widget_set_name(remote->saveMenuItem,"save");
 			gtk_signal_connect(GTK_OBJECT(remote->saveMenuItem),"activate",G_CALLBACK(doRemote),remote);
 			gtk_menu_shell_append(GTK_MENU_SHELL(menu),remote->saveMenuItem);	
-
-			menuitem=gtk_menu_item_new_with_label("Reload Local Copy");
-			gtk_widget_set_name(menuitem,"openlocal");
-			gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(doRemote),remote);
-			gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);	
 
 			menuitem=gtk_menu_item_new_with_label("Delete Entry");
 			gtk_widget_set_name(menuitem,"delete");
@@ -252,8 +217,6 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 	
 			menuitem=gtk_menu_item_get_submenu(GTK_MENU_ITEM(menuMount));
 			gtk_menu_shell_append(GTK_MENU_SHELL(menuitem),remote->menuItem);
-
-			remoteFilesList=g_list_prepend(remoteFilesList,remote);
 
 			gtk_widget_show_all(menuMount);
 			free(dialogUser);
@@ -290,53 +253,12 @@ extern "C" int addToGui(gpointer data)
 	return(0);
 }
 
-extern "C" int plugPrefs(gpointer data)
-{
-/*
-	GtkWidget*	dialog;
-	GtkWidget*	dialogbox;
-	GtkWidget*	projects;
-	GtkWidget*	svn;
-	GtkWidget*	vbox;
-	int			response;
-	char*		command;
-	plugData*	plugdata=(plugData*)data;
-
-	vbox=gtk_vbox_new(false,0);
-
-	dialog=gtk_dialog_new_with_buttons("RemoteEdit",NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
-	gtk_window_set_default_size((GtkWindow*)dialog,300,120);
-	dialogbox=gtk_dialog_get_content_area((GtkDialog*)dialog);
-	gtk_container_add(GTK_CONTAINER(dialogbox),vbox);
-
-	projects=gtk_entry_new();
-	svn=gtk_entry_new();
-
-	gtk_entry_set_text((GtkEntry*)projects,projectsPath);
-	gtk_entry_set_text((GtkEntry*)svn,SVNRepoPath);
-	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Projects Folder"),true,true,4);
-	gtk_box_pack_start((GtkBox*)vbox,projects,true,true,4);
-	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Subversion Folder"),true,true,4);
-	gtk_box_pack_start((GtkBox*)vbox,svn,true,true,4);
-
-	gtk_widget_show_all(dialog);
-	response=gtk_dialog_run(GTK_DIALOG(dialog));
-	if(response==GTK_RESPONSE_APPLY);
-		{
-			asprintf(&command,"echo %s>%s/remoteedit.rc;echo %s>>%s/remoteedit.rc",gtk_entry_get_text((GtkEntry*)projects),plugdata->lPlugFolder,gtk_entry_get_text((GtkEntry*)svn),plugdata->lPlugFolder);
-			system(command);
-			free(command);
-		}
-	gtk_widget_destroy((GtkWidget*)dialog);
-	return(0);
-}
-
 extern "C" int doAbout(gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;
 	char*			licencepath;
 	const char		copyright[] ="Copyright \xc2\xa9 2014 K.D.Hedger";
-	const char*		aboutboxstring="RemoteEdit";
+	const char*		aboutboxstring="Remote Edit";
 	char*			licence;
 	GtkAboutDialog*	about;
 
@@ -346,7 +268,7 @@ extern "C" int doAbout(gpointer data)
 
 	g_file_get_contents(licencepath,&licence,NULL,NULL);
 	about=(GtkAboutDialog*)gtk_about_dialog_new();
-	gtk_about_dialog_set_program_name(about,"RemoteEdit");
+	gtk_about_dialog_set_program_name(about,"Remote Edit");
 	gtk_about_dialog_set_authors(about,authors);
 	gtk_about_dialog_set_comments(about,aboutboxstring);
 	gtk_about_dialog_set_copyright(about,copyright);
@@ -359,7 +281,7 @@ extern "C" int doAbout(gpointer data)
 	gtk_widget_destroy((GtkWidget*)about);
 	free(licence);
 	free(licencepath);
-*/
+
 	return(0);
 }
 

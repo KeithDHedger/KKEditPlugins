@@ -5,6 +5,7 @@ global:	addToGui;
 		plugPrefs;
 		g_module_unload;
 		g_module_check_init;
+		saveFile;
 
 local: *;
 

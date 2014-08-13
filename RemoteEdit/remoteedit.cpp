@@ -2,6 +2,7 @@
   remoteedit.cpp
 */
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <glib.h>
@@ -21,35 +22,29 @@
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
 #define VERSION "0.0.1"
 
+struct remoteFiles
+{
+	char*		fileName;
+	char*		localFilePath;
+	char*		remoteFilePath;
+	char*		user;
+	bool		saved;
+	GtkWidget*	menuItem;
+	GtkWidget*	saveMenuItem;
+};
+
 GtkWidget*	menuMount;
-//char*		mountPoint=NULL;
 void doTabMenu(GtkWidget *widget,gpointer data);
 int	(*module_plug_function)(gpointer globaldata);
+GList*	remoteFilesList=NULL;
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
 	return(NULL);
 }
 
-void unMountSSHFS(GtkWidget* widget,gpointer data)
-{
-
-	char*		command;
-
-	if(data!=NULL)
-		{
-			asprintf(&command,"fusermount -u %s 2>&1 >/dev/null",(char*)data);
-			system(command);
-			free(command);
-			
-			gtk_widget_destroy(widget);
-			gtk_widget_show_all(menuMount);
-		}
-}
-
 extern "C" const gchar* g_module_unload(GModule *module)
 {
-	unMountSSHFS(NULL,NULL);
 	return(NULL);
 }
 
@@ -74,24 +69,72 @@ void runCommandAndOut(char* command,plugData* plugdata)
 		}
 }
 
+void doRemote(GtkWidget* widget,gpointer data)
+{
+	char*	command;
+
+	if(strcasecmp(gtk_widget_get_name(widget),"openremote")==0)
+		{
+			asprintf(&command,"PS1=\"\" xterm -geometry 50x1 -e scp %s@%s %s",((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath,((remoteFiles*)data)->localFilePath);
+			system(command);
+			free(command);
+			openFile(((remoteFiles*)data)->localFilePath,0,true);
+			((remoteFiles*)data)->saved=false;
+		}
+
+	if(strcasecmp(gtk_widget_get_name(widget),"openlocal")==0)
+		openFile(((remoteFiles*)data)->localFilePath,0,true);
+
+	if(strcasecmp(gtk_widget_get_name(widget),"save")==0)
+		{
+			asprintf(&command,"PS1=\"\" xterm -geometry 50x1 -e scp %s %s@%s",((remoteFiles*)data)->localFilePath,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath);
+			system(command);
+			free(command);
+			((remoteFiles*)data)->saved=true;
+		}
+
+	if(strcasecmp(gtk_widget_get_name(widget),"delete")==0)
+		{
+			unlink(((remoteFiles*)data)->localFilePath);
+			gtk_widget_destroy(((remoteFiles*)data)->menuItem);
+			gtk_widget_show_all(menuMount);
+		}
+}
+
+extern "C" int saveFile(gpointer data)
+{
+	plugData*		plugdata=(plugData*)data;
+	printf("save file %s\n",plugdata->page->filePath);
+	GList*			checklist=NULL;
+
+	checklist=g_list_first(remoteFilesList);
+
+	while(checklist!=NULL)
+		{
+			if(strcmp(plugdata->page->filePath,((remoteFiles*)(checklist->data))->localFilePath)==0)
+				{
+					printf("found %s = %s\n",plugdata->page->filePath,((remoteFiles*)(checklist->data))->localFilePath);
+					doRemote(((remoteFiles*)(checklist->data))->saveMenuItem,checklist->data);
+					return(0);
+				}
+			checklist=g_list_next(checklist);
+		}
+	return(0);
+}
+
 void mountSSHFS(GtkWidget* widget,gpointer data)
 {
-	plugData*	plugdata=(plugData*)data;
-	GtkWidget*	dialog;
-	GtkWidget*	dialogbox;
-	GtkWidget*	host;
-	GtkWidget*	user;
-	GtkWidget*	passwd;
-	GtkWidget*	vbox;
-	int			response;
-	char*		command;
-	char*		remotedirname;
-	char*		remotefilename;
-	GtkWidget*	menuitem;
-	GtkWidget*	menu;
-	GtkWidget*	image;
-	char*		mountpoint=NULL;
-	struct stat	sb;
+	plugData*		plugdata=(plugData*)data;
+	GtkWidget*		dialog;
+	GtkWidget*		dialogbox;
+	GtkWidget*		host;
+	GtkWidget*		user;
+	GtkWidget*		vbox;
+	int				response;
+	GtkWidget*		menuitem;
+	GtkWidget*		menu;
+	remoteFiles*	remote=NULL;
+	char*			tempdata=NULL;
 
 	vbox=gtk_vbox_new(false,0);
 
@@ -102,62 +145,64 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 
 	host=gtk_entry_new();
 	user=gtk_entry_new();
-	passwd=gtk_entry_new();
-	gtk_entry_set_visibility((GtkEntry*)passwd,false);
 
-	gtk_entry_set_text((GtkEntry*)host,"192.168.1.66:/etc/fuse.conf");
-	gtk_entry_set_text((GtkEntry*)user,"keithhedger");
-	gtk_entry_set_text((GtkEntry*)passwd,"hogandnana");
+	gtk_entry_set_text((GtkEntry*)host,"192.168.1.66:/etc/fstab");
+	gtk_entry_set_text((GtkEntry*)user,getenv("USER"));
 
 	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Remote File"),true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,host,true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("User Name"),true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,user,true,true,4);
-	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Password"),true,true,4);
-	gtk_box_pack_start((GtkBox*)vbox,passwd,true,true,4);
 
 	gtk_widget_show_all(dialog);
 	response=gtk_dialog_run(GTK_DIALOG(dialog));
 	
 	if(response==GTK_RESPONSE_APPLY)
 		{
-			command=strdup(gtk_entry_get_text((GtkEntry*)host));
-			remotedirname=strdup(dirname(command));
-			free(command);
+			tempdata=strdup(gtk_entry_get_text((GtkEntry*)host));
+			remote=(remoteFiles*)malloc(sizeof(remoteFiles));
+			remote->fileName=strdup(basename(tempdata));
+			asprintf(&remote->localFilePath,"%s/%s",plugdata->tmpFolder,remote->fileName);
+			free(tempdata);
+			remote->remoteFilePath=strdup(gtk_entry_get_text((GtkEntry*)host));
 
-			asprintf(&mountpoint,"%s/%s",plugdata->tmpFolder,remotedirname);
+			tempdata=strdup(gtk_entry_get_text((GtkEntry*)host));
+			free(tempdata);
 
-			stat(mountpoint, &sb);
-			if(!S_ISDIR(sb.st_mode))
-				{
-					asprintf(&command,"mkdir -vp %s",mountpoint);
-					system(command);
-					free(command);
+			remote->user=strdup(gtk_entry_get_text((GtkEntry*)user));
+			remote->saved=true;
+			remote->menuItem=gtk_image_menu_item_new_with_label(remote->remoteFilePath);
 
-					asprintf(&command,"echo %s|sshfs -o password_stdin %s@%s %s",gtk_entry_get_text((GtkEntry*)passwd),gtk_entry_get_text((GtkEntry*)user),remotedirname,mountpoint);
-					system(command);
-					free(command);
+			menu=gtk_menu_new();
+			gtk_menu_item_set_submenu(GTK_MENU_ITEM(remote->menuItem),menu);
 
-					asprintf(&command,"Un-Mount %s",remotedirname);
-					menuitem=gtk_image_menu_item_new_with_label(command);
-					image=gtk_image_new_from_stock(GTK_STOCK_DISCONNECT,GTK_ICON_SIZE_MENU);
-					gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
-					gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(unMountSSHFS),mountpoint);
-					menu=gtk_menu_item_get_submenu(GTK_MENU_ITEM(menuMount));
-					gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
-					gtk_widget_show_all(menuMount);
+			menuitem=gtk_menu_item_new_with_label("Reload Remote File");
+			gtk_widget_set_name(menuitem,"openremote");
+			doRemote(menuitem,remote);
+			gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(doRemote),remote);
+			gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);	
 
-					free(command);
-				}
+			remote->saveMenuItem=gtk_menu_item_new_with_label("Save To Remote File");
+			gtk_widget_set_name(remote->saveMenuItem,"save");
+			gtk_signal_connect(GTK_OBJECT(remote->saveMenuItem),"activate",G_CALLBACK(doRemote),remote);
+			gtk_menu_shell_append(GTK_MENU_SHELL(menu),remote->saveMenuItem);	
 
-			command=strdup(gtk_entry_get_text((GtkEntry*)host));
-			remotefilename=strdup(basename(command));
-			free(command);
+			menuitem=gtk_menu_item_new_with_label("Reload Local Copy");
+			gtk_widget_set_name(menuitem,"openlocal");
+			gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(doRemote),remote);
+			gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);	
 
-			asprintf(&command,"%s/%s",mountpoint,remotefilename);
-			openFile((const gchar*)command,0,true);
-			free(remotefilename);
-			free(remotedirname);
+			menuitem=gtk_menu_item_new_with_label("Delete Entry");
+			gtk_widget_set_name(menuitem,"delete");
+			gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(doRemote),remote);
+			gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);	
+	
+			menuitem=gtk_menu_item_get_submenu(GTK_MENU_ITEM(menuMount));
+			gtk_menu_shell_append(GTK_MENU_SHELL(menuitem),remote->menuItem);
+
+			remoteFilesList=g_list_prepend(remoteFilesList,remote);
+
+			gtk_widget_show_all(menuMount);
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
 }
@@ -167,7 +212,6 @@ extern "C" int addToGui(gpointer data)
 	GtkWidget*	menuitem;
 	GtkWidget*	menu;
 	GtkWidget*	image;
-	char*		command;
 	plugData*	plugdata=(plugData*)data;
 
 	menuMount=gtk_menu_item_new_with_label("_Remote Edit");
@@ -181,22 +225,9 @@ extern "C" int addToGui(gpointer data)
 	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(mountSSHFS),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
 
-//	menuitem=gtk_image_menu_item_new_with_label("Un-Mount SSHFS");
-//	image=gtk_image_new_from_stock(GTK_STOCK_DISCONNECT,GTK_ICON_SIZE_MENU);
-//	gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
-//	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(unMountSSHFS),plugdata);
-//	gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
-//
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->mlist.menuBar),menuMount);					
 
-//	if(mountPoint!=NULL)
-//		free(mountPoint);
-//	asprintf(&mountPoint,"%s/sshmount",plugdata->tmpFolder);
-//
-//	asprintf(&command,"mkdir -vp %s",mountPoint);
-//	system(command);
-//	free(command);
 	return(0);
 }
 

@@ -33,18 +33,63 @@ struct remoteFiles
 	GtkWidget*	saveMenuItem;
 };
 
-GtkWidget*	menuMount;
-void doTabMenu(GtkWidget *widget,gpointer data);
 int	(*module_plug_function)(gpointer globaldata);
-GList*	remoteFilesList=NULL;
+
+GtkWidget*	menuMount;
+GList*		remoteFilesList=NULL;
+char*		dialogUser=strdup(getenv("USER"));
+char*		dialogFile=strdup("");
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
+	FILE*	fp;
+	char	line[1024];
+	char*	command;
+
+	asprintf(&command,"cat %s/.KKEdit/plugins/remotedata",getenv("HOME"));
+	fp=popen(command,"r");
+	if(fp!=NULL)
+		{
+			line[0]=0;
+			fgets(line,1024,fp);
+			if(strlen(line)>2)
+				{
+					line[strlen(line)-1]=0;
+					free(dialogUser);
+					dialogUser=strdup(line);
+				}
+			line[0]=0;
+			fgets(line,1024,fp);
+			if(strlen(line)>2)
+				{
+					line[strlen(line)-1]=0;
+					free(dialogFile);
+					dialogFile=strdup(line);
+				}
+			pclose(fp);
+		}
+	free(command);
 	return(NULL);
+}
+
+void saveRemoteData(void)
+{
+	FILE*	fp;
+	char*	command;
+	asprintf(&command,"%s/.KKEdit/plugins/remotedata",getenv("HOME"));
+	fp=fopen(command,"w");
+	if(fp!=NULL)
+		{
+			fprintf(fp,"%s\n",dialogUser);
+			fprintf(fp,"%s\n",dialogFile);
+			fclose(fp);
+		}
+	free(command);
 }
 
 extern "C" const gchar* g_module_unload(GModule *module)
 {
+	saveRemoteData();
 	return(NULL);
 }
 
@@ -113,7 +158,7 @@ extern "C" int saveFile(gpointer data)
 		{
 			if(strcmp(plugdata->page->filePath,((remoteFiles*)(checklist->data))->localFilePath)==0)
 				{
-					printf("found %s = %s\n",plugdata->page->filePath,((remoteFiles*)(checklist->data))->localFilePath);
+//					printf("found %s = %s\n",plugdata->page->filePath,((remoteFiles*)(checklist->data))->localFilePath);
 					doRemote(((remoteFiles*)(checklist->data))->saveMenuItem,checklist->data);
 					return(0);
 				}
@@ -146,8 +191,16 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 	host=gtk_entry_new();
 	user=gtk_entry_new();
 
-	gtk_entry_set_text((GtkEntry*)host,"192.168.1.66:/etc/fstab");
-	gtk_entry_set_text((GtkEntry*)user,getenv("USER"));
+
+//	gtk_entry_set_text((GtkEntry*)host,"192.168.1.66:/etc/fstab");
+//	gtk_entry_set_text((GtkEntry*)user,getenv("USER"));
+//	if(dialogFile!=NULL)
+		gtk_entry_set_text((GtkEntry*)host,dialogFile);
+
+//	if(dialogUser!=NULL)	
+		gtk_entry_set_text((GtkEntry*)user,dialogUser);
+//	else
+//		gtk_entry_set_text((GtkEntry*)user,getenv("USER"));
 
 	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Remote File"),true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,host,true,true,4);
@@ -203,6 +256,12 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 			remoteFilesList=g_list_prepend(remoteFilesList,remote);
 
 			gtk_widget_show_all(menuMount);
+			free(dialogUser);
+			free(dialogFile);
+			dialogFile=strdup(gtk_entry_get_text((GtkEntry*)host));
+			dialogUser=strdup(gtk_entry_get_text((GtkEntry*)user));
+
+			saveRemoteData();
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
 }

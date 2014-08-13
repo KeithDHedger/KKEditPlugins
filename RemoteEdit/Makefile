@@ -28,5 +28,5 @@ uninstall:
 		rm -rv "${USERINSTALLDIR}/${FILES}"; \
 	fi
 
-makepkg:
+makepkg: clean
 	cd .. && tar -cvzf ${PACKAGENAME}.tar.gz ${PACKAGENAME}

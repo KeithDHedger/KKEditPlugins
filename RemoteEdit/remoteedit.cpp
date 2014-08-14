@@ -136,7 +136,11 @@ void doRemote(GtkWidget* widget,gpointer data)
 
 	if(strcasecmp(gtk_widget_get_name(widget),"save")==0)
 		{
-			asprintf(&command,"PS1=\"\" xterm -geometry 50x1 -e scp %s %s@%s",((remoteFiles*)data)->localFilePath,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath);
+			if(pathToAskPass==NULL)
+				asprintf(&command,"PS1=\"\" xterm -geometry 50x1 -e scp %s %s@%s",((remoteFiles*)data)->localFilePath,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath);
+			else
+				asprintf(&command,"SSH_ASKPASS=%s setsid scp %s %s@%s",pathToAskPass,((remoteFiles*)data)->localFilePath,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath);
+
 			system(command);
 			free(command);
 			((remoteFiles*)data)->saved=true;

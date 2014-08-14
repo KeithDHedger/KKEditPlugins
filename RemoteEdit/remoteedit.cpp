@@ -94,27 +94,6 @@ extern "C" const gchar* g_module_unload(GModule *module)
 	return(NULL);
 }
 
-void runCommandAndOut(char* command,plugData* plugdata)
-{
-	FILE*		fp=NULL;
-	char		line[1024];
-	GtkTextIter	iter;
-
-	fp=popen(command,"r");
-	if(fp!=NULL)
-		{
-			while(fgets(line,1024,fp))
-				{
-					gtk_text_buffer_insert_at_cursor(plugdata->toolOutBuffer,line,strlen(line));
-					while(gtk_events_pending())
-						gtk_main_iteration();
-					gtk_text_buffer_get_end_iter(plugdata->toolOutBuffer,&iter);
-					gtk_text_view_scroll_to_iter((GtkTextView*)plugdata->toolOutWindow,&iter,0,true,0,0);
-				}
-			pclose(fp);
-		}
-}
-
 void doRemote(GtkWidget* widget,gpointer data)
 {
 	char*	command;
@@ -282,7 +261,7 @@ extern "C" int doAbout(gpointer data)
 	plugData*		plugdata=(plugData*)data;
 	char*			licencepath;
 	const char		copyright[] ="Copyright \xc2\xa9 2014 K.D.Hedger";
-	const char*		aboutboxstring="Remote Edit";
+	const char*		aboutboxstring="A KKEdit plugin to import/export a file over SSH";
 	char*			licence;
 	GtkAboutDialog*	about;
 
@@ -316,7 +295,9 @@ extern "C" int enablePlug(gpointer data)
 	if(plugdata->modData->unload==true)
 		{
 			gtk_widget_destroy(menuMount);
-			gtk_widget_show_all(plugdata->mlist.menuBar);	
+			gtk_widget_show_all(plugdata->mlist.menuBar);
+			free(pathToAskPass);
+			pathToAskPass=NULL;	
 		}
 	else
 		{

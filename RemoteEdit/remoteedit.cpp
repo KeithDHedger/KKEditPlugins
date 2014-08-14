@@ -2,7 +2,6 @@
   remoteedit.cpp
 */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <glib.h>
@@ -246,7 +245,7 @@ extern "C" int addToGui(gpointer data)
 	gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
 	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(mountSSHFS),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
-
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu),gtk_separator_menu_item_new());
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->mlist.menuBar),menuMount);					
 

@@ -12,9 +12,15 @@
 #include <string.h>
 #include <sys/stat.h>
 
+GtkWidget*	dialog;
+
+void doEnter(GtkWidget* widget,gpointer data)
+{
+	gtk_dialog_response((GtkDialog*)dialog,GTK_RESPONSE_ACCEPT);
+}
+
 int main(int argc,char **argv)
 {
-	GtkWidget*	dialog;
 	GtkWidget*	content;
 	GtkWidget*	entry;
 
@@ -24,10 +30,12 @@ int main(int argc,char **argv)
 	gtk_window_set_resizable((GtkWindow*)dialog,false);
 	content=gtk_dialog_get_content_area((GtkDialog*)dialog);
 	entry=gtk_entry_new();
+	g_signal_connect_after(G_OBJECT(entry),"activate",G_CALLBACK(doEnter),(void*)entry);
 	gtk_entry_set_visibility((GtkEntry*)entry,false);
 	gtk_box_pack_start((GtkBox*)content,gtk_label_new("Enter Password"),true,true,4);
 	gtk_box_pack_start((GtkBox*)content,entry,true,true,4);
 	gtk_widget_show_all(content);
+	gtk_window_set_keep_above((GtkWindow*)dialog,true);
 	if(gtk_dialog_run((GtkDialog*)dialog)==GTK_RESPONSE_ACCEPT)
 		printf("%s\n",gtk_entry_get_text((GtkEntry*)entry));
 	else

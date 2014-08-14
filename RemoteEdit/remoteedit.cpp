@@ -19,7 +19,7 @@
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
-#define VERSION "0.0.1"
+#define VERSION "0.0.2"
 
 struct remoteFiles
 {
@@ -37,6 +37,7 @@ int	(*module_plug_function)(gpointer globaldata);
 GtkWidget*	menuMount;
 char*		dialogUser=strdup(getenv("USER"));
 char*		dialogFile=strdup("");
+char*		pathToAskPass=NULL;
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
@@ -87,6 +88,8 @@ void saveRemoteData(void)
 
 extern "C" const gchar* g_module_unload(GModule *module)
 {
+	if(pathToAskPass!=NULL)
+		free(pathToAskPass);
 	saveRemoteData();
 	return(NULL);
 }
@@ -118,7 +121,10 @@ void doRemote(GtkWidget* widget,gpointer data)
 
 	if(strcasecmp(gtk_widget_get_name(widget),"openremote")==0)
 		{
-			asprintf(&command,"PS1=\"\" xterm -geometry 50x1 -e scp %s@%s %s",((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath,((remoteFiles*)data)->localFilePath);
+			if(pathToAskPass==NULL)
+				asprintf(&command,"PS1=\"\" xterm -geometry 50x1 -e scp %s@%s %s",((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath,((remoteFiles*)data)->localFilePath);
+			else
+				asprintf(&command,"SSH_ASKPASS=%s setsid scp %s@%s %s",pathToAskPass,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath,((remoteFiles*)data)->localFilePath);
 			system(command);
 			free(command);
 			openFile(((remoteFiles*)data)->localFilePath,0,true);
@@ -233,6 +239,8 @@ extern "C" int addToGui(gpointer data)
 	GtkWidget*	menuitem;
 	GtkWidget*	menu;
 	GtkWidget*	image;
+	struct stat sb;
+
 	plugData*	plugdata=(plugData*)data;
 
 	menuMount=gtk_menu_item_new_with_label("_Remote Edit");
@@ -249,6 +257,19 @@ extern "C" int addToGui(gpointer data)
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->mlist.menuBar),menuMount);					
 
+	asprintf(&pathToAskPass,"%s/askpass",plugdata->lPlugFolder);
+	stat(pathToAskPass,&sb);
+	if(!S_ISREG(sb.st_mode))
+		{
+			free(pathToAskPass);
+			asprintf(&pathToAskPass,"%s/askpass",plugdata->gPlugFolder);
+			stat(pathToAskPass,&sb);
+			if(!S_ISREG(sb.st_mode))
+				{
+					free(pathToAskPass);
+					pathToAskPass=NULL;
+				}
+		}
 	return(0);
 }
 

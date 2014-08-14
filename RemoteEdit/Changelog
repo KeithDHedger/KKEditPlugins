@@ -1,2 +1,8 @@
+0.0.2
+Added 'Reload Remote File'.
+Added 'Export To Remote File'.
+Added 'Delete Entry'.
+added askpass helper app to get password for scp.
+
 0.0.1
 1st commit

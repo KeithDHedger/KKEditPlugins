@@ -110,9 +110,6 @@ void doRemote(GtkWidget* widget,gpointer data)
 			((remoteFiles*)data)->saved=false;
 		}
 
-	if(strcasecmp(gtk_widget_get_name(widget),"openlocal")==0)
-		openFile(((remoteFiles*)data)->localFilePath,0,true);
-
 	if(strcasecmp(gtk_widget_get_name(widget),"save")==0)
 		{
 			if(pathToAskPass==NULL)
@@ -123,13 +120,6 @@ void doRemote(GtkWidget* widget,gpointer data)
 			system(command);
 			free(command);
 			((remoteFiles*)data)->saved=true;
-		}
-
-	if(strcasecmp(gtk_widget_get_name(widget),"delete")==0)
-		{
-			unlink(((remoteFiles*)data)->localFilePath);
-			gtk_widget_destroy(((remoteFiles*)data)->menuItem);
-			gtk_widget_show_all(menuMount);
 		}
 }
 
@@ -197,11 +187,6 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 			gtk_widget_set_name(remote->saveMenuItem,"save");
 			gtk_signal_connect(GTK_OBJECT(remote->saveMenuItem),"activate",G_CALLBACK(doRemote),remote);
 			gtk_menu_shell_append(GTK_MENU_SHELL(menu),remote->saveMenuItem);	
-
-			menuitem=gtk_menu_item_new_with_label("Delete Entry");
-			gtk_widget_set_name(menuitem,"delete");
-			gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(doRemote),remote);
-			gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);	
 	
 			menuitem=gtk_menu_item_get_submenu(GTK_MENU_ITEM(menuMount));
 			gtk_menu_shell_append(GTK_MENU_SHELL(menuitem),remote->menuItem);

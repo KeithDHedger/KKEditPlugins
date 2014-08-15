@@ -1,4 +1,6 @@
 0.0.2
+Added user name to menu.
+Added sync saves to prefs.
 Added 'Reload Remote File'.
 Added 'Export To Remote File'.
 Added 'Delete Entry'.

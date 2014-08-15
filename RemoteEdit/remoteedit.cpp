@@ -14,6 +14,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include <kkedit-plugins.h>
 
@@ -38,6 +39,8 @@ GtkWidget*	menuMount;
 char*		dialogUser=strdup(getenv("USER"));
 char*		dialogFile=strdup("");
 char*		pathToAskPass=NULL;
+bool		syncSave;
+GList*		remoteSaves=NULL;
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
@@ -71,6 +74,27 @@ extern "C" const gchar* g_module_check_init(GModule *module)
 	return(NULL);
 }
 
+void touch(char* path)
+{
+	int	fd;
+
+	fd=open(path,O_WRONLY|O_CREAT,DEFFILEMODE);
+	if(fd!=-1)
+		close(fd);
+}
+
+void doSyncSave(plugData* pdata)
+{
+	char*	filepath;
+
+	asprintf(&filepath,"%s/remoteedit.sync",pdata->lPlugFolder);
+	if(syncSave==true)
+		touch(filepath);
+	else
+		unlink(filepath);
+	debugFree(filepath,"filepath");
+}
+
 void saveRemoteData(void)
 {
 	FILE*	fp;
@@ -102,7 +126,6 @@ void doMessage(char* message,GtkMessageType type)
 	gtk_dialog_run((GtkDialog*)dialog);
 	gtk_widget_destroy(dialog);
 }
-
 
 void doRemote(GtkWidget* widget,gpointer data)
 {
@@ -149,6 +172,25 @@ void doRemote(GtkWidget* widget,gpointer data)
 					doMessage(messagedata,GTK_MESSAGE_ERROR);
 				}
 		}
+}
+
+extern "C" int saveFile(gpointer data)
+{
+	GList*		tlist=NULL;
+	plugData*	plugdata=(plugData*)data;
+
+	tlist=remoteSaves;
+
+	while(tlist!=NULL)
+		{
+			if(strcmp(((remoteFiles*)tlist->data)->localFilePath,plugdata->page->filePath)==0)
+				{
+					doRemote(((remoteFiles*)tlist->data)->saveMenuItem,tlist->data);
+					return(0);
+				}
+			tlist=g_list_next(tlist);
+		}
+	return(0);
 }
 
 void mountSSHFS(GtkWidget* widget,gpointer data)
@@ -228,6 +270,7 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 			dialogUser=strdup(gtk_entry_get_text((GtkEntry*)user));
 
 			saveRemoteData();
+			remoteSaves=g_list_prepend(remoteSaves,remote);
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
 }
@@ -238,6 +281,7 @@ extern "C" int addToGui(gpointer data)
 	GtkWidget*	menu;
 	GtkWidget*	image;
 	struct stat sb;
+	char*		filepath;
 
 	plugData*	plugdata=(plugData*)data;
 
@@ -268,6 +312,13 @@ extern "C" int addToGui(gpointer data)
 					pathToAskPass=NULL;
 				}
 		}
+
+	asprintf(&filepath,"%s/remoteedit.sync",plugdata->lPlugFolder);
+	if(g_file_test(filepath,G_FILE_TEST_EXISTS))
+		syncSave=true;
+	else
+		syncSave=false;
+
 	return(0);
 }
 
@@ -303,6 +354,35 @@ extern "C" int doAbout(gpointer data)
 	return(0);
 }
 
+extern "C" int plugPrefs(gpointer data)
+{
+	plugData*	plugdata=(plugData*)data;
+	GtkWidget*	dialog;
+	GtkWidget*	dialogbox;
+	GtkWidget*	showinvis;
+	GtkWidget*	vbox;
+	int			response;
+	vbox=gtk_vbox_new(false,0);
+
+	dialog=gtk_dialog_new_with_buttons("Remote Edit Plug In Prefs",NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
+	dialogbox=gtk_dialog_get_content_area((GtkDialog*)dialog);
+	gtk_container_add(GTK_CONTAINER(dialogbox),vbox);
+
+	showinvis=gtk_check_button_new_with_label("Save also exports file");
+	gtk_toggle_button_set_active((GtkToggleButton*)showinvis,syncSave);
+	gtk_box_pack_start((GtkBox*)vbox,showinvis,true,true,4);
+
+	gtk_dialog_set_default_response((GtkDialog*)dialog,GTK_RESPONSE_APPLY);
+	gtk_widget_show_all(dialog);
+	response=gtk_dialog_run(GTK_DIALOG(dialog));
+	if(response==GTK_RESPONSE_APPLY)
+		{
+			syncSave=gtk_toggle_button_get_active((GtkToggleButton*)showinvis);
+			doSyncSave(plugdata);
+		}
+	gtk_widget_destroy((GtkWidget*)dialog);
+	return(0);
+}
 extern "C" int enablePlug(gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;

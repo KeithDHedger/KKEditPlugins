@@ -139,7 +139,6 @@ void doRemote(GtkWidget* widget,gpointer data)
 	char*	command;
 	int		exitstatus;
 	char*	messagedata;
-	char*	args[4]={(char*)"scp",NULL,NULL,NULL};
 
 	if(strcasecmp(gtk_widget_get_name(widget),"openremote")==0)
 		{

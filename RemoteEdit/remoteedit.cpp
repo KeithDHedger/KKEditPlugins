@@ -44,6 +44,7 @@ extern "C" const gchar* g_module_check_init(GModule *module)
 	FILE*	fp;
 	char	line[1024];
 	char*	command;
+	char*	filepath;
 
 	asprintf(&command,"cat %s/.KKEdit/plugins/remotedata",getenv("HOME"));
 	fp=popen(command,"r");
@@ -68,6 +69,14 @@ extern "C" const gchar* g_module_check_init(GModule *module)
 			pclose(fp);
 		}
 	free(command);
+
+	asprintf(&filepath,"%s/.KKEdit/plugins/remoteedit.sync",getenv("HOME"));
+	if(g_file_test(filepath,G_FILE_TEST_EXISTS))
+		syncSave=true;
+	else
+		syncSave=false;
+	free(filepath);
+
 	return(NULL);
 }
 
@@ -146,7 +155,7 @@ void doRemote(GtkWidget* widget,gpointer data)
 			else
 				{
 					((remoteFiles*)data)->saved=false;
-					asprintf(&messagedata,"Can't open %s\nError %i",((remoteFiles*)data)->remoteFilePath,exitstatus);
+					asprintf(&messagedata,"Can't open %s\nScp error %i",((remoteFiles*)data)->remoteFilePath,exitstatus);
 					doMessage(messagedata,GTK_MESSAGE_ERROR);
 				}
 		}
@@ -165,7 +174,7 @@ void doRemote(GtkWidget* widget,gpointer data)
 			else
 				{
 					((remoteFiles*)data)->saved=false;
-					asprintf(&messagedata,"Can't save %s\nError %i",((remoteFiles*)data)->remoteFilePath,exitstatus);
+					asprintf(&messagedata,"Can't save %s\nScp error %i",((remoteFiles*)data)->remoteFilePath,exitstatus);
 					doMessage(messagedata,GTK_MESSAGE_ERROR);
 				}
 		}
@@ -278,7 +287,6 @@ extern "C" int addToGui(gpointer data)
 	GtkWidget*	menu;
 	GtkWidget*	image;
 	struct stat sb;
-	char*		filepath;
 
 	plugData*	plugdata=(plugData*)data;
 
@@ -309,13 +317,6 @@ extern "C" int addToGui(gpointer data)
 					pathToAskPass=NULL;
 				}
 		}
-
-	asprintf(&filepath,"%s/remoteedit.sync",plugdata->lPlugFolder);
-	if(g_file_test(filepath,G_FILE_TEST_EXISTS))
-		syncSave=true;
-	else
-		syncSave=false;
-
 	return(0);
 }
 

@@ -1,5 +1,7 @@
 PLUGNAME=remoteedit
-FILES=lib${PLUGNAME}.so
+PLUG=lib${PLUGNAME}.so
+SETSID=setsid
+ASKPASS=askpass
 ROOTINSTALLDIR=/usr/share/KKEdit/plugins
 USERINSTALLDIR=${HOME}/.KKEdit/plugins
 PACKAGENAME=RemoteEdit
@@ -8,6 +10,7 @@ all:
 	gcc -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs gtk+-2.0 gmodule-2.0 glib-2.0 gtksourceview-2.0` -o ${PLUGNAME}.o
 	gcc -shared -Wl,--version-script=exportmap,-soname,${PLUGNAME}.so -o lib${PLUGNAME}.so ${PLUGNAME}.o -lc
 	gcc -fPIC askpass.cpp `pkg-config --cflags --libs gtk+-2.0` -o askpass
+	g++  -fPIC -Wall setsid.cpp -o setsid
 
 clean: distclean
 
@@ -15,19 +18,20 @@ distclean:
 	rm lib${PLUGNAME}.so||true
 	rm ${PLUGNAME}.o||true
 	rm askpass||true
+	rm setsid||true
 
 install:
 	if [ ${USER} = "root" ];then \
-		cp -rv askpass "${FILES}" "${ROOTINSTALLDIR}"; \
+		cp -rv ${ASKPASS} ${SETSID} ${PLUG} "${ROOTINSTALLDIR}"; \
 	else \
-		cp -rv askpass "${FILES}" "${USERINSTALLDIR}"; \
+		cp -rv ${ASKPASS} ${SETSID} ${PLUG} "${USERINSTALLDIR}"; \
 	fi
 
 uninstall:
 	if [ ${USER} = "root" ];then \
-		rm -rv "${ROOTINSTALLDIR}/${FILES}" "${ROOTINSTALLDIR}/askpass"; \
+		rm -rv "${ROOTINSTALLDIR}/${PLUG}" "${ROOTINSTALLDIR}/${ASKPASS}" "${ROOTINSTALLDIR}/${SETSID}"; \
 	else \
-		rm -rv "${USERINSTALLDIR}/${FILES}" "${ROOTINSTALLDIR}/askpass; \
+		rm -rv "${USERINSTALLDIR}/${PLUG}" "${ROOTINSTALLDIR}/${ASKPASS}" "${ROOTINSTALLDIR}/${SETSID}"; \
 	fi
 
 makepkg: clean

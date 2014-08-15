@@ -36,6 +36,7 @@ GtkWidget*	menuMount;
 char*		dialogUser=strdup(getenv("USER"));
 char*		dialogFile=strdup("");
 char*		pathToAskPass=NULL;
+char*		pathToSetSid=NULL;
 bool		syncSave;
 GList*		remoteSaves=NULL;
 
@@ -138,15 +139,19 @@ void doRemote(GtkWidget* widget,gpointer data)
 	char*	command;
 	int		exitstatus;
 	char*	messagedata;
+	char*	args[4]={(char*)"scp",NULL,NULL,NULL};
 
 	if(strcasecmp(gtk_widget_get_name(widget),"openremote")==0)
 		{
 			if(pathToAskPass==NULL)
 				asprintf(&command,"PS1=\"\" xterm -geometry 50x1 -e scp %s@%s %s",((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath,((remoteFiles*)data)->localFilePath);
-			else
-				asprintf(&command,"SSH_ASKPASS=%s setsid -w scp %s@%s %s",pathToAskPass,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath,((remoteFiles*)data)->localFilePath);
-			exitstatus=system(command);
-			free(command);
+			else	
+				{
+					asprintf(&command,"SSH_ASKPASS=%s %s scp %s@%s %s",pathToAskPass,pathToSetSid,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath,((remoteFiles*)data)->localFilePath);
+
+					exitstatus=system(command);
+					free(command);
+				}
 			if(WEXITSTATUS(exitstatus)==0)
 				{
 					((remoteFiles*)data)->saved=false;
@@ -165,7 +170,7 @@ void doRemote(GtkWidget* widget,gpointer data)
 			if(pathToAskPass==NULL)
 				asprintf(&command,"PS1=\"\" xterm -geometry 50x1 -e scp %s %s@%s",((remoteFiles*)data)->localFilePath,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath);
 			else
-				asprintf(&command,"SSH_ASKPASS=%s setsid -w scp %s %s@%s",pathToAskPass,((remoteFiles*)data)->localFilePath,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath);
+				asprintf(&command,"SSH_ASKPASS=%s %s scp %s %s@%s",pathToAskPass,pathToSetSid,((remoteFiles*)data)->localFilePath,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath);
 
 			exitstatus=system(command);
 			free(command);
@@ -317,6 +322,24 @@ extern "C" int addToGui(gpointer data)
 					pathToAskPass=NULL;
 				}
 		}
+
+	asprintf(&pathToSetSid,"%s/setsid",plugdata->lPlugFolder);
+	stat(pathToSetSid,&sb);
+	if(!S_ISREG(sb.st_mode))
+		{
+			free(pathToSetSid);
+			asprintf(&pathToSetSid,"%s/setsid",plugdata->gPlugFolder);
+			stat(pathToSetSid,&sb);
+			if(!S_ISREG(sb.st_mode))
+				{
+					free(pathToSetSid);
+					pathToSetSid=NULL;
+					if(pathToAskPass!=NULL)
+						free(pathToAskPass);
+					pathToAskPass=NULL;
+				}
+		}
+
 	return(0);
 }
 

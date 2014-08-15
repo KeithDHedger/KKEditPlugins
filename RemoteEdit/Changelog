@@ -1,4 +1,5 @@
 0.0.2
+Added local setsid program to fix ubunutu removing -w flag!
 Added user name to menu.
 Added sync saves to prefs.
 Added 'Reload Remote File'.

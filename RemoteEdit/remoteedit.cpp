@@ -94,20 +94,41 @@ extern "C" const gchar* g_module_unload(GModule *module)
 	return(NULL);
 }
 
+void doMessage(char* message,GtkMessageType type)
+{
+	GtkWidget*	dialog;
+
+	dialog=gtk_message_dialog_new(NULL,GTK_DIALOG_MODAL,type,GTK_BUTTONS_CLOSE,"%s",message);
+	gtk_dialog_run((GtkDialog*)dialog);
+	gtk_widget_destroy(dialog);
+}
+
+
 void doRemote(GtkWidget* widget,gpointer data)
 {
 	char*	command;
+	int		exitstatus;
+	char*	messagedata;
 
 	if(strcasecmp(gtk_widget_get_name(widget),"openremote")==0)
 		{
 			if(pathToAskPass==NULL)
 				asprintf(&command,"PS1=\"\" xterm -geometry 50x1 -e scp %s@%s %s",((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath,((remoteFiles*)data)->localFilePath);
 			else
-				asprintf(&command,"SSH_ASKPASS=%s setsid scp %s@%s %s",pathToAskPass,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath,((remoteFiles*)data)->localFilePath);
-			system(command);
+				asprintf(&command,"SSH_ASKPASS=%s setsid -w scp %s@%s %s",pathToAskPass,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath,((remoteFiles*)data)->localFilePath);
+			exitstatus=system(command);
 			free(command);
-			openFile(((remoteFiles*)data)->localFilePath,0,true);
-			((remoteFiles*)data)->saved=false;
+			if(WEXITSTATUS(exitstatus)==0)
+				{
+					((remoteFiles*)data)->saved=false;
+					openFile(((remoteFiles*)data)->localFilePath,0,true);
+				}			
+			else
+				{
+					((remoteFiles*)data)->saved=false;
+					asprintf(&messagedata,"Can't open %s\nError %i",((remoteFiles*)data)->remoteFilePath,exitstatus);
+					doMessage(messagedata,GTK_MESSAGE_ERROR);
+				}
 		}
 
 	if(strcasecmp(gtk_widget_get_name(widget),"save")==0)
@@ -115,11 +136,18 @@ void doRemote(GtkWidget* widget,gpointer data)
 			if(pathToAskPass==NULL)
 				asprintf(&command,"PS1=\"\" xterm -geometry 50x1 -e scp %s %s@%s",((remoteFiles*)data)->localFilePath,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath);
 			else
-				asprintf(&command,"SSH_ASKPASS=%s setsid scp %s %s@%s",pathToAskPass,((remoteFiles*)data)->localFilePath,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath);
+				asprintf(&command,"SSH_ASKPASS=%s setsid -w scp %s %s@%s",pathToAskPass,((remoteFiles*)data)->localFilePath,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath);
 
-			system(command);
+			exitstatus=system(command);
 			free(command);
-			((remoteFiles*)data)->saved=true;
+			if(WEXITSTATUS(exitstatus)==0)
+				((remoteFiles*)data)->saved=true;
+			else
+				{
+					((remoteFiles*)data)->saved=false;
+					asprintf(&messagedata,"Can't save %s\nError %i",((remoteFiles*)data)->remoteFilePath,exitstatus);
+					doMessage(messagedata,GTK_MESSAGE_ERROR);
+				}
 		}
 }
 
@@ -172,7 +200,9 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 
 			remote->user=strdup(gtk_entry_get_text((GtkEntry*)user));
 			remote->saved=true;
-			remote->menuItem=gtk_image_menu_item_new_with_label(remote->remoteFilePath);
+			asprintf(&tempdata,"%s@%s",remote->user,remote->remoteFilePath);
+			remote->menuItem=gtk_image_menu_item_new_with_label(tempdata);
+			free(tempdata);
 
 			menu=gtk_menu_new();
 			gtk_menu_item_set_submenu(GTK_MENU_ITEM(remote->menuItem),menu);

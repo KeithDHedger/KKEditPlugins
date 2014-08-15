@@ -2,7 +2,6 @@
   remoteedit.cpp
 */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <glib.h>
 #include <gtk/gtk.h>
@@ -10,10 +9,8 @@
 #include <libgen.h>
 #include <string.h>
 #include <ctype.h>
-
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include <fcntl.h>
 
 #include <kkedit-plugins.h>

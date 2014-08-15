@@ -37,7 +37,7 @@ char*		dialogUser=strdup(getenv("USER"));
 char*		dialogFile=strdup("");
 char*		pathToAskPass=NULL;
 char*		pathToSetSid=NULL;
-bool		syncSave;
+bool		syncSave=false;
 GList*		remoteSaves=NULL;
 
 extern "C" const gchar* g_module_check_init(GModule *module)
@@ -188,6 +188,9 @@ extern "C" int saveFile(gpointer data)
 {
 	GList*		tlist=NULL;
 	plugData*	plugdata=(plugData*)data;
+
+	if(syncSave==false)
+		return(0);
 
 	tlist=remoteSaves;
 

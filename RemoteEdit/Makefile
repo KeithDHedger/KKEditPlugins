@@ -29,9 +29,9 @@ install:
 
 uninstall:
 	if [ ${USER} = "root" ];then \
-		rm -rv "${ROOTINSTALLDIR}/${PLUG}" "${ROOTINSTALLDIR}/${ASKPASS}" "${ROOTINSTALLDIR}/${SETSID}"; \
+		rm -rv "${ROOTINSTALLDIR}/${PLUG}" "${ROOTINSTALLDIR}/${ASKPASS}" "${ROOTINSTALLDIR}/${SETSID}"||true; \
 	else \
-		rm -rv "${USERINSTALLDIR}/${PLUG}" "${ROOTINSTALLDIR}/${ASKPASS}" "${ROOTINSTALLDIR}/${SETSID}"; \
+		rm -rv "${USERINSTALLDIR}/${PLUG}" "${USERINSTALLDIR}/${ASKPASS}" "${USERINSTALLDIR}/${SETSID}"||true; \
 	fi
 
 makepkg: clean

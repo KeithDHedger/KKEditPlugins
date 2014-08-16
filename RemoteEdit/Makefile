@@ -7,10 +7,11 @@ USERINSTALLDIR=${HOME}/.KKEdit/plugins
 PACKAGENAME=RemoteEdit
 
 all:
-	gcc -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs gtk+-2.0 gmodule-2.0 glib-2.0 gtksourceview-2.0` -o ${PLUGNAME}.o
-	gcc -shared -Wl,--version-script=exportmap,-soname,${PLUGNAME}.so -o lib${PLUGNAME}.so ${PLUGNAME}.o -lc
-	gcc -fPIC askpass.cpp `pkg-config --cflags --libs gtk+-2.0` -o askpass
-	gcc -fPIC -Wall setsid.cpp -lstdc++ -o setsid
+	g++ -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs gtk+-2.0 gmodule-2.0 glib-2.0 gtksourceview-2.0` -o ${PLUGNAME}.o
+	g++ -shared -Wl,--version-script=exportmap,-soname,${PLUGNAME}.so -o lib${PLUGNAME}.so ${PLUGNAME}.o -lc
+	g++ -fPIC askpass.cpp `pkg-config --cflags --libs gtk+-2.0` -o askpass
+	g++ -fPIC -Wall setsid.cpp -o setsid
+	strip ${ASKPASS} ${SETSID} 
 
 clean: distclean
 

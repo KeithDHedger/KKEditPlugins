@@ -159,7 +159,7 @@ void doRemote(GtkWidget* widget,gpointer data)
 			else
 				{
 					((remoteFiles*)data)->saved=false;
-					asprintf(&messagedata,"Can't open %s\nScp error %i",((remoteFiles*)data)->remoteFilePath,exitstatus);
+					asprintf(&messagedata,"Can't open %s\nscp error %i",((remoteFiles*)data)->remoteFilePath,exitstatus);
 					doMessage(messagedata,GTK_MESSAGE_ERROR);
 				}
 		}
@@ -178,7 +178,7 @@ void doRemote(GtkWidget* widget,gpointer data)
 			else
 				{
 					((remoteFiles*)data)->saved=false;
-					asprintf(&messagedata,"Can't save %s\nScp error %i",((remoteFiles*)data)->remoteFilePath,exitstatus);
+					asprintf(&messagedata,"Can't save %s\nscp error %i",((remoteFiles*)data)->remoteFilePath,exitstatus);
 					doMessage(messagedata,GTK_MESSAGE_ERROR);
 				}
 		}

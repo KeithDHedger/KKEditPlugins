@@ -1,11 +1,13 @@
 0.0.2
+Added strip setsid/askpass to makefile.
+Removed 'Delete Entry'.
 Added local setsid program to fix ubunutu removing -w flag!
 Added user name to menu.
 Added sync saves to prefs.
 Added 'Reload Remote File'.
 Added 'Export To Remote File'.
 Added 'Delete Entry'.
-added askpass helper app to get password for scp.
+Added askpass helper app to get password for scp.
 
 0.0.1
 1st commit

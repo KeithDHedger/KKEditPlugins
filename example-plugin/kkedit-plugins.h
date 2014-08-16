@@ -57,6 +57,7 @@ struct pageStruct
 	bool				showingChanged;
 	GtkTextMark*		backMark;
 	GtkTextTag*			highlightTag;
+	GList*				userDataList;
 };
 #endif
 

@@ -1,0 +1,10 @@
+{
+global:	addToGui;
+		doAbout;
+		enablePlug;
+		plugPrefs;
+		g_module_unload;
+
+local: *;
+
+};

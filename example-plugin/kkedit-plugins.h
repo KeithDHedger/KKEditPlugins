@@ -58,6 +58,10 @@ struct pageStruct
 	GtkTextMark*		backMark;
 	GtkTextTag*			highlightTag;
 	GList*				userDataList;
+	gpointer			reserved1;
+	gpointer			reserved2;
+	gpointer			reserved3;
+	gpointer			reserved4;
 };
 #endif
 

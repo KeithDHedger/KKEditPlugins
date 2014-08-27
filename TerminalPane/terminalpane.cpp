@@ -22,7 +22,7 @@
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
-#define VERSION "0.0.1"
+#define VERSION "0.0.2"
 
 int	(*module_plug_function)(gpointer globaldata);
 

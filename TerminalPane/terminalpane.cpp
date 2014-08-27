@@ -21,7 +21,7 @@
 #include <kkedit-plugins.h>
 
 #define MYEMAIL "kdhedger68713@gmail.com"
-#define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
+#define MYWEBSITE "https://sites.google.com/site/kkeditlinuxtexteditor"
 #define VERSION "0.0.2"
 
 int	(*module_plug_function)(gpointer globaldata);

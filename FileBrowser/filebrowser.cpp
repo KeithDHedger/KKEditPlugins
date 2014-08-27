@@ -18,7 +18,7 @@
 #include <kkedit-plugins.h>
 
 #define MYEMAIL "kdhedger68713@gmail.com"
-#define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
+#define MYWEBSITE "https://sites.google.com/site/kkeditlinuxtexteditor"
 #define VERSION "0.0.6"
 #define NUM_COLUMNS 3
 #define COLUMN_FILENAME 1

@@ -28,11 +28,17 @@ int	(*module_plug_function)(gpointer globaldata);
 
 GtkWidget*	terminal=NULL;
 GtkWidget*	hideMenu=NULL;
-bool		showing;
+bool		showing=false;
 GtkWidget*	swindow;
 char*		foreColour=strdup("#000000");
 char*		backColour=strdup("#ffffff");
-int			childPid;
+int			childPid=-999;
+
+args mydata[]={
+					{"forecol",2,&foreColour},
+					{"backcol",2,&backColour},
+					{NULL,0,NULL}
+				  };
 
 void touch(char* path)
 {
@@ -137,12 +143,6 @@ gboolean on_key_press (GtkWidget *terminal, GdkEventKey *event)
 	return false;
 }
 
-args mydata[]={
-					{"forecol",2,&foreColour},
-					{"backcol",2,&backColour},
-					{NULL,0,NULL}
-				  };
-
 extern "C" int addToGui(gpointer data)
 {
 	GtkWidget*	menu;
@@ -196,8 +196,8 @@ extern "C" int plugPrefs(gpointer data)
 	GtkWidget*	bcolour;
 	GtkWidget*	vbox;
 	int			response;
-	char*		command;
 	GdkColor	colour;
+	char*		filename;
 
 	plugData*	plugdata=(plugData*)data;
 
@@ -222,9 +222,15 @@ extern "C" int plugPrefs(gpointer data)
 	response=gtk_dialog_run(GTK_DIALOG(dialog));
 	if(response==GTK_RESPONSE_APPLY);
 		{
-			asprintf(&command,"echo \"%s\">%s/terminalpane.rc;echo \"%s\">>%s/terminalpane.rc",gtk_entry_get_text((GtkEntry*)fcolour),plugdata->lPlugFolder,gtk_entry_get_text((GtkEntry*)bcolour),plugdata->lPlugFolder);
-			system(command);
-			free(command);
+			free(foreColour);
+			free(backColour);
+			foreColour=strdup((char*)gtk_entry_get_text((GtkEntry*)fcolour));
+			backColour=strdup((char*)gtk_entry_get_text((GtkEntry*)bcolour));
+
+			asprintf(&filename,"%s/terminalpane.rc",plugdata->lPlugFolder);
+			saveVarsToFile(filename,mydata);
+			debugFree(filename,"plugPrefs filename");
+			
 			vte_terminal_set_default_colors((VteTerminal*)terminal);
 			gdk_color_parse((const gchar*)foreColour,&colour);
 			vte_terminal_set_color_foreground((VteTerminal*)terminal,(const GdkColor*)&colour);

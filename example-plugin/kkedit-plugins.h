@@ -35,6 +35,8 @@ struct args
 	void*		data;
 };
 
+enum {TYPEINT=1,TYPESTRING,TYPEBOOL};
+
 struct pageStruct
 {
 	GtkWidget*			pane;
@@ -161,5 +163,5 @@ bool		openFile(const gchar *filepath,int linenumber,bool warn);
 bool		saveFile(GtkWidget* widget,gpointer data);
 void		newFile(GtkWidget* widget,gpointer data);
 void		loadVarsFromFile(char* filepath,args* dataptr);
-
+void		saveVarsToFile(char* filepath,args* dataptr);
 #endif

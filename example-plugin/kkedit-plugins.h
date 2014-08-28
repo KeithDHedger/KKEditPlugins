@@ -27,6 +27,14 @@
 
 #ifndef _PAGESTRUCT_
 #define _PAGESTRUCT_
+
+struct args
+{
+	const char*	name;
+	int			type;
+	void*		data;
+};
+
 struct pageStruct
 {
 	GtkWidget*			pane;
@@ -152,5 +160,6 @@ void		debugFree(gpointer ptr,const char* message);
 bool		openFile(const gchar *filepath,int linenumber,bool warn);
 bool		saveFile(GtkWidget* widget,gpointer data);
 void		newFile(GtkWidget* widget,gpointer data);
+void		loadVarsFromFile(char* filepath,args* dataptr);
 
 #endif

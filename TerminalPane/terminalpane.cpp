@@ -137,16 +137,19 @@ gboolean on_key_press (GtkWidget *terminal, GdkEventKey *event)
 	return false;
 }
 
+args mydata[]={
+					{"forecol",2,&foreColour},
+					{"backcol",2,&backColour},
+					{NULL,0,NULL}
+				  };
+
 extern "C" int addToGui(gpointer data)
 {
 	GtkWidget*	menu;
-//	char**		argv=NULL;
 	plugData*	plugdata=(plugData*)data;
 	GdkColor	colour;
-	char*		command;
-	FILE*		fp;
-	char		line[1024];
-	char *startterm[2]={0,0};
+	char*		startterm[2]={0,0};
+	char*		filename;
 
 	menu=gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuView);
 	hideMenu=gtk_menu_item_new_with_label("Hide Terminal");
@@ -157,28 +160,9 @@ extern "C" int addToGui(gpointer data)
 	terminal=vte_terminal_new();
 	vte_terminal_set_default_colors((VteTerminal*)terminal);
 
-	asprintf(&command,"cat %s/terminalpane.rc",plugdata->lPlugFolder);
-	fp=popen(command,"r");
-		if(fp!=NULL)
-			{
-				fgets(line,1024,fp);
-				line[strlen(line)-1]=0;
-				if(strlen(line)>0)
-					{
-						free(foreColour);
-						foreColour=strdup(line);
-					}
-				fgets(line,1024,fp);
-				line[strlen(line)-1]=0;
-				if(strlen(line)>0)
-					{
-						free(backColour);
-						backColour=strdup(line);
-					}
-				pclose(fp);
-			}
-	free(command);
-
+	asprintf(&filename,"%s/terminalpane.rc",plugdata->lPlugFolder);
+	loadVarsFromFile(filename,mydata);
+	debugFree(filename,"readConfig filename");
 
 	gdk_color_parse((const gchar*)foreColour,&colour);
 	vte_terminal_set_color_foreground((VteTerminal*)terminal,(const GdkColor*)&colour);

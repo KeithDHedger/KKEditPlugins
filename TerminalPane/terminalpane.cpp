@@ -42,11 +42,6 @@ args		mydata[]=
 					{NULL,0,NULL}
 				};
 
-void call(GtkWidget* widget,gpointer data)
-{
-		printf("ZZZZZZZZz\n");
-}
-
 void touch(char* path)
 {
 	int	fd;
@@ -58,7 +53,6 @@ void touch(char* path)
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
-//	makeMenu(NULL);
 	return(NULL);
 }
 
@@ -138,9 +132,12 @@ void cdHere(GtkWidget* widget,gpointer data)
 {
 	plugData*	plugdata=(plugData*)data;
 
-	vte_terminal_feed_child((VteTerminal*)terminal,"cd ",-1);
-	vte_terminal_feed_child((VteTerminal*)terminal,plugdata->page->dirName,-1);
-	vte_terminal_feed_child((VteTerminal*)terminal,"\n",-1);
+	if(plugdata->page->dirName!=NULL)
+		{
+			vte_terminal_feed_child((VteTerminal*)terminal,"cd ",-1);
+			vte_terminal_feed_child((VteTerminal*)terminal,plugdata->page->dirName,-1);
+			vte_terminal_feed_child((VteTerminal*)terminal,"\n",-1);
+		}
 }
 
 gboolean doButton(GtkWidget *widget, GdkEventButton *event,gpointer data)
@@ -188,6 +185,21 @@ gboolean on_key_press (GtkWidget *terminal, GdkEventKey *event)
 	return false;
 }
 
+void copyFromTerm(GtkWidget* widget,gpointer data)
+{
+	vte_terminal_copy_clipboard((VteTerminal*)terminal);
+}
+
+void pasteToTerm(GtkWidget* widget,gpointer data)
+{
+	vte_terminal_paste_clipboard((VteTerminal*)terminal);
+}
+
+void selectAllInTerm(GtkWidget* widget,gpointer data)
+{
+	vte_terminal_select_all((VteTerminal*)terminal);
+}
+
 void makeMenu(gpointer plugdata)
 {
 	GtkWidget *popmenuitem;
@@ -201,7 +213,22 @@ void makeMenu(gpointer plugdata)
 	popmenuitem=gtk_menu_item_new_with_label("CD To Page");
 	gtk_signal_connect(GTK_OBJECT(popmenuitem),"activate",G_CALLBACK(cdHere),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(contextMenu),popmenuitem);
+
+	popmenuitem=gtk_menu_item_new_with_label("Copy");
+	gtk_signal_connect(GTK_OBJECT(popmenuitem),"activate",G_CALLBACK(copyFromTerm),plugdata);
+	gtk_menu_shell_append(GTK_MENU_SHELL(contextMenu),popmenuitem);
+
+	popmenuitem=gtk_menu_item_new_with_label("Paste");
+	gtk_signal_connect(GTK_OBJECT(popmenuitem),"activate",G_CALLBACK(pasteToTerm),plugdata);
+	gtk_menu_shell_append(GTK_MENU_SHELL(contextMenu),popmenuitem);
+
+	popmenuitem=gtk_menu_item_new_with_label("Select All");
+	gtk_signal_connect(GTK_OBJECT(popmenuitem),"activate",G_CALLBACK(selectAllInTerm),plugdata);
+	gtk_menu_shell_append(GTK_MENU_SHELL(contextMenu),popmenuitem);
+
+
 }
+
 
 extern "C" int addToGui(gpointer data)
 {

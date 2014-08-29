@@ -19,6 +19,12 @@
 
 char*		SVNRepoPath;
 char*		projectsPath;
+args		mydata[]=
+				{
+					{"svnrepos",TYPESTRING,&SVNRepoPath},
+					{"projects",TYPESTRING,&projectsPath},
+					{NULL,0,NULL}
+				};
 
 GtkWidget*	menuProjects;
 int	(*module_plug_function)(gpointer globaldata);
@@ -246,21 +252,9 @@ extern "C" int addToGui(gpointer data)
 
 	asprintf(&projectsPath,"%s/Projects",getenv("HOME"));
 	asprintf(&SVNRepoPath,"%s/SVN",getenv("HOME"));
-	asprintf(&command,"cat %s/newproject.rc",plugdata->lPlugFolder);
-
-	fp=popen(command,"r");
-		if(fp!=NULL)
-			{
-				fgets(line,1024,fp);
-				line[strlen(line)-1]=0;
-				if(strlen(line)>0)
-					projectsPath=strdup(line);
-				fgets(line,1024,fp);
-				line[strlen(line)-1]=0;
-				if(strlen(line)>0)
-					SVNRepoPath=strdup(line);
-				pclose(fp);
-			}
+	asprintf(&command,"%s/newproject.rc",plugdata->lPlugFolder);
+	loadVarsFromFile(command,mydata);
+	free(command);
 	return(0);
 }
 
@@ -272,8 +266,8 @@ extern "C" int plugPrefs(gpointer data)
 	GtkWidget*	svn;
 	GtkWidget*	vbox;
 	int			response;
-	char*		command;
 	plugData*	plugdata=(plugData*)data;
+	char*		prefspath;
 
 	vbox=gtk_vbox_new(false,0);
 
@@ -296,13 +290,13 @@ extern "C" int plugPrefs(gpointer data)
 	response=gtk_dialog_run(GTK_DIALOG(dialog));
 	if(response==GTK_RESPONSE_APPLY);
 		{
-			asprintf(&command,"echo %s>%s/newproject.rc;echo %s>>%s/newproject.rc",gtk_entry_get_text((GtkEntry*)projects),plugdata->lPlugFolder,gtk_entry_get_text((GtkEntry*)svn),plugdata->lPlugFolder);
+			asprintf(&prefspath,"%s/newproject.rc",plugdata->lPlugFolder);
 			free(projectsPath);
 			free(SVNRepoPath);
 			projectsPath=strdup(gtk_entry_get_text((GtkEntry*)projects));
 			SVNRepoPath=strdup(gtk_entry_get_text((GtkEntry*)svn));
-			system(command);
-			free(command);
+			saveVarsToFile(prefspath,mydata);
+			free(prefspath);
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
 	return(0);

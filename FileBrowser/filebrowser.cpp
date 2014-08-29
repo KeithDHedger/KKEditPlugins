@@ -19,7 +19,7 @@
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "https://sites.google.com/site/kkeditlinuxtexteditor"
-#define VERSION "0.0.6"
+#define VERSION "0.0.7"
 #define NUM_COLUMNS 3
 #define COLUMN_FILENAME 1
 #define COLUMN_PATHNAME 2
@@ -507,7 +507,10 @@ extern "C" int addToGui(gpointer data)
 	leftBox=(GtkWidget*)plugdata->leftUserBox;
 	doStartUpCheck(plugdata);
 	showHideBrowser(plugdata,true);
-	showSide(true);
+	if(showing==true)
+		showSide(true);
+	else
+		hideSide(true);
 	return(0);
 }
 

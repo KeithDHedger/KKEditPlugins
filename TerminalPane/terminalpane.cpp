@@ -77,27 +77,6 @@ void doStartUpCheck(plugData* pdata)
 	debugFree(filepath,"filepath");
 }
 
-void runCommandAndOut(char* command,plugData* plugdata)
-{
-	FILE*		fp=NULL;
-	char		line[1024];
-	GtkTextIter	iter;
-
-	fp=popen(command,"r");
-	if(fp!=NULL)
-		{
-			while(fgets(line,1024,fp))
-				{
-					gtk_text_buffer_insert_at_cursor(plugdata->toolOutBuffer,line,strlen(line));
-					while(gtk_events_pending())
-						gtk_main_iteration();
-					gtk_text_buffer_get_end_iter(plugdata->toolOutBuffer,&iter);
-					gtk_text_view_scroll_to_iter((GtkTextView*)plugdata->toolOutWindow,&iter,0,true,0,0);
-				}
-			pclose(fp);
-		}
-}
-
 void showHideTerminal(plugData* pdata,bool startup)
 {
 	char*	filepath;
@@ -164,7 +143,6 @@ gboolean doButton(GtkWidget *widget, GdkEventButton *event,gpointer data)
 
 		gtk_menu_popup(GTK_MENU(contextMenu),NULL,NULL,NULL,NULL,button,event_time);
 	}
-
 	return(false);
 }
 
@@ -225,10 +203,7 @@ void makeMenu(gpointer plugdata)
 	popmenuitem=gtk_menu_item_new_with_label("Select All");
 	gtk_signal_connect(GTK_OBJECT(popmenuitem),"activate",G_CALLBACK(selectAllInTerm),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(contextMenu),popmenuitem);
-
-
 }
-
 
 extern "C" int addToGui(gpointer data)
 {
@@ -280,7 +255,6 @@ extern "C" int addToGui(gpointer data)
 
 extern "C" int plugPrefs(gpointer data)
 {
-
 	GtkWidget*	dialog;
 	GtkWidget*	dialogbox;
 	GtkWidget*	fcolour;
@@ -371,9 +345,6 @@ extern "C" int enablePlug(gpointer data)
 
 	if(plugdata->modData->unload==true)
 		{
-			//gtk_widget_hide(plugdata->bottomUserBox);
-			//gtk_widget_destroy(swindow);
-			//gtk_widget_destroy(hideMenu);
 			return(1);
 		}
 	else

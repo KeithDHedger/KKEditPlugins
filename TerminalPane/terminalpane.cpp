@@ -98,16 +98,18 @@ void showHideTerminal(plugData* pdata,bool startup)
 	asprintf(&filepath,"%s/terminal.rc",pdata->lPlugFolder);
 	if(showing==true)
 		{
-//			if(pdata->leftShow==0 && startup==false)
-			gtk_widget_show_all(pdata->bottomUserBox);
+			gtk_widget_show_all(swindow);
+			if(pdata->bottomShow==0 && startup==false)
+				showTop(false);
 			touch(filepath);
 			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,"Hide Terminal");
 		}
 	else
 		{
+			gtk_widget_show_all(swindow);
 			unlink(filepath);
-//			if(pdata->leftShow==1 && startup==false)
-			gtk_widget_hide(pdata->bottomUserBox);
+			if(pdata->bottomShow==1 && startup==false)
+				hideTop(false);
 			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,"Show Terminal");
 		}
 	debugFree(filepath,"filepath");
@@ -184,6 +186,10 @@ extern "C" int addToGui(gpointer data)
 
 	doStartUpCheck(plugdata);
 	showHideTerminal(plugdata,true);
+	if(showing==true)
+		showTop(false);
+	else
+		hideTop(false);
 
 	return(0);
 }

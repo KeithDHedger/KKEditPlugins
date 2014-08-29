@@ -127,6 +127,7 @@ struct plugData
 //kkedits main window user box's
 //top
 	GtkWidget*		topUserBox;
+	GtkWidget*		mainWindowVPane;
 //left
 	GtkWidget*		leftUserBox;
 	GtkWidget*		mainWindowHPane;
@@ -135,6 +136,7 @@ struct plugData
 	GtkWidget*		secondWindowHPane;
 //bottom
 	GtkWidget*		bottomUserBox;
+	GtkWidget*		secondWindowVPane;
 //kkedit main window
 	GtkWidget*		mainWindow;
 //tool output window buffer;
@@ -149,6 +151,9 @@ struct plugData
 //leftright user box visiblity ref
 	int				leftShow;
 	int				rightShow;
+//topbottom user box visiblity ref
+	int				topShow;
+	int				bottomShow;
 };
 
 void		showDocView(int howtodisplay,char* text,const char* title);
@@ -157,6 +162,8 @@ void		showToolOutput(bool immediate);
 void		hideToolOutput(bool immediate);
 void		showSide(bool left);
 void		hideSide(bool left);
+void		showTop(bool top);
+void		hideTop(bool top);
 void		runCommand(char* commandtorun,void* ptr,bool interm,int flags,int useroot,char* title);
 void		debugFree(gpointer ptr,const char* message);
 bool		openFile(const gchar *filepath,int linenumber,bool warn);

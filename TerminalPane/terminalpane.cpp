@@ -33,6 +33,7 @@ GtkWidget*	swindow;
 char*		foreColour=strdup("#000000");
 char*		backColour=strdup("#ffffff");
 int			childPid=-999;
+GtkWidget*	contextMenu;
 
 args		mydata[]=
 				{
@@ -40,6 +41,11 @@ args		mydata[]=
 					{"backcol",TYPESTRING,&backColour},
 					{NULL,0,NULL}
 				};
+
+void call(GtkWidget* widget,gpointer data)
+{
+		printf("ZZZZZZZZz\n");
+}
 
 void touch(char* path)
 {
@@ -50,10 +56,17 @@ void touch(char* path)
 		close(fd);
 }
 
+extern "C" const gchar* g_module_check_init(GModule *module)
+{
+//	makeMenu(NULL);
+	return(NULL);
+}
+
 extern "C" const gchar* g_module_unload(GModule *module)
 {
 	gtk_widget_hide(swindow);
 	gtk_widget_destroy(swindow);
+	gtk_widget_destroy(contextMenu);
 	return(NULL);
 }
 
@@ -121,10 +134,39 @@ void toggleTerminal(GtkWidget* widget,gpointer data)
 	showHideTerminal((plugData*)data,false);
 }
 
-gboolean doButton(GtkWidget* widget,gpointer data)
+void cdHere(GtkWidget* widget,gpointer data)
 {
+	plugData*	plugdata=(plugData*)data;
+
+	vte_terminal_feed_child((VteTerminal*)terminal,"cd ",-1);
+	vte_terminal_feed_child((VteTerminal*)terminal,plugdata->page->dirName,-1);
+	vte_terminal_feed_child((VteTerminal*)terminal,"\n",-1);
+}
+
+gboolean doButton(GtkWidget *widget, GdkEventButton *event,gpointer data)
+{
+	int button, event_time;
+
 	gtk_widget_set_can_focus(terminal,true);
 	gtk_widget_grab_focus(terminal);
+
+///* Ignore double-clicks and triple-clicks */
+  if (event->button == 3 && event->type == GDK_BUTTON_PRESS)
+    {
+		gtk_widget_show_all(contextMenu);
+		if (event)
+			{
+				button=event->button;
+				event_time=event->time;
+			}
+		else
+			{
+				button=0;
+				event_time=gtk_get_current_event_time();
+				}
+
+		gtk_menu_popup(GTK_MENU(contextMenu),NULL,NULL,NULL,NULL,button,event_time);
+	}
 
 	return(false);
 }
@@ -144,6 +186,21 @@ gboolean on_key_press (GtkWidget *terminal, GdkEventKey *event)
 				}
 		}
 	return false;
+}
+
+void makeMenu(gpointer plugdata)
+{
+	GtkWidget *popmenuitem;
+
+	contextMenu=gtk_menu_new ();
+
+	popmenuitem=gtk_menu_item_new_with_label("Hide Terminal");
+	gtk_signal_connect(GTK_OBJECT(popmenuitem),"activate",G_CALLBACK(toggleTerminal),plugdata);
+	gtk_menu_shell_append(GTK_MENU_SHELL(contextMenu),popmenuitem);
+
+	popmenuitem=gtk_menu_item_new_with_label("CD To Page");
+	gtk_signal_connect(GTK_OBJECT(popmenuitem),"activate",G_CALLBACK(cdHere),plugdata);
+	gtk_menu_shell_append(GTK_MENU_SHELL(contextMenu),popmenuitem);
 }
 
 extern "C" int addToGui(gpointer data)
@@ -178,9 +235,8 @@ extern "C" int addToGui(gpointer data)
 	gtk_container_add(GTK_CONTAINER(plugdata->bottomUserBox),swindow);
 
 	g_signal_connect(terminal,"key-press-event",G_CALLBACK(on_key_press),NULL);
-	g_signal_connect(terminal,"button-press-event",G_CALLBACK(doButton),NULL);
+	g_signal_connect(terminal,"button-press-event",G_CALLBACK(doButton),(void*)plugdata);
 	vte_terminal_set_emulation((VteTerminal *)terminal,"xterm");
-
 	startterm[0]=vte_get_user_shell();
 	vte_terminal_fork_command_full((VteTerminal *)terminal,VTE_PTY_DEFAULT,NULL,startterm,NULL,(GSpawnFlags)(G_SPAWN_DEFAULT|G_SPAWN_LEAVE_DESCRIPTORS_OPEN),NULL,NULL,&childPid,NULL);
 
@@ -191,12 +247,13 @@ extern "C" int addToGui(gpointer data)
 	else
 		hideTop(false);
 
+	makeMenu(plugdata);
 	return(0);
 }
 
 extern "C" int plugPrefs(gpointer data)
 {
-#if 1
+
 	GtkWidget*	dialog;
 	GtkWidget*	dialogbox;
 	GtkWidget*	fcolour;
@@ -246,7 +303,7 @@ extern "C" int plugPrefs(gpointer data)
 			gtk_widget_show_all(terminal);
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
-#endif
+
 	return(0);
 }
 

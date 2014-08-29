@@ -34,11 +34,12 @@ char*		foreColour=strdup("#000000");
 char*		backColour=strdup("#ffffff");
 int			childPid=-999;
 
-args mydata[]={
-					{"forecol",2,&foreColour},
-					{"backcol",2,&backColour},
+args		mydata[]=
+				{
+					{"forecol",TYPESTRING,&foreColour},
+					{"backcol",TYPESTRING,&backColour},
 					{NULL,0,NULL}
-				  };
+				};
 
 void touch(char* path)
 {

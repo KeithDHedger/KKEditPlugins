@@ -33,9 +33,6 @@ extern void toggleBookmark(GtkWidget* widget,GtkTextIter* titer);
 
 extern GList*			newBookMarksList;
 
-void rebuildMainMenu(GtkWidget* menu,plugData*	plugdata,GCallback* func);
-void restoreSessionNum(GtkWidget* widget,gpointer data);
-
 struct bookMarksNew
 {
 	pageStruct*			page;
@@ -189,30 +186,6 @@ void saveSessionPlug(char* name,plugData* plugdata,int snum)
 		}
 }
 
-void saveSessionNum(GtkWidget* widget,gpointer data)
-{
-	char*		sname=NULL;
-	int			snum=0;
-	plugData*	plugdata=(plugData*)data;
-
-	for(int j=0; j<MAXSESSIONS; j++)
-		{
-			if(strcmp(sessionNames[j],gtk_widget_get_name(widget))==0)
-				snum=j;
-		}
-
-	sname=getNewSessionName(snum);
-	if(sname!=NULL)
-		{
-			free(sessionNames[snum]);
-			sessionNames[snum]=sname;
-			saveSessionPlug(sname,plugdata,snum);
-			rebuildMainMenu(saveSessionMenu,plugdata,(GCallback*)saveSessionNum);
-			rebuildMainMenu(restoreSessionMenu,plugdata,(GCallback*)restoreSessionNum);
-		}
-
-}
-
 void restoreSessionFromFile(char* filename)
 {
 	FILE*		fd=NULL;
@@ -260,7 +233,6 @@ void restoreSessionFromFile(char* filename)
 									if(!gtk_text_view_scroll_to_iter((GtkTextView*)page->view,&cursiter,0,true,0,0.5))
 										gtk_text_view_scroll_to_mark((GtkTextView*)page->view,mark,0,true,0,0.5);
 								}
-
 							currentpage++;
 						}
 					else
@@ -273,7 +245,6 @@ void restoreSessionFromFile(char* filename)
 									fgets(buffer,2048,fd);
 									sscanf(buffer,"%i",(int*)&intarg);
 								}
-
 						}
 				}
 			fclose(fd);
@@ -332,6 +303,29 @@ void rebuildMainMenu(GtkWidget* menu,plugData*	plugdata,GCallback* func)
 	gtk_widget_show_all(menu);
 }
 
+void saveSessionNum(GtkWidget* widget,gpointer data)
+{
+	char*		sname=NULL;
+	int			snum=0;
+	plugData*	plugdata=(plugData*)data;
+
+	for(int j=0; j<MAXSESSIONS; j++)
+		{
+			if(strcmp(sessionNames[j],gtk_widget_get_name(widget))==0)
+				snum=j;
+		}
+
+	sname=getNewSessionName(snum);
+	if(sname!=NULL)
+		{
+			free(sessionNames[snum]);
+			sessionNames[snum]=sname;
+			saveSessionPlug(sname,plugdata,snum);
+			rebuildMainMenu(saveSessionMenu,plugdata,(GCallback*)saveSessionNum);
+			rebuildMainMenu(restoreSessionMenu,plugdata,(GCallback*)restoreSessionNum);
+		}
+}
+
 extern "C" int addToGui(gpointer data)
 {
 
@@ -382,7 +376,6 @@ extern "C" int addToGui(gpointer data)
 				}
 			gtk_widget_show_all(restoreSessionMenu);
 		}
-
 	return(0);
 }
 
@@ -391,7 +384,7 @@ extern "C" int doAbout(gpointer data)
 	plugData*		plugdata=(plugData*)data;
 	char*			licencepath;
 	const char		copyright[] ="Copyright \xc2\xa9 2014 K.D.Hedger";
-	const char*		aboutboxstring="SessionManager";
+	const char*		aboutboxstring="Session Manager - Adds multiple named sessions to KKEdit";
 	char*			licence;
 	GtkAboutDialog*	about;
 

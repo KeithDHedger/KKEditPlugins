@@ -114,10 +114,14 @@ struct plugData
 	char*			gPlugFolder;
 //local plugin folder defaults to ~/.KKEdit/plugins
 	char*			lPlugFolder;
+//kkedit version string
+	char*			kkeditVersion;
 //unused
 	char*			htmlFile;
 //location of variable that holds the uri to be disp[layed by showDoc
 	char**			thePage;
+//main notebook
+	GtkNotebook*	notebook;
 //current page MAYBE NULL!!
 	pageStruct*		page;
 //cuurent tab

@@ -25,11 +25,12 @@ struct clips
 };
 
 GtkWidget*		menuPlug;
-GtkClipboard*	mainclipboard;
+GtkClipboard*	mainClipboard;
 int				currentClip=-1;
 clips			clip[MAXCLIPS];
 bool			manual=false;
 plugData*		plugdata;
+gulong			clipid;
 
 int	(*module_plug_function)(gpointer globaldata);
 
@@ -40,6 +41,13 @@ extern "C" const gchar* g_module_check_init(GModule *module)
 
 extern "C" const gchar* g_module_unload(GModule *module)
 {
+	for(int j=0;j<MAXCLIPS;j++)
+		{
+			if(clip[j].text!=NULL)
+				free(clip[j].text);
+		}
+	manual=false;
+	g_signal_handler_disconnect(mainClipboard,clipid);
 	return(NULL);
 }
 
@@ -63,7 +71,7 @@ void clipChanged(GtkClipboard* clipboard,gpointer user_data)
 	else
 		manual=true;
 
-	if (gtk_clipboard_wait_is_text_available(mainclipboard)==true)
+	if (gtk_clipboard_wait_is_text_available(mainClipboard)==true)
 		{
 			setCurrentClip();
 			if(clip[currentClip].text != NULL)
@@ -106,6 +114,8 @@ extern "C" int addToGui(gpointer data)
 	char*		command;
 
 	plugdata=(plugData*)data;
+	manual=false;
+	currentClip=-1;
 
 	menuPlug=gtk_menu_item_new_with_label("C_lipboard");
 	gtk_menu_item_set_use_underline((GtkMenuItem*)menuPlug,true);
@@ -118,14 +128,14 @@ extern "C" int addToGui(gpointer data)
 			clip[j].menuItem=(GtkWidget*)gtk_menu_item_new_with_label(command);
 			free(command);
 			clip[j].text=NULL;
-			gtk_signal_connect(GTK_OBJECT(clip[j].menuItem),"activate",G_CALLBACK(theCallBack),(void*)(long)j);
+			g_signal_connect(GTK_OBJECT(clip[j].menuItem),"activate",G_CALLBACK(theCallBack),(void*)(long)j);
 			gtk_menu_shell_append(GTK_MENU_SHELL(menu),clip[j].menuItem);
 		}
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->mlist.menuBar),menuPlug);					
 
-	mainclipboard=gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
-	g_signal_connect(G_OBJECT(mainclipboard),"owner-change",G_CALLBACK(clipChanged),plugdata);
+	mainClipboard=gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
+	clipid=g_signal_connect(G_OBJECT(mainClipboard),"owner-change",G_CALLBACK(clipChanged),plugdata);
 	return(0);
 }
 

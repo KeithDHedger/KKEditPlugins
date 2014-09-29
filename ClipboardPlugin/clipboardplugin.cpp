@@ -17,8 +17,15 @@
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
 #define VERSION "0.0.1"
 
-char*		prefsPath;
+int			maximumClips=-1;
+char*		maxClips;
 GtkWidget*	menuPlug;
+
+args		mydata[]=
+				{
+					{"maxclips",TYPEINT,&maximumClips},
+					{NULL,0,NULL}
+				};
 
 int	(*module_plug_function)(gpointer globaldata);
 
@@ -65,10 +72,11 @@ extern "C" int addToGui(gpointer data)
 {
 	GtkWidget*	menuitem;
 	GtkWidget*	menu;
+	char*		command;
 
 	plugData*	plugdata=(plugData*)data;
 
-	menuPlug=gtk_menu_item_new_with_label("_NewKKeditPlug Menu");
+	menuPlug=gtk_menu_item_new_with_label("_Clipboard");
 	gtk_menu_item_set_use_underline((GtkMenuItem*)menuPlug,true);
 	menu=gtk_menu_new();
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuPlug),menu);
@@ -78,6 +86,13 @@ extern "C" int addToGui(gpointer data)
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->mlist.menuBar),menuPlug);					
+
+	asprintf(&command,"%s/clipboardplugin.rc",plugdata->lPlugFolder);
+	loadVarsFromFile(command,mydata);
+	if(maximumClips==-1)
+		maximumClips=5;
+	printf("%i\n",maximumClips);
+	free(command);
 
 	return(0);
 }
@@ -91,6 +106,7 @@ extern "C" int plugPrefs(gpointer data)
 	int			response;
 	char*		command;
 	plugData*	plugdata=(plugData*)data;
+	char*		numclips[16];
 
 	vbox=gtk_vbox_new(false,0);
 
@@ -101,16 +117,18 @@ extern "C" int plugPrefs(gpointer data)
 
 	prefs=gtk_entry_new();
 
-	gtk_entry_set_text((GtkEntry*)prefs,prefsPath);
-	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Prefs Path"),true,true,4);
+	sprintf((char*)&numclips,"%i",maximumClips);
+	gtk_entry_set_text((GtkEntry*)prefs,(char*)numclips);
+	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Max Number of Clips"),true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,prefs,true,true,4);
 
 	gtk_widget_show_all(dialog);
 	response=gtk_dialog_run(GTK_DIALOG(dialog));
 	if(response==GTK_RESPONSE_APPLY);
 		{
-			asprintf(&command,"echo %s>%s/clipboardplugin.rc",gtk_entry_get_text((GtkEntry*)prefs),plugdata->lPlugFolder);
-			system(command);
+			maximumClips=atoi(gtk_entry_get_text((GtkEntry*)prefs));
+			asprintf(&command,"%s/clipboardplugin.rc",plugdata->lPlugFolder);
+			saveVarsToFile(command,mydata);
 			free(command);
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);

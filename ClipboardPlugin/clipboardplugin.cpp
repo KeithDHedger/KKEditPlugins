@@ -16,10 +16,18 @@
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
 #define VERSION "0.0.1"
+struct clips
+{
+	char*				text;
+};
 
 int			maximumClips=-1;
 char*		maxClips;
 GtkWidget*	menuPlug;
+GtkClipboard*	mainclipboard;
+int				currentClip=0;
+clips			clip[5];
+bool		manual=false;
 
 args		mydata[]=
 				{
@@ -60,12 +68,46 @@ void runCommandAndOut(char* command,plugData* plugdata)
 		}
 }
 
+void setCurrentClip(void)
+{
+	currentClip++;
+	if(currentClip==maximumClips)
+		currentClip=0;
+}
+
+void clipChanged(GtkClipboard* clipboard,gpointer user_data)
+{
+	if (manual==true)
+		{
+			manual=false;
+			return;
+		}
+	else
+		manual=true;
+
+	if (gtk_clipboard_wait_is_text_available(mainclipboard)==true)
+		{
+			setCurrentClip();
+			if(clip[currentClip].text != NULL)
+				free(clip[currentClip].text);
+			clip[currentClip].text=gtk_clipboard_wait_for_text(clipboard);
+		}
+
+	printf("%s\n",clip[currentClip].text);
+}
+
 void theCallBack(GtkWidget* widget,gpointer data)
 {
 	plugData*	plugdata=(plugData*)data;
+	int			clipnum=atoi(gtk_widget_get_name(widget));
+	printf("XXXXXXXXXX\n");
+	printf("%s\n",gtk_widget_get_name(widget));
 
-	showToolOutput(true);
-	runCommandAndOut((char*)"ls /",plugdata);
+ gtk_text_buffer_insert_at_cursor((GtkTextBuffer*)plugdata->page->buffer,clip[clipnum-1].text,strlen(clip[clipnum-1].text));
+//	gtk_text_buffer_paste_clipboard((GtkTextBuffer*)plugdata->page->buffer,
+ //                                                        GtkClipboard *clipboard,
+ //                                                        GtkTextIter *override_location,
+ //                                                        gboolean default_editable);
 }
 
 extern "C" int addToGui(gpointer data)
@@ -73,27 +115,37 @@ extern "C" int addToGui(gpointer data)
 	GtkWidget*	menuitem;
 	GtkWidget*	menu;
 	char*		command;
+	char		menuname[16];
 
 	plugData*	plugdata=(plugData*)data;
+
+	asprintf(&command,"%s/clipboardplugin.rc",plugdata->lPlugFolder);
+	loadVarsFromFile(command,mydata);
+	if(maximumClips==-1)
+		maximumClips=5;
+	free(command);
 
 	menuPlug=gtk_menu_item_new_with_label("_Clipboard");
 	gtk_menu_item_set_use_underline((GtkMenuItem*)menuPlug,true);
 	menu=gtk_menu_new();
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuPlug),menu);
 
-	menuitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW,NULL);
-	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(theCallBack),plugdata);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
+
+	for(int j=1;j<=maximumClips;j++)
+		{
+			sprintf((char*)&menuname,"%i",j);
+			asprintf(&command,"Clip No. %i",j);
+			menuitem=gtk_menu_item_new_with_label(command);
+			free(command);
+			gtk_widget_set_name(menuitem,(char*)&menuname);
+			gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(theCallBack),plugdata);
+			gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
+		}
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->mlist.menuBar),menuPlug);					
 
-	asprintf(&command,"%s/clipboardplugin.rc",plugdata->lPlugFolder);
-	loadVarsFromFile(command,mydata);
-	if(maximumClips==-1)
-		maximumClips=5;
-	printf("%i\n",maximumClips);
-	free(command);
-
+	mainclipboard=gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
+	g_signal_connect(G_OBJECT(mainclipboard),"owner-change",G_CALLBACK(clipChanged),plugdata);
 	return(0);
 }
 

@@ -17,6 +17,9 @@
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
 #define VERSION "0.0.1"
 #define MAXCLIPS 10
+#define MAXCLIPMENULEN 43
+#define CLIPENDLEN 20
+#define CLIPENDLENSTR "20"
 
 struct clips
 {
@@ -81,9 +84,9 @@ void clipChanged(GtkClipboard* clipboard,gpointer user_data)
 			texthold=g_strescape(clip[currentClip].text,NULL);
 			texthold=g_strstrip(texthold);
 
-			if(strlen(clip[currentClip].text)>23)
+			if(strlen(clip[currentClip].text)>MAXCLIPMENULEN)
 				{
-					asprintf(&label,"%.10s...%s",texthold,(char*)&texthold[strlen(texthold)-10]);
+					asprintf(&label,"%." CLIPENDLENSTR "s...%s",texthold,(char*)&texthold[strlen(texthold)-CLIPENDLEN]);
 					gtk_menu_item_set_label((GtkMenuItem*)clip[currentClip].menuItem,label);
 					free(label);
 				}

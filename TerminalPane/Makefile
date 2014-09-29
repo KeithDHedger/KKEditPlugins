@@ -29,7 +29,4 @@ uninstall:
 	fi
 
 makepkg: clean
-#	cd .. && tar -cvzf ${PACKAGENAME}.tar.gz ${CWD}
-#	CWD=`basename .`
-	echo ${PACKAGENAME} ${PLUGNAMELOWER}
-#	cd .. && tar -cvzf ${PACKAGENAME}.tar.gz ${PACKAGENAME}
+	cd .. && tar -cvzf ${PACKAGENAME}.tar.gz ${PACKAGENAME}

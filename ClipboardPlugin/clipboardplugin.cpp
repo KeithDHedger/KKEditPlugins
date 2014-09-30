@@ -15,7 +15,7 @@
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
-#define VERSION "0.0.1"
+#define VERSION "0.0.3"
 #define MAXCLIPS 10
 #define MAXCLIPMENULEN 43
 #define CLIPENDLEN 20
@@ -31,7 +31,6 @@ GtkWidget*		menuPlug;
 GtkClipboard*	mainClipboard;
 int				currentClip=-1;
 clips			clip[MAXCLIPS];
-bool			manual=false;
 plugData*		plugdata;
 gulong			clipid;
 
@@ -49,7 +48,6 @@ extern "C" const gchar* g_module_unload(GModule *module)
 			if(clip[j].text!=NULL)
 				free(clip[j].text);
 		}
-	manual=false;
 	g_signal_handler_disconnect(mainClipboard,clipid);
 	return(NULL);
 }
@@ -65,14 +63,6 @@ void clipChanged(GtkClipboard* clipboard,gpointer user_data)
 {
 	char*	texthold;
 	char*	label;
-
-	if (manual==true)
-		{
-			manual=false;
-			return;
-		}
-	else
-		manual=true;
 
 	if (gtk_clipboard_wait_is_text_available(mainClipboard)==true)
 		{
@@ -102,13 +92,20 @@ void theCallBack(GtkWidget* widget,gpointer data)
 {
 	pageStruct*	page=NULL;
 	int			clipnum=(int)(long)data;
+	GtkTextIter	start;
+	GtkTextIter	end;
 
 	page=getPageStructPtr(-1);
 	if(page==NULL)
 		return;
 		
 	if(clip[clipnum].text!=NULL)
-		gtk_text_buffer_insert_at_cursor((GtkTextBuffer*)page->buffer,clip[clipnum].text,-1);
+		{
+			if(gtk_text_buffer_get_selection_bounds((GtkTextBuffer*)page->buffer,&start,&end))
+				gtk_text_buffer_delete((GtkTextBuffer*)page->buffer,&start,&end);
+
+			gtk_text_buffer_insert_at_cursor((GtkTextBuffer*)page->buffer,clip[clipnum].text,-1);
+		}
 }
 
 extern "C" int addToGui(gpointer data)
@@ -117,7 +114,6 @@ extern "C" int addToGui(gpointer data)
 	char*		command;
 
 	plugdata=(plugData*)data;
-	manual=false;
 	currentClip=-1;
 
 	menuPlug=gtk_menu_item_new_with_label("C_lipboard");

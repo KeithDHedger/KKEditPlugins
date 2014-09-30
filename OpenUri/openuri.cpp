@@ -2,14 +2,10 @@
   openuri.cpp
 */
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <glib.h>
+//#include <glib.h>
 #include <gtk/gtk.h>
 #include <gmodule.h>
-#include <libgen.h>
-#include <string.h>
-#include <ctype.h>
 
 #include <kkedit-plugins.h>
 
@@ -17,9 +13,7 @@
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
 #define VERSION "0.0.1"
 
-char*		prefsPath;
 GtkWidget*	menuPlug;
-GtkWidget*	holdWidget=NULL;
 
 int	(*module_plug_function)(gpointer globaldata);
 
@@ -33,85 +27,59 @@ extern "C" const gchar* g_module_unload(GModule *module)
 	return(NULL);
 }
 
-
-void runCommandAndOut(char* command,plugData* plugdata)
+void theCallBack(GtkWidget* widget,gpointer data)
 {
-	FILE*		fp=NULL;
-	char		line[1024];
-	GtkTextIter	iter;
+	char*		command=NULL;
+	GtkTextIter	start;
+	GtkTextIter	end;
+	char*		text;
+	pageStruct*	page=NULL;
 
-	fp=popen(command,"r");
-	if(fp!=NULL)
+	page=getPageStructPtr(-1);
+	if(page==NULL)
+		return;
+
+	if(gtk_text_buffer_get_selection_bounds((GtkTextBuffer*)page->buffer,&start,&end))
 		{
-			while(fgets(line,1024,fp))
-				{
-					gtk_text_buffer_insert_at_cursor(plugdata->toolOutBuffer,line,strlen(line));
-					while(gtk_events_pending())
-						gtk_main_iteration();
-					gtk_text_buffer_get_end_iter(plugdata->toolOutBuffer,&iter);
-					gtk_text_view_scroll_to_iter((GtkTextView*)plugdata->toolOutWindow,&iter,0,true,0,0);
-				}
-			pclose(fp);
+			text=gtk_text_buffer_get_text((GtkTextBuffer*)page->buffer,&start,&end,false);
+			asprintf(&command,"xdg-open %s",text);
+			system(command);
+			free(command);
+			free(text);
 		}
 }
 
-void theCallBack(GtkWidget* widget,gpointer data)
+extern "C" int addToContext(gpointer data)
 {
+	GtkWidget*	menuitem;
+	GtkWidget*	image;
 	plugData*	plugdata=(plugData*)data;
 
-	showToolOutput(true);
-	runCommandAndOut((char*)"ls /",plugdata);
+	menuitem=gtk_image_menu_item_new_with_label("Open Selection");
+	image=gtk_image_new_from_stock(GTK_STOCK_OPEN,GTK_ICON_SIZE_MENU);
+	gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
+	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->contextPopUpMenu),menuitem);
+	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(theCallBack),(void*)plugdata);
+
+	return(0);
 }
 
 extern "C" int addToGui(gpointer data)
 {
-	GtkWidget*	menuitem;
 	GtkWidget*	submenu=NULL;
+	GtkWidget*	image;
 
 	plugData*	plugdata=(plugData*)data;
 
 	submenu=gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuNav);
 	if(submenu!=NULL)
 		{
-			menuitem=gtk_menu_item_new_with_label("Open Selection");
-			gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(theCallBack),plugdata);
-			gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menuitem);
+			menuPlug=gtk_image_menu_item_new_with_label("Open Selection");
+			image=gtk_image_new_from_stock(GTK_STOCK_OPEN,GTK_ICON_SIZE_MENU);
+			gtk_image_menu_item_set_image((GtkImageMenuItem *)menuPlug,image);
+			gtk_signal_connect(GTK_OBJECT(menuPlug),"activate",G_CALLBACK(theCallBack),plugdata);
+			gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menuPlug);
 		}
-	return(0);
-}
-
-extern "C" int plugPrefs(gpointer data)
-{
-	GtkWidget*	dialog;
-	GtkWidget*	dialogbox;
-	GtkWidget*	prefs;
-	GtkWidget*	vbox;
-	int			response;
-	char*		command;
-	plugData*	plugdata=(plugData*)data;
-
-	vbox=gtk_vbox_new(false,0);
-
-	dialog=gtk_dialog_new_with_buttons("OpenUri",NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
-	gtk_window_set_default_size((GtkWindow*)dialog,300,120);
-	dialogbox=gtk_dialog_get_content_area((GtkDialog*)dialog);
-	gtk_container_add(GTK_CONTAINER(dialogbox),vbox);
-
-	prefs=gtk_entry_new();
-
-	gtk_entry_set_text((GtkEntry*)prefs,prefsPath);
-	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Prefs Path"),true,true,4);
-	gtk_box_pack_start((GtkBox*)vbox,prefs,true,true,4);
-
-	gtk_widget_show_all(dialog);
-	response=gtk_dialog_run(GTK_DIALOG(dialog));
-	if(response==GTK_RESPONSE_APPLY);
-		{
-			asprintf(&command,"echo %s>%s/openuri.rc",gtk_entry_get_text((GtkEntry*)prefs),plugdata->lPlugFolder);
-			system(command);
-			free(command);
-		}
-	gtk_widget_destroy((GtkWidget*)dialog);
 	return(0);
 }
 
@@ -120,7 +88,7 @@ extern "C" int doAbout(gpointer data)
 	plugData*		plugdata=(plugData*)data;
 	char*			licencepath;
 	const char		copyright[] ="Copyright \xc2\xa9 2014 K.D.Hedger";
-	const char*		aboutboxstring="OpenUri";
+	const char*		aboutboxstring="Open Uri from selection";
 	char*			licence;
 	GtkAboutDialog*	about;
 

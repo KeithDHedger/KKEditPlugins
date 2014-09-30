@@ -2,7 +2,7 @@
 global:	addToGui;
 		doAbout;
 		enablePlug;
-		plugPrefs;
+		addToContext;
 		g_module_unload;
 		g_module_check_init;
 

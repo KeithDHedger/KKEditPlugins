@@ -19,6 +19,7 @@
 
 char*		prefsPath;
 GtkWidget*	menuPlug;
+GtkWidget*	holdWidget=NULL;
 
 int	(*module_plug_function)(gpointer globaldata);
 
@@ -31,6 +32,7 @@ extern "C" const gchar* g_module_unload(GModule *module)
 {
 	return(NULL);
 }
+
 
 void runCommandAndOut(char* command,plugData* plugdata)
 {
@@ -64,21 +66,17 @@ void theCallBack(GtkWidget* widget,gpointer data)
 extern "C" int addToGui(gpointer data)
 {
 	GtkWidget*	menuitem;
-	GtkWidget*	menu;
+	GtkWidget*	submenu=NULL;
 
 	plugData*	plugdata=(plugData*)data;
 
-	menuPlug=gtk_menu_item_new_with_label("_NewKKeditPlug Menu");
-	gtk_menu_item_set_use_underline((GtkMenuItem*)menuPlug,true);
-	menu=gtk_menu_new();
-	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuPlug),menu);
-
-	menuitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW,NULL);
-	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(theCallBack),plugdata);
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
-
-	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->mlist.menuBar),menuPlug);					
-
+	submenu=gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuNav);
+	if(submenu!=NULL)
+		{
+			menuitem=gtk_menu_item_new_with_label("Open Selection");
+			gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(theCallBack),plugdata);
+			gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menuitem);
+		}
 	return(0);
 }
 

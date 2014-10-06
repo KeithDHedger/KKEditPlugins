@@ -43,7 +43,8 @@ for arg in $langs
 		if [ $MAKEMOS -eq 1 ];then
 			for dom in $folders
 				do
-					msgfmt --check --verbose --output-file po/${arg}/LC_MESSAGES/${dom}.mo ${dom}_${arg}.po
+					mkdir -vp ${dom}/po/${arg}/LC_MESSAGES || true
+					msgfmt --check --verbose --output-file ${dom}/po/${arg}/LC_MESSAGES/${dom}.mo ${dom}_${arg}.po
 				done
 		fi
 	done

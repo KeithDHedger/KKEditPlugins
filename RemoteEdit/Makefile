@@ -5,6 +5,9 @@ ASKPASS=askpass
 ROOTINSTALLDIR=/usr/share/KKEdit/plugins
 USERINSTALLDIR=${HOME}/.KKEdit/plugins
 PACKAGENAME=RemoteEdit
+ROOTLOCALEDIR=/usr/share/locale
+LOCALLOCALE=${HOME}/.KKEdit/plugins/locale
+MONAME=RemoteEdit.mo
 
 all:
 	g++ -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs gtk+-2.0 gmodule-2.0 glib-2.0 gtksourceview-2.0` -o ${PLUGNAME}.o
@@ -23,16 +26,16 @@ distclean:
 
 install:
 	if [ ${USER} = "root" ];then \
-		cp -rv ${ASKPASS} ${SETSID} ${PLUG} "${ROOTINSTALLDIR}"; \
+		cp -rv ${ASKPASS} ${SETSID} ${PLUG} "${ROOTINSTALLDIR}";cd po;cp -rv . ${ROOTLOCALEDIR}; \
 	else \
-		cp -rv ${ASKPASS} ${SETSID} ${PLUG} "${USERINSTALLDIR}"; \
+		cp -rv ${ASKPASS} ${SETSID} ${PLUG} "${USERINSTALLDIR}";cd po;cp -rv . ${LOCALLOCALE}; \
 	fi
 
 uninstall:
 	if [ ${USER} = "root" ];then \
-		rm -rv "${ROOTINSTALLDIR}/${PLUG}" "${ROOTINSTALLDIR}/${ASKPASS}" "${ROOTINSTALLDIR}/${SETSID}"||true; \
+		rm -rv "${ROOTINSTALLDIR}/${PLUG}" "${ROOTINSTALLDIR}/${ASKPASS}" "${ROOTINSTALLDIR}/${SETSID}" ${ROOTLOCALEDIR}/*/LC_MESSAGES/${MONAME}||true; \
 	else \
-		rm -rv "${USERINSTALLDIR}/${PLUG}" "${USERINSTALLDIR}/${ASKPASS}" "${USERINSTALLDIR}/${SETSID}"||true; \
+		rm -rv "${USERINSTALLDIR}/${PLUG}" "${USERINSTALLDIR}/${ASKPASS}" "${USERINSTALLDIR}/${SETSID}" ${LOCALLOCALE}/*/LC_MESSAGES/${MONAME}||true; \
 	fi
 
 makepkg: clean

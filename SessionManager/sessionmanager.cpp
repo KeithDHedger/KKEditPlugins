@@ -74,7 +74,7 @@ GtkWidget* findMenu(GtkWidget* parent, const gchar* name)
 
 	if ( (GTK_IS_MENU_ITEM(parent)) && !(GTK_IS_SEPARATOR_MENU_ITEM(parent)) )
 		{
-			mname=gtk_menu_item_get_label((GtkMenuItem *)parent);
+			mname=gtk_widget_get_name((GtkWidget*)parent);
 			if(mname!=NULL)
 				{
 					if(strcmp(name,mname)==0)
@@ -365,8 +365,8 @@ extern "C" int addToGui(gpointer data)
 	plugData*	plugdata=(plugData*)data;
 
 	holdWidget=NULL;
-//TODO//
-	findMenu(gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuFile),"Save Session");
+
+	findMenu(gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuFile),SAVESESSIONMENUNAME);
 	if(holdWidget!=NULL)
 		{
 			saveSessionMenu=holdWidget;
@@ -388,7 +388,7 @@ extern "C" int addToGui(gpointer data)
 
 	holdWidget=NULL;
 //TODO//
-	findMenu(gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuFile),"Restore Session");
+	findMenu(gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuFile),RESTORESESSIONMENUNAME);
 	if(holdWidget!=NULL)
 		{
 			restoreSessionMenu=holdWidget;

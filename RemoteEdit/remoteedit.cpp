@@ -13,11 +13,15 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
+#include <libintl.h>
+#include <locale.h>
+
 #include <kkedit-plugins.h>
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "https://sites.google.com/site/kkeditlinuxtexteditor"
 #define VERSION "0.0.2"
+#define TEXTDOMAIN "RemoteEdit"
 
 struct remoteFiles
 {
@@ -39,6 +43,26 @@ char*		pathToAskPass=NULL;
 char*		pathToSetSid=NULL;
 bool		syncSave=false;
 GList*		remoteSaves=NULL;
+char*		currentdomain=NULL;
+plugData*	globalPData=NULL;
+
+void setTextDomain(bool plugdomain,plugData* pdata)
+{
+	if(plugdomain==true)
+		{
+			//set domain to plug
+			bindtextdomain(TEXTDOMAIN,"/home/keithhedger/.KKEdit/plugins/locale");
+			textdomain(TEXTDOMAIN);
+			bind_textdomain_codeset(TEXTDOMAIN,"UTF-8");
+		}
+	else
+		{
+			//resetdomain
+			bindtextdomain(currentdomain,pdata->locale);
+			textdomain(currentdomain);
+			bind_textdomain_codeset(currentdomain,"UTF-8");	
+		}
+}
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
@@ -47,6 +71,7 @@ extern "C" const gchar* g_module_check_init(GModule *module)
 	char*	command;
 	char*	filepath;
 
+	currentdomain=strdup(textdomain(NULL));
 	asprintf(&command,"cat %s/.KKEdit/plugins/remotedata",getenv("HOME"));
 	fp=popen(command,"r");
 	if(fp!=NULL)
@@ -140,6 +165,7 @@ void doRemote(GtkWidget* widget,gpointer data)
 	int		exitstatus;
 	char*	messagedata;
 
+	setTextDomain(true,globalPData);
 	if(strcasecmp(gtk_widget_get_name(widget),"openremote")==0)
 		{
 			if(pathToAskPass==NULL)
@@ -159,7 +185,7 @@ void doRemote(GtkWidget* widget,gpointer data)
 			else
 				{
 					((remoteFiles*)data)->saved=false;
-					asprintf(&messagedata,"Can't open %s\nscp error %i",((remoteFiles*)data)->remoteFilePath,exitstatus);
+					asprintf(&messagedata,gettext("Can't open %s\nscp error %i"),((remoteFiles*)data)->remoteFilePath,exitstatus);
 					doMessage(messagedata,GTK_MESSAGE_ERROR);
 				}
 		}
@@ -178,10 +204,11 @@ void doRemote(GtkWidget* widget,gpointer data)
 			else
 				{
 					((remoteFiles*)data)->saved=false;
-					asprintf(&messagedata,"Can't save %s\nscp error %i",((remoteFiles*)data)->remoteFilePath,exitstatus);
+					asprintf(&messagedata,gettext("Can't save %s\nscp error %i"),((remoteFiles*)data)->remoteFilePath,exitstatus);
 					doMessage(messagedata,GTK_MESSAGE_ERROR);
 				}
 		}
+	setTextDomain(false,globalPData);
 }
 
 extern "C" int saveFile(gpointer data)
@@ -222,7 +249,8 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 
 	vbox=gtk_vbox_new(false,0);
 
-	dialog=gtk_dialog_new_with_buttons("RemoteEdit",NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
+	setTextDomain(true,plugdata);
+	dialog=gtk_dialog_new_with_buttons(gettext("Remote Edit"),NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
 	gtk_window_set_default_size((GtkWindow*)dialog,300,120);
 	dialogbox=gtk_dialog_get_content_area((GtkDialog*)dialog);
 	gtk_container_add(GTK_CONTAINER(dialogbox),vbox);
@@ -233,9 +261,9 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 	gtk_entry_set_text((GtkEntry*)host,dialogFile);
 	gtk_entry_set_text((GtkEntry*)user,dialogUser);
 
-	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Remote File"),true,true,4);
+	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new(gettext("Remote File")),true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,host,true,true,4);
-	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("User Name"),true,true,4);
+	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new(gettext("User Name")),true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,user,true,true,4);
 
 	gtk_widget_show_all(dialog);
@@ -262,13 +290,13 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 			menu=gtk_menu_new();
 			gtk_menu_item_set_submenu(GTK_MENU_ITEM(remote->menuItem),menu);
 
-			menuitem=gtk_menu_item_new_with_label("Reload Remote File");
+			menuitem=gtk_menu_item_new_with_label(gettext("Reload Remote File"));
 			gtk_widget_set_name(menuitem,"openremote");
 			doRemote(menuitem,remote);
 			gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(doRemote),remote);
 			gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);	
 
-			remote->saveMenuItem=gtk_menu_item_new_with_label("Export To Remote File");
+			remote->saveMenuItem=gtk_menu_item_new_with_label(gettext("Export To Remote File"));
 			gtk_widget_set_name(remote->saveMenuItem,"save");
 			gtk_signal_connect(GTK_OBJECT(remote->saveMenuItem),"activate",G_CALLBACK(doRemote),remote);
 			gtk_menu_shell_append(GTK_MENU_SHELL(menu),remote->saveMenuItem);	
@@ -286,6 +314,7 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 			remoteSaves=g_list_prepend(remoteSaves,remote);
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
+	setTextDomain(false,plugdata);
 }
 
 extern "C" int addToGui(gpointer data)
@@ -296,13 +325,15 @@ extern "C" int addToGui(gpointer data)
 	struct stat sb;
 
 	plugData*	plugdata=(plugData*)data;
+	globalPData=plugdata;
 
-	menuMount=gtk_menu_item_new_with_label("_Remote Edit");
+	setTextDomain(true,plugdata);
+	menuMount=gtk_menu_item_new_with_label(gettext("_Remote Edit"));
 	gtk_menu_item_set_use_underline((GtkMenuItem*)menuMount,true);
 	menu=gtk_menu_new();
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuMount),menu);
 
-	menuitem=gtk_image_menu_item_new_with_label("Open Remote File");
+	menuitem=gtk_image_menu_item_new_with_label(gettext("Open Remote File"));
 	image=gtk_image_new_from_stock(GTK_STOCK_CONNECT,GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
 	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(mountSSHFS),plugdata);
@@ -342,9 +373,11 @@ extern "C" int addToGui(gpointer data)
 				}
 		}
 
+	setTextDomain(false,plugdata);
 	return(0);
 }
 
+//TODO//
 extern "C" int doAbout(gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;
@@ -354,13 +387,14 @@ extern "C" int doAbout(gpointer data)
 	char*			licence;
 	GtkAboutDialog*	about;
 
+	setTextDomain(true,plugdata);
 	const char*	authors[]= {"K.D.Hedger <"MYEMAIL">\n",MYWEBSITE,"\nMore by the same author\n","Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
 
 	asprintf(&licencepath,"%s/docs/gpl-3.0.txt",plugdata->dataDir);
 
 	g_file_get_contents(licencepath,&licence,NULL,NULL);
 	about=(GtkAboutDialog*)gtk_about_dialog_new();
-	gtk_about_dialog_set_program_name(about,"Remote Edit");
+	gtk_about_dialog_set_program_name(about,gettext("Remote Edit"));
 	gtk_about_dialog_set_authors(about,authors);
 	gtk_about_dialog_set_comments(about,aboutboxstring);
 	gtk_about_dialog_set_copyright(about,copyright);
@@ -374,6 +408,7 @@ extern "C" int doAbout(gpointer data)
 	free(licence);
 	free(licencepath);
 
+	setTextDomain(false,plugdata);
 	return(0);
 }
 
@@ -387,11 +422,12 @@ extern "C" int plugPrefs(gpointer data)
 	int			response;
 	vbox=gtk_vbox_new(false,0);
 
-	dialog=gtk_dialog_new_with_buttons("Remote Edit Plug In Prefs",NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
+	setTextDomain(true,plugdata);
+	dialog=gtk_dialog_new_with_buttons(gettext("Remote Edit Plug In Prefs"),NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
 	dialogbox=gtk_dialog_get_content_area((GtkDialog*)dialog);
 	gtk_container_add(GTK_CONTAINER(dialogbox),vbox);
 
-	showinvis=gtk_check_button_new_with_label("Save also exports file");
+	showinvis=gtk_check_button_new_with_label(gettext("Save also exports file"));
 	gtk_toggle_button_set_active((GtkToggleButton*)showinvis,syncSave);
 	gtk_box_pack_start((GtkBox*)vbox,showinvis,true,true,4);
 
@@ -404,6 +440,7 @@ extern "C" int plugPrefs(gpointer data)
 			doSyncSave(plugdata);
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
+	setTextDomain(false,plugdata);
 	return(0);
 }
 extern "C" int enablePlug(gpointer data)

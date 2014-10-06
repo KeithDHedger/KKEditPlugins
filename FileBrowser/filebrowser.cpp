@@ -14,6 +14,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <libintl.h>
+#include <locale.h>
 
 #include <kkedit-plugins.h>
 
@@ -24,6 +26,7 @@
 #define COLUMN_FILENAME 1
 #define COLUMN_PATHNAME 2
 #define COLUMN_PIXBUF 0
+#define TEXTDOMAIN "FileBrowser"
 
 int	(*module_plug_function)(gpointer globaldata);
 
@@ -39,6 +42,31 @@ bool			colflag=false;
 int				colsize=0;
 bool			showInvisible;
 gchar*			node=NULL;
+char*			currentdomain=NULL;
+
+extern "C" const gchar* g_module_check_init(GModule *module)
+{
+	currentdomain=strdup(textdomain(NULL));
+	return(NULL);
+}
+
+void setTextDomain(bool plugdomain,plugData* pdata)
+{
+	if(plugdomain==true)
+		{
+			//set domain to plug
+			bindtextdomain(TEXTDOMAIN,"/home/keithhedger/.KKEdit/plugins/locale");
+			textdomain(TEXTDOMAIN);
+			bind_textdomain_codeset(TEXTDOMAIN,"UTF-8");
+		}
+	else
+		{
+			//resetdomain
+			bindtextdomain(currentdomain,pdata->locale);
+			textdomain(currentdomain);
+			bind_textdomain_codeset(currentdomain,"UTF-8");	
+		}
+}
 
 void touch(char* path)
 {
@@ -71,11 +99,13 @@ extern "C" int plugPrefs(gpointer data)
 	int			response;
 	vbox=gtk_vbox_new(false,0);
 
-	dialog=gtk_dialog_new_with_buttons("File Browser Plug In Prefs",NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
+	setTextDomain(true,plugdata);
+
+	dialog=gtk_dialog_new_with_buttons(gettext("File Browser Plug In Prefs"),NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
 	dialogbox=gtk_dialog_get_content_area((GtkDialog*)dialog);
 	gtk_container_add(GTK_CONTAINER(dialogbox),vbox);
 
-	showinvis=gtk_check_button_new_with_label("Show Invisible File/Folders");
+	showinvis=gtk_check_button_new_with_label(gettext("Show Invisible File/Folders"));
 	gtk_toggle_button_set_active((GtkToggleButton*)showinvis,showInvisible);
 	gtk_box_pack_start((GtkBox*)vbox,showinvis,true,true,4);
 
@@ -88,6 +118,7 @@ extern "C" int plugPrefs(gpointer data)
 			showHideInvisibles(plugdata);
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
+	setTextDomain(false,plugdata);
 	return(0);
 }
 
@@ -301,6 +332,7 @@ void showHideBrowser(plugData* pdata,bool startup)
 {
 	char*	filepath;
 
+	setTextDomain(true,pdata);
 	asprintf(&filepath,"%s/filebrowser.rc",pdata->lPlugFolder);
 	if(showing==true)
 		{
@@ -308,7 +340,7 @@ void showHideBrowser(plugData* pdata,bool startup)
 			if(pdata->leftShow==0 && startup==false)
 				showSide(true);
 			touch(filepath);
-			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,"Hide Browser");
+			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,gettext("Hide Browser"));
 		}
 	else
 		{
@@ -316,9 +348,10 @@ void showHideBrowser(plugData* pdata,bool startup)
 			unlink(filepath);
 			if(pdata->leftShow==1 && startup==false)
 				hideSide(true);
-			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,"Show Browser");
+			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,gettext("Show Browser"));
 		}
 	debugFree(filepath,"filepath");
+	setTextDomain(false,pdata);
 }
 
 void toggleBrowser(GtkWidget* widget,gpointer data)
@@ -428,12 +461,15 @@ extern "C" int addToTab(gpointer data)
 	GtkWidget*	image;
 	plugData*	plugdata=(plugData*)data;
 
-	menuitem=gtk_image_menu_item_new_with_label("Open In Browser");
+	setTextDomain(true,plugdata);
+
+	menuitem=gtk_image_menu_item_new_with_label(gettext("Open In Browser"));
 	image=gtk_image_new_from_stock(GTK_STOCK_OPEN,GTK_ICON_SIZE_MENU);
 	gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
 	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->tabPopUpMenu),menuitem);
 	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(doTabMenu),(void*)plugdata);
 
+	setTextDomain(false,plugdata);
 	return(0);
 }
 
@@ -461,8 +497,10 @@ extern "C" int addToGui(gpointer data)
 	GtkTreeIter			iter;
 	GtkWidget*			menu;
 
+	setTextDomain(true,plugdata);
+
 	menu=gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuView);
-	hideMenu=gtk_menu_item_new_with_label("Hide Browser");
+	hideMenu=gtk_menu_item_new_with_label(gettext("Hide Browser"));
 	gtk_signal_connect(GTK_OBJECT(hideMenu),"activate",G_CALLBACK(toggleBrowser),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu),hideMenu);
 	gtk_widget_show_all(plugdata->mlist.menuView);
@@ -511,9 +549,13 @@ extern "C" int addToGui(gpointer data)
 		showSide(true);
 	else
 		hideSide(true);
+
+	setTextDomain(false,plugdata);
+
 	return(0);
 }
 
+//TODO//
 extern "C" int doAbout(gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;
@@ -523,13 +565,15 @@ extern "C" int doAbout(gpointer data)
 	char*			licence;
 	GtkAboutDialog*	about;
 
+	setTextDomain(true,plugdata);
+
 	const char*	authors[]= {"K.D.Hedger <"MYEMAIL">\n",MYWEBSITE,"\nMore by the same author\n","Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
 
 	asprintf(&licencepath,"%s/docs/gpl-3.0.txt",plugdata->dataDir);
 
 	g_file_get_contents(licencepath,&licence,NULL,NULL);
 	about=(GtkAboutDialog*)gtk_about_dialog_new();
-	gtk_about_dialog_set_program_name(about,"FileBrowser");
+	gtk_about_dialog_set_program_name(about,gettext("FileBrowser"));
 	gtk_about_dialog_set_authors(about,authors);
 	gtk_about_dialog_set_comments(about,aboutboxstring);
 	gtk_about_dialog_set_copyright(about,copyright);
@@ -542,6 +586,8 @@ extern "C" int doAbout(gpointer data)
 	gtk_widget_destroy((GtkWidget*)about);
 	debugFree(licence,"licence");
 	debugFree(licencepath,"licencepath");
+
+	setTextDomain(false,plugdata);
 	return(0);
 }
 

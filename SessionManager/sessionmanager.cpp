@@ -11,12 +11,16 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <libintl.h>
+#include <locale.h>
+
 #include <kkedit-plugins.h>
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
 #define PLUGVERSION "0.0.1"
 #define	MAXSESSIONS 8
+#define TEXTDOMAIN "SessionManager"
 
 char*		prefsPath;
 GtkWidget*	menuPlug;
@@ -24,6 +28,8 @@ GtkWidget*	saveSessionMenu=NULL;
 GtkWidget*	restoreSessionMenu=NULL;
 GtkWidget*	holdWidget=NULL;
 GtkWidget*	menusm;
+char*		currentdomain=NULL;
+
 int	(*module_plug_function)(gpointer globaldata);
 
 extern void saveSession(GtkWidget* widget,gpointer data);
@@ -42,8 +48,25 @@ struct bookMarksNew
 	int					line;
 };
 
-
 char*		sessionNames[MAXSESSIONS]= {NULL,};
+
+void setTextDomain(bool plugdomain,plugData* pdata)
+{
+	if(plugdomain==true)
+		{
+			//set domain to plug
+			bindtextdomain(TEXTDOMAIN,"/home/keithhedger/.KKEdit/plugins/locale");
+			textdomain(TEXTDOMAIN);
+			bind_textdomain_codeset(TEXTDOMAIN,"UTF-8");
+		}
+	else
+		{
+			//resetdomain
+			bindtextdomain(currentdomain,pdata->locale);
+			textdomain(currentdomain);
+			bind_textdomain_codeset(currentdomain,"UTF-8");	
+		}
+}
 
 GtkWidget* findMenu(GtkWidget* parent, const gchar* name)
 {
@@ -84,6 +107,9 @@ extern "C" const gchar* g_module_check_init(GModule *module)
 	char*	sessionfile;
 	FILE*	fd=NULL;
 
+//TODO//
+//	currentdomain=strdup(textdomain(NULL));
+//	setTextDomain(true,plugdata);
 	for(int j=0; j<MAXSESSIONS; j++)
 		{
 			asprintf(&sessionfile,"%s/.KKEdit/session-%i",getenv("HOME"),j);
@@ -94,9 +120,10 @@ extern "C" const gchar* g_module_check_init(GModule *module)
 					fclose(fd);
 				}
 			else
-				asprintf(&sessionNames[j],"Session %i",j);
+				asprintf(&sessionNames[j],gettext("Session %i"),j);
 		}
 
+//	setTextDomain(false,plugdata);
 	return(NULL);
 }
 
@@ -107,7 +134,7 @@ extern "C" const gchar* g_module_unload(GModule *module)
 	return(NULL);
 }
 
-char* getNewSessionName(int sessionnumber)
+char* getNewSessionName(int sessionnumber,plugData* plugdata)
 {
 	GtkWidget*	dialog;
 	GtkWidget*	dialogbox;
@@ -118,7 +145,8 @@ char* getNewSessionName(int sessionnumber)
 
 	vbox=gtk_vbox_new(false,0);
 
-	dialog=gtk_dialog_new_with_buttons("SessionManager",NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
+	setTextDomain(true,plugdata);
+	dialog=gtk_dialog_new_with_buttons(gettext("Session Manager"),NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
 	gtk_window_set_default_size((GtkWindow*)dialog,300,120);
 	dialogbox=gtk_dialog_get_content_area((GtkDialog*)dialog);
 	gtk_container_add(GTK_CONTAINER(dialogbox),vbox);
@@ -126,7 +154,7 @@ char* getNewSessionName(int sessionnumber)
 	prefs=gtk_entry_new();
 
 	gtk_entry_set_text((GtkEntry*)prefs,sessionNames[sessionnumber]);
-	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Session Name"),true,true,4);
+	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new(gettext("Session Name")),true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,prefs,true,true,4);
 
 	gtk_widget_show_all(dialog);
@@ -137,6 +165,7 @@ char* getNewSessionName(int sessionnumber)
 		command=NULL;
 
 	gtk_widget_destroy((GtkWidget*)dialog);
+	setTextDomain(false,plugdata);
 	return(command);
 }
 
@@ -315,7 +344,7 @@ void saveSessionNum(GtkWidget* widget,gpointer data)
 				snum=j;
 		}
 
-	sname=getNewSessionName(snum);
+	sname=getNewSessionName(snum,plugdata);
 	if(sname!=NULL)
 		{
 			free(sessionNames[snum]);
@@ -336,6 +365,7 @@ extern "C" int addToGui(gpointer data)
 	plugData*	plugdata=(plugData*)data;
 
 	holdWidget=NULL;
+//TODO//
 	findMenu(gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuFile),"Save Session");
 	if(holdWidget!=NULL)
 		{
@@ -357,6 +387,7 @@ extern "C" int addToGui(gpointer data)
 		}
 
 	holdWidget=NULL;
+//TODO//
 	findMenu(gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuFile),"Restore Session");
 	if(holdWidget!=NULL)
 		{
@@ -379,6 +410,7 @@ extern "C" int addToGui(gpointer data)
 	return(0);
 }
 
+//TODO//
 extern "C" int doAbout(gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;
@@ -388,13 +420,14 @@ extern "C" int doAbout(gpointer data)
 	char*			licence;
 	GtkAboutDialog*	about;
 
+	setTextDomain(true,plugdata);
 	const char*	authors[]= {"K.D.Hedger <"MYEMAIL">\n",MYWEBSITE,"\nMore by the same author\n","Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
 
 	asprintf(&licencepath,"%s/docs/gpl-3.0.txt",plugdata->dataDir);
 
 	g_file_get_contents(licencepath,&licence,NULL,NULL);
 	about=(GtkAboutDialog*)gtk_about_dialog_new();
-	gtk_about_dialog_set_program_name(about,"SessionManager");
+	gtk_about_dialog_set_program_name(about,gettext("Session Manager"));
 	gtk_about_dialog_set_authors(about,authors);
 	gtk_about_dialog_set_comments(about,aboutboxstring);
 	gtk_about_dialog_set_copyright(about,copyright);
@@ -407,6 +440,7 @@ extern "C" int doAbout(gpointer data)
 	gtk_widget_destroy((GtkWidget*)about);
 	free(licence);
 	free(licencepath);
+	setTextDomain(false,plugdata);
 	return(0);
 }
 

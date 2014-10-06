@@ -10,6 +10,8 @@
 #include <libgen.h>
 #include <string.h>
 #include <ctype.h>
+#include <libintl.h>
+#include <locale.h>
 
 #include <kkedit-plugins.h>
 
@@ -20,6 +22,7 @@
 #define MAXCLIPMENULEN 43
 #define CLIPENDLEN 20
 #define CLIPENDLENSTR "20"
+#define TEXTDOMAIN "ClipboardPlugin"
 
 struct clips
 {
@@ -33,12 +36,32 @@ int				currentClip=-1;
 clips			clip[MAXCLIPS];
 plugData*		plugdata;
 gulong			clipid;
+char*			currentdomain=NULL;
 
 int	(*module_plug_function)(gpointer globaldata);
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
+	currentdomain=strdup(textdomain(NULL));
 	return(NULL);
+}
+
+void setTextDomain(bool plugdomain,plugData* pdata)
+{
+	if(plugdomain==true)
+		{
+			//set domain to plug
+			bindtextdomain(TEXTDOMAIN,"/home/keithhedger/.KKEdit/plugins/locale");
+			textdomain(TEXTDOMAIN);
+			bind_textdomain_codeset(TEXTDOMAIN,"UTF-8");
+		}
+	else
+		{
+			//resetdomain
+			bindtextdomain(currentdomain,pdata->locale);
+			textdomain(currentdomain);
+			bind_textdomain_codeset(currentdomain,"UTF-8");	
+		}
 }
 
 extern "C" const gchar* g_module_unload(GModule *module)
@@ -115,15 +138,16 @@ extern "C" int addToGui(gpointer data)
 
 	plugdata=(plugData*)data;
 	currentClip=-1;
+	setTextDomain(true,plugdata);
 
-	menuPlug=gtk_menu_item_new_with_label("C_lipboard");
+	menuPlug=gtk_menu_item_new_with_label(gettext("C_lipboard"));
 	gtk_menu_item_set_use_underline((GtkMenuItem*)menuPlug,true);
 	menu=gtk_menu_new();
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuPlug),menu);
 
 	for(int j=0;j<MAXCLIPS;j++)
 		{
-			asprintf(&command,"Clip No. %i",j+1);
+			asprintf(&command,gettext("Clip Number. %i"),j+1);
 			clip[j].menuItem=(GtkWidget*)gtk_menu_item_new_with_label(command);
 			free(command);
 			clip[j].text=NULL;
@@ -135,9 +159,11 @@ extern "C" int addToGui(gpointer data)
 
 	mainClipboard=gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
 	clipid=g_signal_connect(G_OBJECT(mainClipboard),"owner-change",G_CALLBACK(clipChanged),plugdata);
+	setTextDomain(false,plugdata);
 	return(0);
 }
 
+//TODO//
 extern "C" int doAbout(gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;

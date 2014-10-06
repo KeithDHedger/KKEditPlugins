@@ -18,11 +18,15 @@
 #include <vte/vte.h>
 #include <gdk/gdkkeysyms.h>
 
+#include <libintl.h>
+#include <locale.h>
+
 #include <kkedit-plugins.h>
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "https://sites.google.com/site/kkeditlinuxtexteditor"
 #define VERSION "0.0.2"
+#define TEXTDOMAIN "TerminalPane"
 
 int	(*module_plug_function)(gpointer globaldata);
 
@@ -34,6 +38,7 @@ char*		foreColour=strdup("#000000");
 char*		backColour=strdup("#ffffff");
 int			childPid=-999;
 GtkWidget*	contextMenu;
+char*			currentdomain=NULL;
 
 args		mydata[]=
 				{
@@ -41,6 +46,24 @@ args		mydata[]=
 					{"backcol",TYPESTRING,&backColour},
 					{NULL,0,NULL}
 				};
+
+void setTextDomain(bool plugdomain,plugData* pdata)
+{
+	if(plugdomain==true)
+		{
+			//set domain to plug
+			bindtextdomain(TEXTDOMAIN,"/home/keithhedger/.KKEdit/plugins/locale");
+			textdomain(TEXTDOMAIN);
+			bind_textdomain_codeset(TEXTDOMAIN,"UTF-8");
+		}
+	else
+		{
+			//resetdomain
+			bindtextdomain(currentdomain,pdata->locale);
+			textdomain(currentdomain);
+			bind_textdomain_codeset(currentdomain,"UTF-8");	
+		}
+}
 
 void touch(char* path)
 {
@@ -53,6 +76,7 @@ void touch(char* path)
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
+	currentdomain=strdup(textdomain(NULL));
 	return(NULL);
 }
 
@@ -77,27 +101,29 @@ void doStartUpCheck(plugData* pdata)
 	debugFree(filepath,"filepath");
 }
 
-void showHideTerminal(plugData* pdata,bool startup)
+void showHideTerminal(plugData* plugdata,bool startup)
 {
 	char*	filepath;
 
-	asprintf(&filepath,"%s/terminal.rc",pdata->lPlugFolder);
+	setTextDomain(true,plugdata);
+	asprintf(&filepath,"%s/terminal.rc",plugdata->lPlugFolder);
 	if(showing==true)
 		{
 			gtk_widget_show_all(swindow);
-			if(pdata->bottomShow==0 && startup==false)
+			if(plugdata->bottomShow==0 && startup==false)
 				showTop(false);
 			touch(filepath);
-			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,"Hide Terminal");
+			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,gettext("Hide Terminal"));
 		}
 	else
 		{
 			gtk_widget_show_all(swindow);
 			unlink(filepath);
-			if(pdata->bottomShow==1 && startup==false)
+			if(plugdata->bottomShow==1 && startup==false)
 				hideTop(false);
-			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,"Show Terminal");
+			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,gettext("Show Terminal"));
 		}
+	setTextDomain(false,plugdata);
 	debugFree(filepath,"filepath");
 }
 
@@ -184,25 +210,27 @@ void makeMenu(gpointer plugdata)
 
 	contextMenu=gtk_menu_new ();
 
-	popmenuitem=gtk_menu_item_new_with_label("Hide Terminal");
+	setTextDomain(true,(plugData*)plugdata);
+	popmenuitem=gtk_menu_item_new_with_label(gettext("Hide Terminal"));
 	gtk_signal_connect(GTK_OBJECT(popmenuitem),"activate",G_CALLBACK(toggleTerminal),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(contextMenu),popmenuitem);
 
-	popmenuitem=gtk_menu_item_new_with_label("CD To Page");
+	popmenuitem=gtk_menu_item_new_with_label(gettext("CD To Page"));
 	gtk_signal_connect(GTK_OBJECT(popmenuitem),"activate",G_CALLBACK(cdHere),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(contextMenu),popmenuitem);
 
-	popmenuitem=gtk_menu_item_new_with_label("Copy");
+	popmenuitem=gtk_menu_item_new_with_label(gettext("Copy"));
 	gtk_signal_connect(GTK_OBJECT(popmenuitem),"activate",G_CALLBACK(copyFromTerm),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(contextMenu),popmenuitem);
 
-	popmenuitem=gtk_menu_item_new_with_label("Paste");
+	popmenuitem=gtk_menu_item_new_with_label(gettext("Paste"));
 	gtk_signal_connect(GTK_OBJECT(popmenuitem),"activate",G_CALLBACK(pasteToTerm),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(contextMenu),popmenuitem);
 
-	popmenuitem=gtk_menu_item_new_with_label("Select All");
+	popmenuitem=gtk_menu_item_new_with_label(gettext("Select All"));
 	gtk_signal_connect(GTK_OBJECT(popmenuitem),"activate",G_CALLBACK(selectAllInTerm),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(contextMenu),popmenuitem);
+	setTextDomain(false,(plugData*)plugdata);
 }
 
 extern "C" int addToGui(gpointer data)
@@ -213,8 +241,9 @@ extern "C" int addToGui(gpointer data)
 	char*		startterm[2]={0,0};
 	char*		filename;
 
+	setTextDomain(true,plugdata);
 	menu=gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuView);
-	hideMenu=gtk_menu_item_new_with_label("Hide Terminal");
+	hideMenu=gtk_menu_item_new_with_label(gettext("Hide Terminal"));
 	gtk_signal_connect(GTK_OBJECT(hideMenu),"activate",G_CALLBACK(toggleTerminal),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu),hideMenu);
 	gtk_widget_show_all(plugdata->mlist.menuView);
@@ -250,6 +279,7 @@ extern "C" int addToGui(gpointer data)
 		hideTop(false);
 
 	makeMenu(plugdata);
+	setTextDomain(false,plugdata);
 	return(0);
 }
 
@@ -266,9 +296,10 @@ extern "C" int plugPrefs(gpointer data)
 
 	plugData*	plugdata=(plugData*)data;
 
+	setTextDomain(true,plugdata);
 	vbox=gtk_vbox_new(false,0);
 
-	dialog=gtk_dialog_new_with_buttons("TerminalPane",NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
+	dialog=gtk_dialog_new_with_buttons(gettext("Terminal Pane"),NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
 	gtk_window_set_default_size((GtkWindow*)dialog,300,120);
 	dialogbox=gtk_dialog_get_content_area((GtkDialog*)dialog);
 	gtk_container_add(GTK_CONTAINER(dialogbox),vbox);
@@ -278,9 +309,9 @@ extern "C" int plugPrefs(gpointer data)
 
 	gtk_entry_set_text((GtkEntry*)fcolour,foreColour);
 	gtk_entry_set_text((GtkEntry*)bcolour,backColour);
-	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Foreground Colour"),true,true,4);
+	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new(gettext("Foreground Colour")),true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,fcolour,true,true,4);
-	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Background Colour"),true,true,4);
+	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new(gettext("Background Colour")),true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,bcolour,true,true,4);
 
 	gtk_widget_show_all(dialog);
@@ -305,9 +336,11 @@ extern "C" int plugPrefs(gpointer data)
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
 
+	setTextDomain(false,plugdata);
 	return(0);
 }
 
+//TODO//
 extern "C" int doAbout(gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;
@@ -317,13 +350,14 @@ extern "C" int doAbout(gpointer data)
 	char*			licence;
 	GtkAboutDialog*	about;
 
+	setTextDomain(true,plugdata);
 	const char*	authors[]= {"K.D.Hedger <"MYEMAIL">\n",MYWEBSITE,"\nMore by the same author\n","Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
 
 	asprintf(&licencepath,"%s/docs/gpl-3.0.txt",plugdata->dataDir);
 
 	g_file_get_contents(licencepath,&licence,NULL,NULL);
 	about=(GtkAboutDialog*)gtk_about_dialog_new();
-	gtk_about_dialog_set_program_name(about,"TerminalPane");
+	gtk_about_dialog_set_program_name(about,gettext("Terminal Pane"));
 	gtk_about_dialog_set_authors(about,authors);
 	gtk_about_dialog_set_comments(about,aboutboxstring);
 	gtk_about_dialog_set_copyright(about,copyright);
@@ -336,6 +370,7 @@ extern "C" int doAbout(gpointer data)
 	gtk_widget_destroy((GtkWidget*)about);
 	free(licence);
 	free(licencepath);
+	setTextDomain(false,plugdata);
 	return(0);
 }
 

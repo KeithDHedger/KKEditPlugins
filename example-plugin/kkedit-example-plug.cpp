@@ -8,11 +8,15 @@
 #include <gtk/gtk.h>
 #include <gmodule.h>
 #include <string.h>
+#include <libintl.h>
+#include <locale.h>
 
 #include "kkedit-plugins.h"
+
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "https://sites.google.com/site/kkeditlinuxtexteditor"
 #define VERSION "1.0.1"
+#define TEXTDOMAIN "example-plugin"
 
 int	(*module_plug_function)(gpointer globaldata);
 
@@ -21,6 +25,25 @@ GtkWidget*	leftButton;
 GtkWidget*	rightButton;
 GtkWidget*	topLabel;
 GtkWidget*	bottomLabel;
+char*		currentdomain=NULL;
+
+void setTextDomain(bool plugdomain,plugData* pdata)
+{
+	if(plugdomain==true)
+		{
+			//set domain to plug
+			bindtextdomain(TEXTDOMAIN,"/home/keithhedger/.KKEdit/plugins/locale");
+			textdomain(TEXTDOMAIN);
+			bind_textdomain_codeset(TEXTDOMAIN,"UTF-8");
+		}
+	else
+		{
+			//resetdomain
+			bindtextdomain(currentdomain,pdata->locale);
+			textdomain(currentdomain);
+			bind_textdomain_codeset(currentdomain,"UTF-8");	
+		}
+}
 
 //example of how to run an external command and send the output to the tool output window in KKEdit
 //command should be somthing like "ls /"
@@ -51,6 +74,7 @@ void runCommandAndOut(const char* command,plugData* plugdata)
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
 	perror("doin init");
+	currentdomain=strdup(textdomain(NULL));
 	return(NULL);
 }
 
@@ -70,9 +94,12 @@ void clickButton(GtkWidget* widget,gpointer data)
 //open the plug help in the doc viewer or browser from the menu item added by the demo
 void openPlugHelp(GtkWidget* widget,gpointer data)
 {
-	plugData*	pdata=(plugData*)data;
-	asprintf(pdata->thePage,"file://%s/example-plugin/plughelp.html",(char*)pdata->gPlugFolder);
-	showDocView(USEURI,(char*)"KKEdit Plugin Help",(char*)"KKEdit Plugin Help");
+	plugData*	plugdata=(plugData*)data;
+
+	setTextDomain(true,plugdata);
+	asprintf(plugdata->thePage,"file://%s/example-plugin/plughelp.html",(char*)plugdata->gPlugFolder);
+	showDocView(USEURI,(char*)gettext("KKEdit Plugin Help"),(char*)gettext("KKEdit Plugin Help"));
+	setTextDomain(false,plugdata);
 }
 
 //main function called after KKEdit has built it's main GUI to add extra GUI items.
@@ -81,39 +108,41 @@ extern "C" int addToGui(gpointer data)
 	GtkWidget*		menu;
 	plugData*		plugdata=(plugData*)data;
 
+	setTextDomain(true,plugdata);
 	printf("Adding to GUI from example-plugin\n");
 
 	menu=gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuHelp);
 	examplemenu=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,NULL);
-	gtk_menu_item_set_label((GtkMenuItem*)examplemenu,"Plugin Help");
+	gtk_menu_item_set_label((GtkMenuItem*)examplemenu,gettext("Plugin Help"));
 	gtk_signal_connect(GTK_OBJECT(examplemenu),"activate",G_CALLBACK(openPlugHelp),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu),examplemenu);
 
-	leftButton=gtk_button_new_with_label("left side button\nat top");
+	leftButton=gtk_button_new_with_label(gettext("left side button\nat top"));
 	gtk_box_pack_start(GTK_BOX(plugdata->leftUserBox),leftButton,false,false,0);
-	gtk_widget_set_name(leftButton,"echo Left Button Clicked");
+	gtk_widget_set_name(leftButton,gettext("echo Left Button Clicked"));
 	gtk_signal_connect(GTK_OBJECT(leftButton),"clicked",G_CALLBACK(clickButton),plugdata);
 
 	showSide(true);
 	gtk_widget_show(leftButton);
 
-	rightButton=gtk_button_new_with_label("right side button\nat bottom");
+	rightButton=gtk_button_new_with_label(gettext("right side button\nat bottom"));
 	gtk_box_pack_end(GTK_BOX(plugdata->rightUserBox),rightButton,false,false,0);
-	gtk_widget_set_name(rightButton,"echo Right Button Clicked");
+	gtk_widget_set_name(rightButton,gettext("echo Right Button Clicked"));
 	gtk_signal_connect(GTK_OBJECT(rightButton),"clicked",G_CALLBACK(clickButton),plugdata);
 
 	showSide(false);
 	gtk_widget_show(rightButton);
 
-	topLabel=gtk_label_new("Top user vbox demo label\nSelect 'Edit->Plugin Prefs' to disable this plugin from the dialog box.\nUnselect 'kkedit-example-plug and click 'Apply'");
+	topLabel=gtk_label_new(gettext("Top user vbox demo label\nSelect 'Edit->Plugin Prefs' to disable this plugin from the dialog box.\nUnselect 'kkedit-example-plug and click 'Apply'"));
 	gtk_box_pack_end(GTK_BOX(plugdata->topUserBox),topLabel,true,true,0);
 	gtk_widget_show_all(plugdata->topUserBox);
 
-	bottomLabel=gtk_label_new("Bottom user vbox demo label");
+	bottomLabel=gtk_label_new(gettext("Bottom user vbox demo label"));
 	gtk_box_pack_end(GTK_BOX(plugdata->bottomUserBox),bottomLabel,true,true,0);
 	gtk_widget_show_all(plugdata->bottomUserBox);
 
 
+	setTextDomain(false,plugdata);
 	printf("Done adding GUI from example-plugin\n");
 	return(0);
 }
@@ -189,6 +218,7 @@ extern "C" int plugPrefs(gpointer data)
 	return(0);
 }
 
+//TODO//
 //run from the 'About' button in the pluginin prefs.
 extern "C" int doAbout(gpointer data)
 {
@@ -200,13 +230,15 @@ printf("about from example plug\n");
 	char*		licence;
 	GtkAboutDialog*	about;
 
+	setTextDomain(true,plugdata);
+
 	const char*	authors[]= {"K.D.Hedger <"MYEMAIL">\n",MYWEBSITE,"\nMore by the same author\n","Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
 
 	asprintf(&licencepath,"%s/docs/gpl-3.0.txt",plugdata->dataDir);
 
 	g_file_get_contents(licencepath,&licence,NULL,NULL);
 	about=(GtkAboutDialog*)gtk_about_dialog_new();
-	gtk_about_dialog_set_program_name(about,"KKEdit Example Plugin");
+	gtk_about_dialog_set_program_name(about,gettext("KKEdit Example Plugin"));
 	gtk_about_dialog_set_authors(about,authors);
 	gtk_about_dialog_set_comments(about,aboutboxstring);
 	gtk_about_dialog_set_copyright(about,copyright);
@@ -220,6 +252,7 @@ printf("about from example plug\n");
 
 	free(licence);
 	free(licencepath);
+	setTextDomain(false,plugdata);
 	return(0);
 }
 

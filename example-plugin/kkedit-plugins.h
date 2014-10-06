@@ -24,6 +24,50 @@
 #define USEFILE				-2
 #define USEURI				-1
 
+#define NEWMENUNAME "newmenu"
+#define OPENMENUNAME "openmenu"
+#define HEXDUMPMENUNAME "hexdumpmenu"
+#define NEWADMINMENUNAME "newadminmenu"
+#define NEWEDITORMENUNAME "neweditormenu"
+#define MANEDITORMENUNAME "maneditormenu"
+#define DOXYBUILDMENUNAME "doxybuildmenu"
+#define RECENTMENUNAME ""recentmenu"
+#define SAVEMENUNAME "savemenu"
+#define SAVEASMENUNAME "saveasmenu"
+#define SAVEALLMENUNAME "saveallmenu"
+#define SAVESESSIONMENUNAME "savesessionmenu"
+#define RESTORESESSIONMENUNAME "restoresessionmenu"
+#define RESTORESESSIONBMMENUNAME "restoresessionbmmenu"
+#define PRINTMENUNAME "printmenu"
+#define CLOSEMENUNAME "closemenu"
+#define CLOSEALLMENUNAME closeallmenu"
+#define REVERTMENUNAME "revertmenu"
+#define QUITMENUNAME "quitmenu"
+#define UNDOMENUNAME "undomenu"
+#define REDOMENUNAME "redomenu"
+#define UNDOALLMENUNAME "undoallmenu"
+#define REDOALLMENUNAME "redoallmenu"
+#define CUTMENUNAME "cutmenu"
+#define COPYMENUNAME "copymenu"
+#define PASTEMENUNAME "pastemenu"
+#define FINDMENUNAME "findmenu"
+#define PREFSMENUNAME "prefsmenu"
+#define PLUGPREFSMENUNAME "plugprefsmenu"
+#define SHOWDOCSMENUNAME "showdocsmenu"
+#define 
+#define 
+#define 
+#define 
+#define 
+#define 
+#define 
+#define 
+#define 
+#define 
+#define 
+#define 
+#define 
+#define 
 
 #ifndef _PAGESTRUCT_
 #define _PAGESTRUCT_
@@ -158,6 +202,8 @@ struct plugData
 //topbottom user box visiblity ref
 	int				topShow;
 	int				bottomShow;
+//locale dir for gettext
+	char*			locale;
 };
 
 void		showDocView(int howtodisplay,char* text,const char* title);

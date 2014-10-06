@@ -11,11 +11,15 @@
 #include <string.h>
 #include <ctype.h>
 
+#include <libintl.h>
+#include <locale.h>
+
 #include <kkedit-plugins.h>
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "https://sites.google.com/site/kkeditlinuxtexteditor"
 #define VERSION "0.0.6"
+#define TEXTDOMAIN "newproject"
 
 char*		SVNRepoPath;
 char*		projectsPath;
@@ -27,10 +31,31 @@ args		mydata[]=
 				};
 
 GtkWidget*	menuProjects;
+char*		currentdomain=NULL;
+
+void setTextDomain(bool plugdomain,plugData* pdata)
+{
+	if(plugdomain==true)
+		{
+			//set domain to plug
+			bindtextdomain(TEXTDOMAIN,"/home/keithhedger/.KKEdit/plugins/locale");
+			textdomain(TEXTDOMAIN);
+			bind_textdomain_codeset(TEXTDOMAIN,"UTF-8");
+		}
+	else
+		{
+			//resetdomain
+			bindtextdomain(currentdomain,pdata->locale);
+			textdomain(currentdomain);
+			bind_textdomain_codeset(currentdomain,"UTF-8");	
+		}
+}
+
 int	(*module_plug_function)(gpointer globaldata);
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
+	currentdomain=strdup(textdomain(NULL));
 	return(NULL);
 }
 
@@ -102,6 +127,8 @@ void newProject(GtkWidget* widget,gpointer data)
 	char*		appnamelower;
 	int			ret;
 
+	setTextDomain(true,plugdata);
+
 	ret=system("which svn 2>&1 >/dev/null");
 	ret=WEXITSTATUS(ret);
 	if(ret!=0)
@@ -116,9 +143,9 @@ void newProject(GtkWidget* widget,gpointer data)
 	gtk_container_add(GTK_CONTAINER(dialogbox),vbox);
 
 	project=gtk_entry_new();
-	createsvn=gtk_check_button_new_with_label("Creat SVN Repo");
+	createsvn=gtk_check_button_new_with_label(gettext("Creat SVN Repo"));
 	gtk_toggle_button_set_active((GtkToggleButton*)createsvn,makesvn);
-	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Project Name"),true,true,4);
+	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new(gettext("Project Name")),true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,project,true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,createsvn,true,true,4);
 
@@ -191,6 +218,8 @@ void newProject(GtkWidget* widget,gpointer data)
 			openNewFiles(projectsPath,projname);
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
+
+	setTextDomain(false,plugdata);
 }
 
 extern "C" int addToGui(gpointer data)
@@ -208,7 +237,9 @@ extern "C" int addToGui(gpointer data)
 
 	plugData*	plugdata=(plugData*)data;
 
-	menuProjects=gtk_menu_item_new_with_label("_Projects");
+	setTextDomain(true,plugdata);
+
+	menuProjects=gtk_menu_item_new_with_label(gettext("_Projects"));
 	gtk_menu_item_set_use_underline((GtkMenuItem*)menuProjects,true);
 	menu=gtk_menu_new();
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(menuProjects),menu);
@@ -233,7 +264,7 @@ extern "C" int addToGui(gpointer data)
 							free(infocommand);
 							info=basename(line);
 							*(strstr(info,".info"))=0;
-							sprintf(line,"New %s Project",info);
+							sprintf(line,gettext("New %s Project"),info);
 							menuitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW,NULL);
 							gtk_widget_set_name(menuitem,info);
 							gtk_widget_set_tooltip_text(menuitem,infoline);
@@ -255,6 +286,8 @@ extern "C" int addToGui(gpointer data)
 	asprintf(&command,"%s/newproject.rc",plugdata->lPlugFolder);
 	loadVarsFromFile(command,mydata);
 	free(command);
+
+	setTextDomain(false,plugdata);
 	return(0);
 }
 
@@ -269,9 +302,10 @@ extern "C" int plugPrefs(gpointer data)
 	plugData*	plugdata=(plugData*)data;
 	char*		prefspath;
 
+	setTextDomain(true,plugdata);
 	vbox=gtk_vbox_new(false,0);
 
-	dialog=gtk_dialog_new_with_buttons("KKEdit Project Plugin Prefs",NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
+	dialog=gtk_dialog_new_with_buttons(gettext("KKEdit Project Plugin Prefs"),NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
 	gtk_window_set_default_size((GtkWindow*)dialog,300,120);
 	dialogbox=gtk_dialog_get_content_area((GtkDialog*)dialog);
 	gtk_container_add(GTK_CONTAINER(dialogbox),vbox);
@@ -281,9 +315,9 @@ extern "C" int plugPrefs(gpointer data)
 
 	gtk_entry_set_text((GtkEntry*)projects,projectsPath);
 	gtk_entry_set_text((GtkEntry*)svn,SVNRepoPath);
-	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Projects Folder"),true,true,4);
+	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new(gettext("Projects Folder")),true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,projects,true,true,4);
-	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new("Subversion Folder"),true,true,4);
+	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new(gettext("Subversion Folder")),true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,svn,true,true,4);
 
 	gtk_widget_show_all(dialog);
@@ -299,9 +333,11 @@ extern "C" int plugPrefs(gpointer data)
 			free(prefspath);
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
+	setTextDomain(false,plugdata);
 	return(0);
 }
 
+//TODO//
 extern "C" int doAbout(gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;
@@ -311,13 +347,14 @@ extern "C" int doAbout(gpointer data)
 	char*			licence;
 	GtkAboutDialog*	about;
 
+	setTextDomain(true,plugdata);
 	const char*	authors[]= {"K.D.Hedger <"MYEMAIL">\n",MYWEBSITE,"\nMore by the same author\n","KKEdit\nhttp://gtk-apps.org/content/show.php?content=158161\n","Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
 
 	asprintf(&licencepath,"%s/docs/gpl-3.0.txt",plugdata->dataDir);
 
 	g_file_get_contents(licencepath,&licence,NULL,NULL);
 	about=(GtkAboutDialog*)gtk_about_dialog_new();
-	gtk_about_dialog_set_program_name(about,"KKEdit Project Plugin");
+	gtk_about_dialog_set_program_name(about,gettext("KKEdit Project Plugin"));
 	gtk_about_dialog_set_authors(about,authors);
 	gtk_about_dialog_set_comments(about,aboutboxstring);
 	gtk_about_dialog_set_copyright(about,copyright);
@@ -330,6 +367,7 @@ extern "C" int doAbout(gpointer data)
 	gtk_widget_destroy((GtkWidget*)about);
 	free(licence);
 	free(licencepath);
+	setTextDomain(false,plugdata);
 	return(0);
 }
 

@@ -31,7 +31,7 @@
 #define NEWEDITORMENUNAME "neweditormenu"
 #define MANEDITORMENUNAME "maneditormenu"
 #define DOXYBUILDMENUNAME "doxybuildmenu"
-#define RECENTMENUNAME ""recentmenu"
+#define RECENTMENUNAME "recentmenu"
 #define SAVEMENUNAME "savemenu"
 #define SAVEASMENUNAME "saveasmenu"
 #define SAVEALLMENUNAME "saveallmenu"
@@ -40,7 +40,7 @@
 #define RESTORESESSIONBMMENUNAME "restoresessionbmmenu"
 #define PRINTMENUNAME "printmenu"
 #define CLOSEMENUNAME "closemenu"
-#define CLOSEALLMENUNAME closeallmenu"
+#define CLOSEALLMENUNAME "closeallmenu"
 #define REVERTMENUNAME "revertmenu"
 #define QUITMENUNAME "quitmenu"
 #define UNDOMENUNAME "undomenu"
@@ -54,20 +54,22 @@
 #define PREFSMENUNAME "prefsmenu"
 #define PLUGPREFSMENUNAME "plugprefsmenu"
 #define SHOWDOCSMENUNAME "showdocsmenu"
-#define 
-#define 
-#define 
-#define 
-#define 
-#define 
-#define 
-#define 
-#define 
-#define 
-#define 
-#define 
-#define 
-#define 
+#define SHOWBMBARMENUNAME "showbmbarmenu"
+#define SHOWTOOLBARMENUNAME "showtoolbarmenu"
+#define SHOWTOOLOUTMENUNAME "showtoolout"
+#define SHOWSTATUSMENUNAME "showstatusmenu"
+#define SHOWDOCVIEWERMENUNAME "showdocviewer"
+#define GOTODEFMENUNAME "gotodefinemenu"
+#define OPENINCLUDEMENUNAME "openincludemenu"
+#define GOTOLINEMENUNAME "gotolinemenu"
+#define SEARCHFORDEFMENUNAME "searchfordefmenu"
+#define SEARCHGTKMENUNAME "searchgtkmenu"
+#define SEARCHQT5MENUNAME "searchqt5menu"
+#define SEARCHDOXYMENUNAME "searchdoxymenu"
+#define GOBACKMENUNAME "gobackmenu"
+#define ABOUTMENUNAME "aboutmenu"
+#define HELPMENUNAME "helpmenu"
+#define GETPLUGSMENUNAME "getplugsmenu"
 
 #ifndef _PAGESTRUCT_
 #define _PAGESTRUCT_
@@ -203,7 +205,7 @@ struct plugData
 	int				topShow;
 	int				bottomShow;
 //locale dir for gettext
-	char*			locale;
+	const char*			locale;
 };
 
 void		showDocView(int howtodisplay,char* text,const char* title);

@@ -1,0 +1,49 @@
+#!/bin/bash -e
+
+#©keithhedger Fri 3 Oct 17:38:03 BST 2014 kdhedger68713@gmail.com
+
+MAKEPOS=0
+MAKEMOS=0
+#DOMAINNAME=fileplugin
+
+if [ "X$1" = "Xmakepos" ];then
+	MAKEPOS=1
+	MAKEMOS=0
+fi
+
+if [ "X$1" = "Xmakemos" ];then
+	MAKEPOS=0
+	MAKEMOS=1
+fi
+
+langs="fr_FR"
+
+#rm ${DOMAINNAME}.pot||true
+
+folders="ClipboardPlugin example-plugin FileBrowser newproject OpenUri RemoteEdit SessionManager TerminalPane"
+cpps=""
+
+for arg in $folders
+	do
+		rm ${arg}.pot||true
+	 	cpps=${arg}/*.cpp
+		xgettext --package-name ${arg} --package-version 1.2 --default-domain ${arg} --output ${arg}.pot $cpps
+	 done
+
+for arg in $langs
+	do
+		mkdir --parents po/${arg}/LC_MESSAGES
+		if [ $MAKEPOS -eq 1 ];then
+		for dom in $folders
+			do
+				msginit --no-translator --locale $arg --output-file ${dom}_${arg}.po --input ${dom}.pot
+			done
+		fi
+
+		if [ $MAKEMOS -eq 1 ];then
+			for dom in $folders
+				do
+					msgfmt --check --verbose --output-file po/${arg}/LC_MESSAGES/${dom}.mo ${dom}_${arg}.po
+				done
+		fi
+	done

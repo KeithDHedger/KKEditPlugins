@@ -1,11 +1,11 @@
 PLUGNAME=filebrowser
-PACKAGENAME=FileBrowser
 FILES=lib${PLUGNAME}.so
 USERINSTALLDIR=${HOME}/.KKEdit/plugins
 ROOTINSTALLDIR=/usr/share/KKEdit/plugins
+PACKAGENAME=`basename ${PWD}`
 ROOTLOCALEDIR=/usr/share/locale
 LOCALLOCALE=${HOME}/.KKEdit/plugins/locale
-MONAME=FileBrowser.mo
+MONAME=${PACKAGENAME}.mo
 
 all:
 	gcc -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs gtk+-2.0 gmodule-2.0 glib-2.0 gtksourceview-2.0` -o ${PLUGNAME}.o

@@ -3,10 +3,10 @@ PACKAGENAME=${PLUGNAME}
 FILES=lib${PLUGNAME}.so
 USERINSTALLDIR=${HOME}/.KKEdit/plugins
 ROOTINSTALLDIR=/usr/share/KKEdit/plugins
-FOLDER=example-plugin
+PACKAGENAME=`basename ${PWD}`
 ROOTLOCALEDIR=/usr/share/locale
 LOCALLOCALE=${HOME}/.KKEdit/plugins/locale
-MONAME=example-plugin.mo
+MONAME=${PACKAGENAME}.mo
 
 all:
 	gcc -DKKEDITHASH=\"${KKEDITHASH}\" -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs gtk+-2.0 gmodule-2.0 glib-2.0 gtksourceview-2.0` -o ${PLUGNAME}.o
@@ -33,4 +33,4 @@ uninstall:
 	fi
 
 makepkg:
-	cd .. && tar -cvzf ${PACKAGENAME}.tar.gz ${FOLDER}
+	cd .. && tar -cvzf ${PACKAGENAME}.tar.gz ${PACKAGENAME}

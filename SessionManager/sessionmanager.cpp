@@ -18,7 +18,7 @@
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
-#define PLUGVERSION "0.0.1"
+#define PLUGVERSION "0.0.3"
 #define	MAXSESSIONS 8
 #define TEXTDOMAIN "SessionManager"
 
@@ -387,7 +387,7 @@ extern "C" int addToGui(gpointer data)
 		}
 
 	holdWidget=NULL;
-//TODO//
+
 	findMenu(gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuFile),RESTORESESSIONMENUNAME);
 	if(holdWidget!=NULL)
 		{
@@ -406,6 +406,12 @@ extern "C" int addToGui(gpointer data)
 					gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
 				}
 			gtk_widget_show_all(restoreSessionMenu);
+		}
+
+	findMenu(gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuFile),RESTORESESSIONBMMENUNAME);
+	if(holdWidget!=NULL)
+		{
+			gtk_widget_destroy(holdWidget);
 		}
 	return(0);
 }

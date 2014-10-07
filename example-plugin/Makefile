@@ -1,9 +1,7 @@
-PLUGNAME=kkedit-example-plug
-PACKAGENAME=${PLUGNAME}
-FILES=lib${PLUGNAME}.so
-USERINSTALLDIR=${HOME}/.KKEdit/plugins
+PACKAGENAME=$(shell /usr/bin/basename ${PWD})
+PLUGNAME=$(shell echo ${PACKAGENAME}|/usr/bin/tr A-Z a-z)
 ROOTINSTALLDIR=/usr/share/KKEdit/plugins
-PACKAGENAME=`basename ${PWD}`
+USERINSTALLDIR=${HOME}/.KKEdit/plugins
 ROOTLOCALEDIR=/usr/share/locale
 LOCALLOCALE=${HOME}/.KKEdit/plugins/locale
 MONAME=${PACKAGENAME}.mo
@@ -20,16 +18,16 @@ distclean:
 
 install:
 	if [ ${USER} = "root" ];then \
-		cp -rv "${FILES}" "${ROOTINSTALLDIR}";cd po;cp -rv . ${ROOTLOCALEDIR}; \
+		cp -rv lib${PLUGNAME}.so "${ROOTINSTALLDIR}";cd po;cp -rv . ${ROOTLOCALEDIR}; \
 	else \
-		cp -rv "${FILES}" "${USERINSTALLDIR}";cd po;cp -rv . ${LOCALLOCALE}; \
+		cp -rv lib${PLUGNAME}.so "${USERINSTALLDIR}";cd po;cp -rv . ${LOCALLOCALE}; \
 	fi
 
 uninstall:
 	if [ ${USER} = "root" ];then \
-		rm -rv "${ROOTINSTALLDIR}/${FILES}" ${ROOTLOCALEDIR}/*/LC_MESSAGES/${MONAME}; \
+		rm -rv "${ROOTINSTALLDIR}/lib${PLUGNAME}.so" ${ROOTLOCALEDIR}/*/LC_MESSAGES/${MONAME}; \
 	else \
-		rm -rv "${USERINSTALLDIR}/${FILES}" ${LOCALLOCALE}/*/LC_MESSAGES/${MONAME}; \
+		rm -rv "${USERINSTALLDIR}/lib${PLUGNAME}.so" ${LOCALLOCALE}/*/LC_MESSAGES/${MONAME}; \
 	fi
 
 makepkg:

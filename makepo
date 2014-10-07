@@ -4,7 +4,6 @@
 
 MAKEPOS=0
 MAKEMOS=0
-#DOMAINNAME=fileplugin
 
 if [ "X$1" = "Xmakepos" ];then
 	MAKEPOS=1
@@ -20,7 +19,7 @@ langs="fr_FR"
 
 #rm ${DOMAINNAME}.pot||true
 
-folders="ClipboardPlugin example-plugin FileBrowser newproject OpenUri RemoteEdit SessionManager TerminalPane"
+folders="ClipboardPlugin example-plugin FileBrowser NewProject OpenUri RemoteEdit SessionManager TerminalPane"
 cpps=""
 
 for arg in $folders

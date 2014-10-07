@@ -161,7 +161,7 @@ struct plugData
 //local plugin folder defaults to ~/.KKEdit/plugins
 	char*			lPlugFolder;
 //kkedit version string
-	char*			kkeditVersion;
+	const char*		kkeditVersion;
 //unused
 	char*			htmlFile;
 //location of variable that holds the uri to be disp[layed by showDoc
@@ -205,7 +205,7 @@ struct plugData
 	int				topShow;
 	int				bottomShow;
 //locale dir for gettext
-	const char*			locale;
+	const char*		locale;
 };
 
 void		showDocView(int howtodisplay,char* text,const char* title);

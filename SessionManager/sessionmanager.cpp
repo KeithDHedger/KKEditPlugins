@@ -415,7 +415,31 @@ extern "C" int addToGui(gpointer data)
 		}
 	return(0);
 }
+/*
+K.D.Hedger <kdhedger68713@gmail.com>
 
+https://sites.google.com/site/kkeditlinuxtexteditor/home
+
+More by the same author
+
+Xfce-Theme-Manager
+http://xfce-look.org/content/show.php?content=149647
+
+Xfce4-Composite-Editor
+http://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523
+
+Manpage Editor
+http://gtk-apps.org/content/show.php?content=160219
+
+GtkSu
+http://gtk-apps.org/content/show.php?content=158974
+
+ASpell GUI
+http://gtk-apps.org/content/show.php/?content=161353
+
+Clipboard Viewer
+http://gtk-apps.org/content/show.php/?content=121667
+*/
 //TODO//
 extern "C" int doAbout(gpointer data)
 {
@@ -425,9 +449,16 @@ extern "C" int doAbout(gpointer data)
 	const char*		aboutboxstring="Session Manager - Adds multiple named sessions to KKEdit";
 	char*			licence;
 	GtkAboutDialog*	about;
+//	char*			myemail;
+//	char*			myweb;
 
 	setTextDomain(true,plugdata);
-	const char*	authors[]= {"K.D.Hedger <"MYEMAIL">\n",MYWEBSITE,"\nMore by the same author\n","Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
+//	const char*	authors[]= {"K.D.Hedger <"MYEMAIL">\n",MYWEBSITE,"\nMore by the same author\n","Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
+
+//	const char*	authors[8]={NULL,};
+	
+//	authors[0]=gettext(K.D.Hedger);
+	const char*	authors[]= {"K.D.Hedger:","<MYEMAIL>\n",MYWEBSITE,"\nMore by the same author\n","Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
 
 	asprintf(&licencepath,"%s/docs/gpl-3.0.txt",plugdata->dataDir);
 

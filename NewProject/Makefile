@@ -19,7 +19,7 @@ distclean:
 install:
 	if [ ${USER} = "root" ];then \
 		mkdir -vp "${ROOTINSTALLDIR}/${PACKAGENAME}" ||true; \
-		cp -rv lib${PLUGNAME}.soo bones ${ROOTINSTALLDIR}/${PACKAGENAME};cd po;cp -rv . ${ROOTLOCALEDIR}; \
+		cp -rv lib${PLUGNAME}.so bones ${ROOTINSTALLDIR}/${PACKAGENAME};cd po;cp -rv . ${ROOTLOCALEDIR}; \
 	else \
 		mkdir -vp "${USERINSTALLDIR}/${PACKAGENAME}" ||true; \
 		cp -rv lib${PLUGNAME}.so bones ${USERINSTALLDIR}/${PACKAGENAME};cd po;cp -rv . ${LOCALLOCALE}; \

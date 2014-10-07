@@ -1,19 +1,18 @@
-PLUGNAME=remoteedit
-PLUG=lib${PLUGNAME}.so
-SETSID=setsid
-ASKPASS=askpass
+PACKAGENAME=$(shell /usr/bin/basename ${PWD})
+PLUGNAME=$(shell echo ${PACKAGENAME}|/usr/bin/tr A-Z a-z)
 ROOTINSTALLDIR=/usr/share/KKEdit/plugins
 USERINSTALLDIR=${HOME}/.KKEdit/plugins
-PACKAGENAME=RemoteEdit
 ROOTLOCALEDIR=/usr/share/locale
 LOCALLOCALE=${HOME}/.KKEdit/plugins/locale
-MONAME=RemoteEdit.mo
+MONAME=${PACKAGENAME}.mo
+SETSID=setsid
+ASKPASS=askpass
 
 all:
 	g++ -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs gtk+-2.0 gmodule-2.0 glib-2.0 gtksourceview-2.0` -o ${PLUGNAME}.o
 	g++ -shared -Wl,--version-script=exportmap,-soname,${PLUGNAME}.so -o lib${PLUGNAME}.so ${PLUGNAME}.o -lc
-	g++ -fPIC askpass.cpp `pkg-config --cflags --libs gtk+-2.0` -o askpass
-	g++ -fPIC -Wall setsid.cpp -o setsid
+	g++ -fPIC ${ASKPASS}.cpp `pkg-config --cflags --libs gtk+-2.0` -o ${ASKPASS}
+	g++ -fPIC -Wall ${SETSID}.cpp -o ${SETSID}
 	strip ${ASKPASS} ${SETSID} 
 
 clean: distclean
@@ -26,16 +25,18 @@ distclean:
 
 install:
 	if [ ${USER} = "root" ];then \
-		cp -rv ${ASKPASS} ${SETSID} ${PLUG} "${ROOTINSTALLDIR}";cd po;cp -rv . ${ROOTLOCALEDIR}; \
+		mkdir -vp "${ROOTINSTALLDIR}/${PACKAGENAME}" ||true; \
+		cp -rv lib${PLUGNAME}.so ${ASKPASS} ${SETSID} ${ROOTINSTALLDIR}/${PACKAGENAME};cd po;cp -rv . ${ROOTLOCALEDIR}; \
 	else \
-		cp -rv ${ASKPASS} ${SETSID} ${PLUG} "${USERINSTALLDIR}";cd po;cp -rv . ${LOCALLOCALE}; \
+		mkdir -vp "${USERINSTALLDIR}/${PACKAGENAME}" ||true; \
+		cp -rv lib${PLUGNAME}.so ${ASKPASS} ${SETSID} ${USERINSTALLDIR}/${PACKAGENAME};cd po;cp -rv . ${LOCALLOCALE}; \
 	fi
 
 uninstall:
 	if [ ${USER} = "root" ];then \
-		rm -rv "${ROOTINSTALLDIR}/${PLUG}" "${ROOTINSTALLDIR}/${ASKPASS}" "${ROOTINSTALLDIR}/${SETSID}" ${ROOTLOCALEDIR}/*/LC_MESSAGES/${MONAME}||true; \
+		rm -rv "${ROOTINSTALLDIR}/${PACKAGENAME}" ${ROOTLOCALEDIR}/*/LC_MESSAGES/${MONAME}; \
 	else \
-		rm -rv "${USERINSTALLDIR}/${PLUG}" "${USERINSTALLDIR}/${ASKPASS}" "${USERINSTALLDIR}/${SETSID}" ${LOCALLOCALE}/*/LC_MESSAGES/${MONAME}||true; \
+		rm -rv "${USERINSTALLDIR}/${PACKAGENAME}" ${LOCALLOCALE}/*/LC_MESSAGES/${MONAME}; \
 	fi
 
 makepkg: clean

@@ -342,12 +342,12 @@ extern "C" int addToGui(gpointer data)
 
 	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->mlist.menuBar),menuMount);					
 
-	asprintf(&pathToAskPass,"%s/askpass",plugdata->lPlugFolder);
+	asprintf(&pathToAskPass,"%s/RemoteEdit/askpass",plugdata->lPlugFolder);
 	stat(pathToAskPass,&sb);
 	if(!S_ISREG(sb.st_mode))
 		{
 			free(pathToAskPass);
-			asprintf(&pathToAskPass,"%s/askpass",plugdata->gPlugFolder);
+			asprintf(&pathToAskPass,"%s/RemoteEdit/askpass",plugdata->gPlugFolder);
 			stat(pathToAskPass,&sb);
 			if(!S_ISREG(sb.st_mode))
 				{
@@ -356,12 +356,12 @@ extern "C" int addToGui(gpointer data)
 				}
 		}
 
-	asprintf(&pathToSetSid,"%s/setsid",plugdata->lPlugFolder);
+	asprintf(&pathToSetSid,"%s/RemoteEdit/setsid",plugdata->lPlugFolder);
 	stat(pathToSetSid,&sb);
 	if(!S_ISREG(sb.st_mode))
 		{
 			free(pathToSetSid);
-			asprintf(&pathToSetSid,"%s/setsid",plugdata->gPlugFolder);
+			asprintf(&pathToSetSid,"%s/RemoteEdit/setsid",plugdata->gPlugFolder);
 			stat(pathToSetSid,&sb);
 			if(!S_ISREG(sb.st_mode))
 				{

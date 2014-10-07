@@ -40,4 +40,4 @@ uninstall:
 	fi
 
 makepkg: clean
-	cd .. && tar -cvzf ${PACKAGENAME}.tar.gz ${PACKAGENAME}
+	cd .. && tar -cvzhf ${PACKAGENAME}.tar.gz ${PACKAGENAME}

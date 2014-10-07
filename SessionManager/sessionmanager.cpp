@@ -18,7 +18,7 @@
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
-#define PLUGVERSION "0.0.3"
+#define PLUGVERSION "0.0.4"
 #define	MAXSESSIONS 8
 #define TEXTDOMAIN "SessionManager"
 
@@ -98,32 +98,11 @@ GtkWidget* findMenu(GtkWidget* parent, const gchar* name)
 				}
 			g_list_free(children);
 		}
-
 	return NULL;
 }
 
 extern "C" const gchar* g_module_check_init(GModule *module)
 {
-	char*	sessionfile;
-	FILE*	fd=NULL;
-
-//TODO//
-//	currentdomain=strdup(textdomain(NULL));
-//	setTextDomain(true,plugdata);
-	for(int j=0; j<MAXSESSIONS; j++)
-		{
-			asprintf(&sessionfile,"%s/.KKEdit/session-%i",getenv("HOME"),j);
-			fd=fopen(sessionfile,"r");
-			if(fd!=NULL)
-				{
-					fscanf(fd,"%a[^\n]s",&sessionNames[j]);
-					fclose(fd);
-				}
-			else
-				asprintf(&sessionNames[j],gettext("Session %i"),j);
-		}
-
-//	setTextDomain(false,plugdata);
 	return(NULL);
 }
 
@@ -364,6 +343,25 @@ extern "C" int addToGui(gpointer data)
 
 	plugData*	plugdata=(plugData*)data;
 
+	char*	sessionfile;
+	FILE*	fd=NULL;
+
+	setTextDomain(true,plugdata);
+	for(int j=0; j<MAXSESSIONS; j++)
+		{
+			asprintf(&sessionfile,"%s/.KKEdit/session-%i",getenv("HOME"),j);
+			fd=fopen(sessionfile,"r");
+			if(fd!=NULL)
+				{
+					fscanf(fd,"%a[^\n]s",&sessionNames[j]);
+					fclose(fd);
+				}
+			else
+				asprintf(&sessionNames[j],gettext("Session %i"),j);
+		}
+
+	setTextDomain(false,plugdata);
+
 	holdWidget=NULL;
 
 	findMenu(gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuFile),SAVESESSIONMENUNAME);
@@ -415,50 +413,19 @@ extern "C" int addToGui(gpointer data)
 		}
 	return(0);
 }
-/*
-K.D.Hedger <kdhedger68713@gmail.com>
 
-https://sites.google.com/site/kkeditlinuxtexteditor/home
-
-More by the same author
-
-Xfce-Theme-Manager
-http://xfce-look.org/content/show.php?content=149647
-
-Xfce4-Composite-Editor
-http://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523
-
-Manpage Editor
-http://gtk-apps.org/content/show.php?content=160219
-
-GtkSu
-http://gtk-apps.org/content/show.php?content=158974
-
-ASpell GUI
-http://gtk-apps.org/content/show.php/?content=161353
-
-Clipboard Viewer
-http://gtk-apps.org/content/show.php/?content=121667
-*/
-//TODO//
 extern "C" int doAbout(gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;
 	char*			licencepath;
 	const char		copyright[] ="Copyright \xc2\xa9 2014 K.D.Hedger";
-	const char*		aboutboxstring="Session Manager - Adds multiple named sessions to KKEdit";
 	char*			licence;
 	GtkAboutDialog*	about;
-//	char*			myemail;
-//	char*			myweb;
 
 	setTextDomain(true,plugdata);
-//	const char*	authors[]= {"K.D.Hedger <"MYEMAIL">\n",MYWEBSITE,"\nMore by the same author\n","Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
 
-//	const char*	authors[8]={NULL,};
-	
-//	authors[0]=gettext(K.D.Hedger);
-	const char*	authors[]= {"K.D.Hedger:","<MYEMAIL>\n",MYWEBSITE,"\nMore by the same author\n","Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
+	const char*		aboutboxstring=gettext("Session Manager - Adds multiple named sessions to KKEdit");
+	const char*	authors[]= {"K.D.Hedger <" MYEMAIL ">",MYWEBSITE,gettext("\nMore by the same author\n"),"Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
 
 	asprintf(&licencepath,"%s/docs/gpl-3.0.txt",plugdata->dataDir);
 
@@ -475,6 +442,7 @@ extern "C" int doAbout(gpointer data)
 
 	gtk_dialog_run(GTK_DIALOG(about));
 	gtk_widget_destroy((GtkWidget*)about);
+
 	free(licence);
 	free(licencepath);
 	setTextDomain(false,plugdata);

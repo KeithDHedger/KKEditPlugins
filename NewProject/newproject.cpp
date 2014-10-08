@@ -18,7 +18,7 @@
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "https://sites.google.com/site/kkeditlinuxtexteditor"
-#define VERSION "0.0.6"
+#define VERSION "0.0.8"
 #define TEXTDOMAIN "newproject"
 
 char*		SVNRepoPath;
@@ -38,7 +38,7 @@ void setTextDomain(bool plugdomain,plugData* pdata)
 	if(plugdomain==true)
 		{
 			//set domain to plug
-			bindtextdomain(TEXTDOMAIN,"/home/keithhedger/.KKEdit/plugins/locale");
+			bindtextdomain(TEXTDOMAIN,LOCALEDIR);
 			textdomain(TEXTDOMAIN);
 			bind_textdomain_codeset(TEXTDOMAIN,"UTF-8");
 		}
@@ -337,18 +337,18 @@ extern "C" int plugPrefs(gpointer data)
 	return(0);
 }
 
-//TODO//
 extern "C" int doAbout(gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;
 	char*			licencepath;
 	const char		copyright[] ="Copyright \xc2\xa9 2014 K.D.Hedger";
-	const char*		aboutboxstring="KKEdit Project Plugin";
 	char*			licence;
 	GtkAboutDialog*	about;
 
 	setTextDomain(true,plugdata);
-	const char*	authors[]= {"K.D.Hedger <"MYEMAIL">\n",MYWEBSITE,"\nMore by the same author\n","KKEdit\nhttp://gtk-apps.org/content/show.php?content=158161\n","Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
+
+	const char*		aboutboxstring=gettext("Project Plugin - Add's create barebones projects");
+	const char*	authors[]= {"K.D.Hedger <" MYEMAIL ">",MYWEBSITE,gettext("\nMore by the same author\n"),"Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
 
 	asprintf(&licencepath,"%s/docs/gpl-3.0.txt",plugdata->dataDir);
 

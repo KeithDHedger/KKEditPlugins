@@ -26,7 +26,7 @@ int main(int argc,char **argv)
 	GtkWidget*	entry;
 
 	setlocale(LC_ALL,"");
-	bindtextdomain(TEXTDOMAIN,"/home/keithhedger/.KKEdit/plugins/locale");
+	bindtextdomain(TEXTDOMAIN,LOCALEDIR);
 	textdomain(TEXTDOMAIN);
 	bind_textdomain_codeset(TEXTDOMAIN,"UTF-8");
 

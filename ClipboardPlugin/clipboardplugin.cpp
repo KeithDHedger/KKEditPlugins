@@ -51,7 +51,7 @@ void setTextDomain(bool plugdomain,plugData* pdata)
 	if(plugdomain==true)
 		{
 			//set domain to plug
-			bindtextdomain(TEXTDOMAIN,"/home/keithhedger/.KKEdit/plugins/locale");
+			bindtextdomain(TEXTDOMAIN,LOCALEDIR);
 			textdomain(TEXTDOMAIN);
 			bind_textdomain_codeset(TEXTDOMAIN,"UTF-8");
 		}

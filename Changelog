@@ -1,52 +1,29 @@
 ClipboardPlugin
 0.0.3
+Fixed locale folder being set properly in makefile
+Fixed makefile.
 Fixed about box translations.
 0.0.2
 Fixed Makefile
 0.0.1
 First commit.
 
-SessionManager
-0.0.4
+example-plugin
+0.0.3-1.0.1
+Fixed locale folder being set properly in makefile
+Fixed makefile.
 Fixed about box translations.
-0.0.3
-Removed redundant restore with bookmarks menuitem when enabled
+Updating ...
 0.0.2
 Fixed Makefile
 0.0.1
 First commit.
-
-TerminalPane
-0.0.2
-Added context menu.
-Fixed loads of problems.
-
-0.0.1
-First commit.
-
-RemoteEdit
-0.0.2
-Added strip setsid/askpass to makefile.
-Removed 'Delete Entry'.
-Added local setsid program to fix ubunutu removing -w flag!
-Added user name to menu.
-Added sync saves to prefs.
-Added 'Reload Remote File'.
-Added 'Export To Remote File'.
-Added 'Delete Entry'.
-Added askpass helper app to get password for scp.
-
-0.0.1
-1st commit
-
-NewProject
-0.0.6
-Added auto open files from filelit in file 'filestoopen' in project archives.
-
-0.0.5
-1st release
 
 FileBrowser
+0.0.8
+Fixed locale folder being set properly in makefile
+Fixed makefile.
+Fixed about box translations.
 0.0.7
 fixed showing side handle when kkedit starts up and browser is set to no show.
 0.0.5-0.0.6
@@ -57,6 +34,68 @@ Added Prefs.
 Added 'Control Click' to open item as root.
 Added Icons.
 Fixed not opening files/folders with spaces in the names.
-
 0.0.1-0.0.4
 First launch of browser plugin.
+
+NewProject
+0.0.7-0.0.8
+Fixed locale folder being set properly in makefile
+Fixed makefile.
+Fixed about box translations.
+0.0.6
+Added auto open files from filelit in file 'filestoopen' in project archives.
+0.0.1-0.0.5
+1st release
+
+OpenUri
+0.0.2
+Fixed locale folder being set properly in makefile
+Fixed makefile.
+Fixed about box translations.
+0.0.1
+1st commit
+
+RemoteEdit
+0.0.3
+Fixed locale folder being set properly in makefile
+Fixed makefile.
+Fixed about box translations.
+0.0.2
+Added strip setsid/askpass to makefile.
+Removed 'Delete Entry'.
+Added local setsid program to fix ubunutu removing -w flag!
+Added user name to menu.
+Added sync saves to prefs.
+Added 'Reload Remote File'.
+Added 'Export To Remote File'.
+Added 'Delete Entry'.
+Added askpass helper app to get password for scp.
+0.0.1
+1st commit
+
+SessionManager
+0.0.4
+Fixed locale folder being set properly in makefile
+Fixed makefile.
+Fixed about box translations.
+0.0.3
+Removed redundant restore with bookmarks menuitem when enabled
+0.0.2
+Fixed Makefile
+0.0.1
+First commit.
+
+TerminalPane
+0.0.3
+Fixed locale folder being set properly in makefile
+Fixed makefile.
+Fixed about box translations.
+0.0.2
+Added context menu.
+Fixed loads of problems.
+0.0.1
+First commit.
+
+
+
+

@@ -18,7 +18,7 @@
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
-#define PLUGVERSION "0.0.4"
+#define PLUGVERSION "0.0.5"
 #define	MAXSESSIONS 8
 #define TEXTDOMAIN "SessionManager"
 
@@ -55,7 +55,7 @@ void setTextDomain(bool plugdomain,plugData* pdata)
 	if(plugdomain==true)
 		{
 			//set domain to plug
-			bindtextdomain(TEXTDOMAIN,"/home/keithhedger/.KKEdit/plugins/locale");
+			bindtextdomain(TEXTDOMAIN,LOCALEDIR);
 			textdomain(TEXTDOMAIN);
 			bind_textdomain_codeset(TEXTDOMAIN,"UTF-8");
 		}

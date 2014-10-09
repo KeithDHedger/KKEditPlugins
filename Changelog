@@ -10,7 +10,7 @@ First commit.
 
 example-plugin
 0.0.3-1.0.1
-Removed local cersion of help.html now redirects to website ( more up to date ).
+Removed local version of help.html now redirects to website ( more up to date ).
 Fixed locale folder being set properly in makefile
 Fixed makefile.
 Fixed about box translations.

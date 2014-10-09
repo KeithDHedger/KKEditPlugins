@@ -91,7 +91,6 @@ void clickButton(GtkWidget* widget,gpointer data)
 	runCommandAndOut(gtk_widget_get_name(widget),(plugData*)data);
 }
 
-
 //open the plug help in the doc viewer or browser from the menu item added by the demo
 void openPlugHelp(GtkWidget* widget,gpointer data)
 {

@@ -1,0 +1,18 @@
+{
+global:	g_module_check_init;
+		g_module_unload;
+		addToGui;
+		setSensitive;
+		openFile;
+		saveFile;
+		newFile;
+		closeFile;
+		newTab;
+		switchTab;
+		plugPrefs;
+		doAbout;
+		enablePlug;
+
+local: *;
+
+};

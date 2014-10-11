@@ -19,7 +19,7 @@
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "https://sites.google.com/site/kkeditlinuxtexteditor"
 #define VERSION "0.0.8"
-#define TEXTDOMAIN "newproject"
+#define TEXTDOMAIN "NewProject"
 
 char*		SVNRepoPath;
 char*		projectsPath;

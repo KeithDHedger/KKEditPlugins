@@ -58,6 +58,7 @@ Fixed about box translations.
 
 RemoteEdit
 0.0.3
+Fixed gettext domain not being set for export menu item.
 Fixed locale folder being set properly in makefile
 Fixed makefile.
 Fixed about box translations.

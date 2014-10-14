@@ -293,6 +293,7 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 			menuitem=gtk_menu_item_new_with_label(gettext("Reload Remote File"));
 			gtk_widget_set_name(menuitem,"openremote");
 			doRemote(menuitem,remote);
+			setTextDomain(true,plugdata);
 			gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(doRemote),remote);
 			gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);	
 

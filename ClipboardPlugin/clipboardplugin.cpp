@@ -170,12 +170,14 @@ extern "C" int doAbout(gpointer data)
 	const char		copyright[] ="Copyright \xc2\xa9 2014 K.D.Hedger";
 	char*			licence;
 	GtkAboutDialog*	about;
+	char*			translators;
 
 	setTextDomain(true,plugdata);
 
 	const char*		aboutboxstring=gettext("Clipboard Plugin - Add's multiple clips");
 	const char*	authors[]= {"K.D.Hedger <" MYEMAIL ">",MYWEBSITE,gettext("\nMore by the same author\n"),"Xfce-Theme-Manager\nhttp://xfce-look.org/content/show.php?content=149647\n","Xfce4-Composite-Editor\nhttp://gtk-apps.org/content/show.php/Xfce4-Composite-Editor?content=149523\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
 
+	asprintf(&translators,"%s:\nNguyen Thanh Tung <thngtong@gmail.com>",gettext("French Translation"));
 	asprintf(&licencepath,"%s/docs/gpl-3.0.txt",plugdata->dataDir);
 
 	g_file_get_contents(licencepath,&licence,NULL,NULL);
@@ -188,11 +190,13 @@ extern "C" int doAbout(gpointer data)
 	gtk_about_dialog_set_website(about,MYWEBSITE);
 	gtk_about_dialog_set_logo_icon_name(about,"KKEditPlug");
 	gtk_about_dialog_set_license(about,licence);
+	gtk_about_dialog_set_translator_credits(about,(const gchar*)translators);
 
 	gtk_dialog_run(GTK_DIALOG(about));
 	gtk_widget_destroy((GtkWidget*)about);
 	free(licence);
 	free(licencepath);
+	free(translators);
 	setTextDomain(false,plugdata);
 	return(0);
 }

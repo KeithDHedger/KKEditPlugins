@@ -1,12 +1,20 @@
-PACKAGENAME=$(shell /usr/bin/basename ${PWD})
+PACKAGENAME=$(shell /usr/bin/basename `pwd`)
 PLUGNAME=$(shell echo ${PACKAGENAME}|/usr/bin/tr A-Z a-z)
-ROOTINSTALLDIR=/usr/share/KKEdit/plugins
-USERINSTALLDIR=${HOME}/.KKEdit/plugins
-LOCALEDIR=${HOME}/.KKEdit/plugins/locale
 MONAME=${PACKAGENAME}.mo
 
+PREFIX=/usr
+GLOBAL=0
+
+ifeq (0,$(GLOBAL))
+	LOCALEFOLDER=${HOME}/.KKEdit/plugins/locale
+	INSTALLFOLDER=${HOME}/.KKEdit/plugins
+else
+	LOCALEFOLDER=$(PREFIX)/share/locale
+	INSTALLFOLDER=$(PREFIX)/share/KKEdit/plugins
+endif
+
 all:
-	gcc -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs gtk+-2.0 gmodule-2.0 glib-2.0 gtksourceview-2.0` -DLOCALEDIR=\"${LOCALEDIR}\" -o ${PLUGNAME}.o
+	gcc -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs gtk+-2.0 gmodule-2.0 glib-2.0 gtksourceview-2.0` -DLOCALEDIR=\"${LOCALEFOLDER}\" -o ${PLUGNAME}.o
 	gcc -shared -Wl,--version-script=exportmap,-soname,${PLUGNAME}.so -o lib${PLUGNAME}.so ${PLUGNAME}.o -lc
 
 clean: distclean
@@ -16,21 +24,12 @@ distclean:
 	rm ${PLUGNAME}.o||true
 
 install:
-	if [ ${USER} = "root" ];then \
-		mkdir -vp "${ROOTINSTALLDIR}/${PACKAGENAME}" ||true; \
-		cp -rv lib${PLUGNAME}.so bones ${ROOTINSTALLDIR}/${PACKAGENAME};cd po;cp -rv . ${LOCALEDIR}; \
-	else \
-		mkdir -vp "${USERINSTALLDIR}/${PACKAGENAME}" ||true; \
-		cp -rv lib${PLUGNAME}.so bones ${USERINSTALLDIR}/${PACKAGENAME};cd po;cp -rv . ${LOCALEDIR}; \
-	fi
+		mkdir -vp $(DESTDIR)${INSTALLFOLDER}/$(PACKAGENAME) $(DESTDIR)$(LOCALEFOLDER) || true
+		cp -rv lib${PLUGNAME}.so bones $(DESTDIR)$(INSTALLFOLDER)/$(PACKAGENAME)
+		cd po;cp -rv . $(DESTDIR)$(LOCALEFOLDER)
 
 uninstall:
-	if [ ${USER} = "root" ];then \
-		rm -rv "${ROOTINSTALLDIR}/${PACKAGENAME}" ${LOCALEDIR}/*/LC_MESSAGES/${MONAME}; \
-	else \
-		rm -rv "${USERINSTALLDIR}/${PACKAGENAME}" ${LOCALEDIR}/*/LC_MESSAGES/${MONAME}; \
-	fi
+	rm -rv $(DESTDIR)$(INSTALLFOLDER)/$(PACKAGENAME) $(DESTDIR)$(LOCALEFOLDER)/*/LC_MESSAGES/${MONAME}
 
-makepkg:
+makepkg: clean
 	cd .. && tar -cvzhf ${PACKAGENAME}.tar.gz ${PACKAGENAME}
-	

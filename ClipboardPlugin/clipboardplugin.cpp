@@ -37,6 +37,7 @@ clips			clip[MAXCLIPS];
 plugData*		plugdata;
 gulong			clipid;
 char*			currentdomain=NULL;
+bool			manual=false;
 
 int	(*module_plug_function)(gpointer globaldata);
 
@@ -87,6 +88,13 @@ void clipChanged(GtkClipboard* clipboard,gpointer user_data)
 	char*	texthold;
 	char*	label;
 
+
+	if (manual==true)
+		{
+			manual=false;
+			return;
+		}
+
 	if (gtk_clipboard_wait_is_text_available(mainClipboard)==true)
 		{
 			setCurrentClip();
@@ -113,21 +121,12 @@ void clipChanged(GtkClipboard* clipboard,gpointer user_data)
 
 void theCallBack(GtkWidget* widget,gpointer data)
 {
-	pageStruct*	page=NULL;
-	int			clipnum=(int)(long)data;
-	GtkTextIter	start;
-	GtkTextIter	end;
+	int	clipnum=(int)(long)data;
 
-	page=getPageStructPtr(-1);
-	if(page==NULL)
-		return;
-		
 	if(clip[clipnum].text!=NULL)
 		{
-			if(gtk_text_buffer_get_selection_bounds((GtkTextBuffer*)page->buffer,&start,&end))
-				gtk_text_buffer_delete((GtkTextBuffer*)page->buffer,&start,&end);
-
-			gtk_text_buffer_insert_at_cursor((GtkTextBuffer*)page->buffer,clip[clipnum].text,-1);
+			manual=true;
+			gtk_clipboard_set_text(mainClipboard,clip[clipnum].text,-1);
 		}
 }
 

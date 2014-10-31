@@ -1,5 +1,6 @@
 ClipboardPlugin
 0.0.3
+Selecting an item from the clipboard menu now recopies that text back to the clipboard instead of inserting it.
 Fixed locale folder being set properly in makefile
 Fixed makefile.
 Fixed about box translations.

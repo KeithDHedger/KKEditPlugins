@@ -81,7 +81,7 @@ struct args
 	void*		data;
 };
 
-enum {TYPEINT=1,TYPESTRING,TYPEBOOL};
+enum {TYPEINT=1,TYPESTRING,TYPEBOOL,TYPELIST};
 
 struct pageStruct
 {

@@ -22,6 +22,8 @@
 #define	MAXSESSIONS 8
 #define TEXTDOMAIN "SessionManager"
 
+extern bool	sessionBusy;
+
 char*		prefsPath;
 GtkWidget*	menuPlug;
 GtkWidget*	saveSessionMenu=NULL;
@@ -161,7 +163,7 @@ void saveSessionPlug(char* name,plugData* plugdata,int snum)
 
 	asprintf(&filename,"%s/.KKEdit",getenv("HOME"));
 	g_mkdir_with_parents(filename,493);
-	debugFree(filename,"saveSession filename");
+	debugFree(&filename,"saveSession filename");
 	asprintf(&filename,"%s/.KKEdit/session-%i",getenv("HOME"),snum);
 	fd=fopen(filename,"w");
 	if (fd!=NULL)
@@ -190,7 +192,7 @@ void saveSessionPlug(char* name,plugData* plugdata,int snum)
 				}
 
 			fclose(fd);
-			debugFree(filename,"saveSession filename");
+			debugFree(&filename,"saveSession filename");
 		}
 }
 
@@ -204,21 +206,17 @@ void restoreSessionFromFile(char* filename)
 	GtkTextIter	markiter;
 	int			currentline;
 	int			currentpage=0;
-	GtkTextMark*	mark;
-	GtkTextIter	cursiter;
 
 	fd=fopen(filename,"r");
 	if (fd!=NULL)
 		{
 			fgets(buffer,2048,fd);
-			closeAllTabs(NULL,NULL);
 			while(fgets(buffer,2048,fd)!=NULL)
 				{
 					sscanf(buffer,"%i %[^\n]s",(int*)&currentline,(char*)&strarg);
 					if(openFile(strarg,currentline,true)==true)
 						{
 							page=getPageStructPtr(currentpage);
-							gtk_widget_show_all((GtkWidget*)page->view);
 							intarg=999;
 							fgets(buffer,2048,fd);
 							sscanf(buffer,"%i %s",(int*)&intarg,(char*)&strarg);
@@ -234,13 +232,7 @@ void restoreSessionFromFile(char* filename)
 
 							gtk_text_buffer_get_iter_at_line_offset((GtkTextBuffer*)page->buffer,&markiter,currentline,0);
 							gtk_text_buffer_place_cursor((GtkTextBuffer*)page->buffer,&markiter);
-							if(!gtk_text_view_scroll_to_iter((GtkTextView*)page->view,&markiter,0,true,0,0.5))
-								{
-									mark=gtk_text_buffer_get_mark((GtkTextBuffer*)page->buffer,"insert");
-									gtk_text_buffer_get_iter_at_mark((GtkTextBuffer*)page->buffer,&cursiter,gtk_text_buffer_get_insert((GtkTextBuffer*)page->buffer));
-									if(!gtk_text_view_scroll_to_iter((GtkTextView*)page->view,&cursiter,0,true,0,0.5))
-										gtk_text_view_scroll_to_mark((GtkTextView*)page->view,mark,0,true,0,0.5);
-								}
+							if(!gtk_text_view_scroll_to_iter((GtkTextView*)page->view,&markiter,0,true,0,0.5));
 							currentpage++;
 						}
 					else
@@ -256,7 +248,7 @@ void restoreSessionFromFile(char* filename)
 						}
 				}
 			fclose(fd);
-			debugFree(filename,"restoreSession filename");
+			debugFree(&filename,"restoreSession filename");
 		}
 }
 
@@ -266,6 +258,14 @@ void restoreSessionNum(GtkWidget* widget,gpointer data)
 	char*		sname=NULL;
 	FILE*		fd=NULL;
 	const char*	widgetname=NULL;
+	plugData*	plugdata=(plugData*)data;
+
+	closeAllTabs(NULL,NULL);
+	while(gtk_events_pending())
+		gtk_main_iteration_do(false);
+
+	gtk_widget_freeze_child_notify((GtkWidget*)plugdata->notebook);
+	sessionBusy=true;
 
 	widgetname=gtk_widget_get_name(widget);
 	for(int j=0; j<MAXSESSIONS; j++)
@@ -280,6 +280,10 @@ void restoreSessionNum(GtkWidget* widget,gpointer data)
 							free(sname);
 							fclose(fd);
 							restoreSessionFromFile(sessionfile);
+							gtk_widget_thaw_child_notify((GtkWidget*)plugdata->notebook);
+							sessionBusy=false;
+							while(gtk_events_pending())
+								gtk_main_iteration_do(false);
 							return;
 						}
 					free(sname);

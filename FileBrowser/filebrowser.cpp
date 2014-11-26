@@ -86,7 +86,7 @@ void showHideInvisibles(plugData* pdata)
 		touch(filepath);
 	else
 		unlink(filepath);
-	debugFree(filepath,"filepath");
+	debugFree(&filepath,"filepath");
 }
 
 extern "C" int plugPrefs(gpointer data)
@@ -141,7 +141,7 @@ GdkPixbuf* getPixBuf(char* name)
 				{
 					asprintf(&newname,"gnome-mime-%s",*names);
 					pix=gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),(const gchar*)newname,16,(GtkIconLookupFlags)(GTK_ICON_LOOKUP_USE_BUILTIN|GTK_ICON_LOOKUP_FORCE_SVG|GTK_ICON_LOOKUP_GENERIC_FALLBACK|GTK_ICON_LOOKUP_FORCE_SIZE),NULL);
-					debugFree(newname,"getPixBuf newname");
+					debugFree(&newname,"getPixBuf newname");
 				}
 		}
 	else if(G_IS_FILE_ICON(icon))
@@ -149,7 +149,7 @@ GdkPixbuf* getPixBuf(char* name)
 			icon_file=g_file_icon_get_file(G_FILE_ICON(icon));
 			path=g_file_get_path(icon_file);
 			pix=gdk_pixbuf_new_from_file_at_size(path,16,16,NULL);
-			debugFree(path,"getPixBuf path");
+			debugFree(&path,"getPixBuf path");
 			g_object_unref(G_OBJECT(icon_file));
 		}
 	g_object_unref(G_OBJECT(file));
@@ -260,7 +260,7 @@ void collapseRow(GtkTreeView* treeview,GtkTreeIter* iter,GtkTreePath* path,gpoin
 
 	if(strcmp(pathstring,"0")==0)
 		flag=false;
-	debugFree(pathstring,"pathstring");
+	debugFree(&pathstring,"pathstring");
 }
 
 void onColWidthChange(GObject* gobject,GParamSpec* pspec,gpointer data)
@@ -323,8 +323,8 @@ void onRowActivated(GtkTreeView* treeview, GtkTreePath* path,GtkTreeViewColumn* 
 			else
 				runCommand(command,NULL,false,TOOL_ASYNC,false,NULL);
 				
-			debugFree(command,"comand from runcommand");
-			debugFree(name,"name from runcommand");
+			debugFree(&command,"comand from runcommand");
+			debugFree(&name,"name from runcommand");
 		}
 }
 
@@ -350,7 +350,7 @@ void showHideBrowser(plugData* pdata,bool startup)
 				hideSide(true);
 			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,gettext("Show Browser"));
 		}
-	debugFree(filepath,"filepath");
+	debugFree(&filepath,"filepath");
 	setTextDomain(false,pdata);
 }
 
@@ -380,7 +380,7 @@ void doStartUpCheck(plugData* pdata)
 	else
 		showing=false;
 
-	debugFree(filepath,"filepath");
+	debugFree(&filepath,"filepath");
 
 	asprintf(&filepath,"%s/filebrowser.inv",pdata->lPlugFolder);
 	if(g_file_test(filepath,G_FILE_TEST_EXISTS))
@@ -388,7 +388,7 @@ void doStartUpCheck(plugData* pdata)
 	else
 		showInvisible=false;
 
-	debugFree(filepath,"filepath");
+	debugFree(&filepath,"filepath");
 }
 
 gboolean getNode(GtkTreeModel *model,GtkTreePath *path,GtkTreeIter *iter,gpointer data)
@@ -402,7 +402,7 @@ gboolean getNode(GtkTreeModel *model,GtkTreePath *path,GtkTreeIter *iter,gpointe
 		{
 			if((strlen(thispath)<strlen(node)) || (strcmp(thispath,node)==0))
 				{
-					debugFree(thispath,"filebrowser getnode thispath");
+					debugFree(&thispath,"filebrowser getnode thispath");
 					return(false);
 				}
 		}
@@ -412,14 +412,14 @@ gboolean getNode(GtkTreeModel *model,GtkTreePath *path,GtkTreeIter *iter,gpointe
 		{
 			if(strcmp(name,(char*)data)==0)
 				{
-					debugFree(node,"filebrowser getnode node");
+					debugFree(&node,"filebrowser getnode node");
 					node=gtk_tree_path_to_string(path);
 					gtk_tree_view_expand_row((GtkTreeView*)treeview,path,false);
 					retval=true;
 				}
-			debugFree(name,"filebrowser getnode name");
+			debugFree(&name,"filebrowser getnode name");
 		}
-	debugFree(thispath,"filebrowser getnode thispath");
+	debugFree(&thispath,"filebrowser getnode thispath");
 	return(retval);
 }
 
@@ -448,7 +448,7 @@ extern "C" void doTabMenu(GtkWidget *widget,gpointer data)
 	scrollpath=gtk_tree_path_new_from_string(node);
 	gtk_tree_view_set_cursor((GtkTreeView *)treeview,scrollpath,NULL,false);
 	gtk_tree_view_scroll_to_cell((GtkTreeView *)treeview,scrollpath,NULL,true,0.5,0.5);
-	debugFree(node,"filebrowser doTabMenu node");
+	debugFree(&node,"filebrowser doTabMenu node");
 	node=NULL;
 
 	showing=false;
@@ -586,8 +586,8 @@ extern "C" int doAbout(gpointer data)
 
 	gtk_dialog_run(GTK_DIALOG(about));
 	gtk_widget_destroy((GtkWidget*)about);
-	debugFree(licence,"licence");
-	debugFree(licencepath,"licencepath");
+	debugFree(&licence,"licence");
+	debugFree(&licencepath,"licencepath");
 	free(translators);
 
 	setTextDomain(false,plugdata);

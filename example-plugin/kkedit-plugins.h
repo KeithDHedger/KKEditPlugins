@@ -115,8 +115,8 @@ struct pageStruct
 	GtkTextTag*			highlightTag;
 	GList*				userDataList;
 	GtkSourceCompletion* completion;
-	gpointer			reserved2;
-	gpointer			reserved3;
+	GSList*				regexList;
+	int					regexMatchNumber;
 	gpointer			reserved4;
 };
 #endif
@@ -217,7 +217,7 @@ void		hideSide(bool left);
 void		showTop(bool top);
 void		hideTop(bool top);
 void		runCommand(char* commandtorun,void* ptr,bool interm,int flags,int useroot,char* title);
-void		debugFree(gpointer ptr,const char* message);
+void		debugFree(char** ptr,const char* message);
 bool		openFile(const gchar *filepath,int linenumber,bool warn);
 bool		saveFile(GtkWidget* widget,gpointer data);
 void		newFile(GtkWidget* widget,gpointer data);

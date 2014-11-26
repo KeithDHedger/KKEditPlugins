@@ -82,6 +82,10 @@ Added askpass helper app to get password for scp.
 1st commit
 
 SessionManager
+0.0.5
+Speeded up load session.
+Code clean.
+Segfault fixed if saved file not available.
 0.0.4
 Fixed locale folder being set properly in makefile
 Fixed makefile.

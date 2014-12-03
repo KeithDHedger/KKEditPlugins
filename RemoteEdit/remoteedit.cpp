@@ -22,6 +22,7 @@
 #define MYWEBSITE "https://sites.google.com/site/kkeditlinuxtexteditor"
 #define VERSION "0.0.3"
 #define TEXTDOMAIN "RemoteEdit"
+#define PLATFORM "gtk"
 
 struct remoteFiles
 {
@@ -72,7 +73,7 @@ extern "C" const gchar* g_module_check_init(GModule *module)
 	char*	filepath;
 
 	currentdomain=strdup(textdomain(NULL));
-	asprintf(&command,"cat %s/.KKEdit/plugins/remotedata",getenv("HOME"));
+	asprintf(&command,"cat %s/.KKEdit/plugins-%s/remotedata",getenv("HOME"),PLATFORM);
 	fp=popen(command,"r");
 	if(fp!=NULL)
 		{
@@ -96,7 +97,7 @@ extern "C" const gchar* g_module_check_init(GModule *module)
 		}
 	free(command);
 
-	asprintf(&filepath,"%s/.KKEdit/plugins/remoteedit.sync",getenv("HOME"));
+	asprintf(&filepath,"%s/.KKEdit/plugins-%s/remoteedit.sync",getenv("HOME"),PLATFORM);
 	if(g_file_test(filepath,G_FILE_TEST_EXISTS))
 		syncSave=true;
 	else
@@ -131,7 +132,7 @@ void saveRemoteData(void)
 {
 	FILE*	fp;
 	char*	command;
-	asprintf(&command,"%s/.KKEdit/plugins/remotedata",getenv("HOME"));
+	asprintf(&command,"%s/.KKEdit/plugins-%s/remotedata",getenv("HOME"),PLATFORM);
 	fp=fopen(command,"w");
 	if(fp!=NULL)
 		{

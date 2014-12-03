@@ -41,6 +41,7 @@
 #define PRINTMENUNAME "printmenu"
 #define CLOSEMENUNAME "closemenu"
 #define CLOSEALLMENUNAME "closeallmenu"
+#define SORTTABSMENUNAME "sorttabsmenu"
 #define REVERTMENUNAME "revertmenu"
 #define QUITMENUNAME "quitmenu"
 #define UNDOMENUNAME "undomenu"
@@ -166,7 +167,7 @@ struct plugData
 	char*			htmlFile;
 //location of variable that holds the uri to be disp[layed by showDoc
 	char**			thePage;
-//main notebook
+//main mainNotebook
 	GtkNotebook*	notebook;
 //current page MAYBE NULL!!
 	pageStruct*		page;
@@ -209,7 +210,7 @@ struct plugData
 };
 
 void		showDocView(int howtodisplay,char* text,const char* title);
-pageStruct*	getPageStructPtr(int pagenum);
+pageStruct*	getDocumentData(int pagenum);
 void		showToolOutput(bool immediate);
 void		hideToolOutput(bool immediate);
 void		showSide(bool left);

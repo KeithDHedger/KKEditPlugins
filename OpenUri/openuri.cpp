@@ -59,7 +59,7 @@ void theCallBack(GtkWidget* widget,gpointer data)
 	char*		text;
 	pageStruct*	page=NULL;
 
-	page=getPageStructPtr(-1);
+	page=getDocumentData(-1);
 	if(page==NULL)
 		return;
 

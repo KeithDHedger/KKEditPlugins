@@ -171,7 +171,7 @@ void saveSessionPlug(char* name,plugData* plugdata,int snum)
 			fprintf(fd,"%s\n",name);
 			for(int loop=0; loop<gtk_notebook_get_n_pages(plugdata->notebook); loop++)
 				{
-					page=getPageStructPtr(loop);
+					page=getDocumentData(loop);
 					mark=gtk_text_buffer_get_insert((GtkTextBuffer*)page->buffer);
 					gtk_text_buffer_get_iter_at_mark((GtkTextBuffer*)page->buffer,&iter,mark);
 					linenumber=gtk_text_iter_get_line(&iter);
@@ -216,7 +216,7 @@ void restoreSessionFromFile(char* filename)
 					sscanf(buffer,"%i %[^\n]s",(int*)&currentline,(char*)&strarg);
 					if(openFile(strarg,currentline,true)==true)
 						{
-							page=getPageStructPtr(currentpage);
+							page=getDocumentData(currentpage);
 							intarg=999;
 							fgets(buffer,2048,fd);
 							sscanf(buffer,"%i %s",(int*)&intarg,(char*)&strarg);

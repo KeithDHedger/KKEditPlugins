@@ -1,8 +1,9 @@
 PACKAGENAME=$(shell /usr/bin/basename ${PWD})
 PLUGNAME=$(shell echo ${PACKAGENAME}|/usr/bin/tr A-Z a-z)
-ROOTINSTALLDIR=/usr/share/KKEdit/plugins
-USERINSTALLDIR=${HOME}/.KKEdit/plugins
-LOCALEDIR=${HOME}/.KKEdit/plugins/locale
+PLATFORM=gtk
+ROOTINSTALLDIR=/usr/share/KKEdit/plugins-${PLATFORM}
+USERINSTALLDIR=${HOME}/.KKEdit/plugins-${PLATFORM}
+LOCALEDIR=${HOME}/.KKEdit/plugins-${PLATFORM}/locale
 MONAME=${PACKAGENAME}.mo
 
 all:

@@ -3,16 +3,17 @@ PLUGNAME=$(shell echo ${PACKAGENAME}|/usr/bin/tr A-Z a-z)
 MONAME=${PACKAGENAME}.mo
 SETSID=setsid
 ASKPASS=askpass
+PLATFORM=gtk
 
 PREFIX=/usr
 GLOBAL=0
 
 ifeq (0,$(GLOBAL))
-	LOCALEFOLDER=${HOME}/.KKEdit/plugins/locale
-	INSTALLFOLDER=${HOME}/.KKEdit/plugins
+	LOCALEFOLDER=${HOME}/.KKEdit/plugins-${PLATFORM}/locale
+	INSTALLFOLDER=${HOME}/.KKEdit/plugins-${PLATFORM}
 else
 	LOCALEFOLDER=$(PREFIX)/share/locale
-	INSTALLFOLDER=$(PREFIX)/share/KKEdit/plugins
+	INSTALLFOLDER=$(PREFIX)/share/KKEdit/plugins-${PLATFORM}
 endif
 
 all:

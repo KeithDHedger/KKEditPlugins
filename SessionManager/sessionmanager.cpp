@@ -23,6 +23,7 @@
 #define TEXTDOMAIN "SessionManager"
 
 extern bool	sessionBusy;
+void switchPage(GtkNotebook *notebook,gpointer arg1,guint arg2,gpointer user_data);
 
 char*		prefsPath;
 GtkWidget*	menuPlug;
@@ -259,6 +260,7 @@ void restoreSessionNum(GtkWidget* widget,gpointer data)
 	FILE*		fd=NULL;
 	const char*	widgetname=NULL;
 	plugData*	plugdata=(plugData*)data;
+	pageStruct*	page;
 
 	closeAllTabs(NULL,NULL);
 	while(gtk_events_pending())
@@ -282,14 +284,16 @@ void restoreSessionNum(GtkWidget* widget,gpointer data)
 							restoreSessionFromFile(sessionfile);
 							gtk_widget_thaw_child_notify((GtkWidget*)plugdata->notebook);
 							sessionBusy=false;
-							while(gtk_events_pending())
-								gtk_main_iteration_do(false);
+							page=getDocumentData(gtk_notebook_get_current_page(plugdata->notebook));
+							switchPage(plugdata->notebook,page->tabVbox,gtk_notebook_get_current_page(plugdata->notebook),NULL);
 							return;
 						}
 					free(sname);
 					fclose(fd);
 				}
 		}
+
+
 }
 
 void rebuildMainMenu(GtkWidget* menu,plugData*	plugdata,GCallback* func)

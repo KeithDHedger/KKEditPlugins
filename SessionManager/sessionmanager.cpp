@@ -21,9 +21,13 @@
 #define PLUGVERSION "0.0.5"
 #define	MAXSESSIONS 8
 #define TEXTDOMAIN "SessionManager"
+#define	POLEPATH "/usr/bin/KKEditProgressBar"
 
-extern bool	sessionBusy;
-void switchPage(GtkNotebook *notebook,gpointer arg1,guint arg2,gpointer user_data);
+extern bool	doUpdateWidgets;
+extern bool	currentTabNumber;
+extern void switchPage(GtkNotebook *notebook,gpointer arg1,guint arg2,gpointer user_data);
+extern void setWidgets(void);
+extern void setSensitive(void);
 
 char*		prefsPath;
 GtkWidget*	menuPlug;
@@ -260,14 +264,20 @@ void restoreSessionNum(GtkWidget* widget,gpointer data)
 	FILE*		fd=NULL;
 	const char*	widgetname=NULL;
 	plugData*	plugdata=(plugData*)data;
-	pageStruct*	page;
+
+	char			*barcommand;
+	char			*barcontrol;
+
+	asprintf(&barcontrol,"%s/BarControl-%s",plugdata->tmpFolder,"DEADBEEF");
+	asprintf(&barcommand,POLEPATH " \"Restoring Session\" \"%s\" \"pulse\" &",barcontrol);
+	system(barcommand);
+	debugFree(&barcommand,"restore session barcommand");
 
 	closeAllTabs(NULL,NULL);
 	while(gtk_events_pending())
 		gtk_main_iteration_do(false);
 
-	gtk_widget_freeze_child_notify((GtkWidget*)plugdata->notebook);
-	sessionBusy=true;
+	doUpdateWidgets=false;
 
 	widgetname=gtk_widget_get_name(widget);
 	for(int j=0; j<MAXSESSIONS; j++)
@@ -282,11 +292,7 @@ void restoreSessionNum(GtkWidget* widget,gpointer data)
 							free(sname);
 							fclose(fd);
 							restoreSessionFromFile(sessionfile);
-							gtk_widget_thaw_child_notify((GtkWidget*)plugdata->notebook);
-							sessionBusy=false;
-							page=getDocumentData(gtk_notebook_get_current_page(plugdata->notebook));
-							switchPage(plugdata->notebook,page->tabVbox,gtk_notebook_get_current_page(plugdata->notebook),NULL);
-							return;
+							break;
 						}
 					free(sname);
 					fclose(fd);
@@ -294,6 +300,16 @@ void restoreSessionNum(GtkWidget* widget,gpointer data)
 		}
 
 
+	while(gtk_events_pending())
+		gtk_main_iteration_do(false);
+
+	currentTabNumber=gtk_notebook_get_n_pages((GtkNotebook*)plugdata->notebook)-1;
+	setWidgets();
+	setSensitive();
+	asprintf(&barcommand,"echo quit>\"%s\"",barcontrol);
+	system(barcommand);
+	debugFree(&barcommand,"restore session barcommand");
+	debugFree(&barcontrol,"restore session barcontrol");
 }
 
 void rebuildMainMenu(GtkWidget* menu,plugData*	plugdata,GCallback* func)

@@ -1,3 +1,6 @@
+All
+Now uses plugins-gtk/plugins-qt depending on the PLATFORM variable in the makefile's.
+
 ClipboardPlugin
 0.0.3
 Selecting an item from the clipboard menu now recopies that text back to the clipboard instead of inserting it.
@@ -83,6 +86,7 @@ Added askpass helper app to get password for scp.
 
 SessionManager
 0.0.5
+Added barber pole.
 Speeded up load session.
 Code clean.
 Segfault fixed if saved file not available.

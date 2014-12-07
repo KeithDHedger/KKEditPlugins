@@ -21,13 +21,7 @@
 #define PLUGVERSION "0.0.5"
 #define	MAXSESSIONS 8
 #define TEXTDOMAIN "SessionManager"
-#define	POLEPATH "/usr/bin/KKEditProgressBar"
 
-extern bool	doUpdateWidgets;
-extern bool	currentTabNumber;
-extern void switchPage(GtkNotebook *notebook,gpointer arg1,guint arg2,gpointer user_data);
-extern void setWidgets(void);
-extern void setSensitive(void);
 extern void restoreSession(GtkWidget* widget,gpointer data);
 
 char*		prefsPath;
@@ -202,86 +196,13 @@ void saveSessionPlug(char* name,plugData* plugdata,int snum)
 		}
 }
 
-void restoreSessionFromFile(char* filename)
-{
-	FILE*		fd=NULL;
-	char		buffer[2048];
-	int			intarg;
-	char		strarg[2048];
-	pageStruct*	page;
-	GtkTextIter	markiter;
-	int			currentline;
-	int			currentpage=0;
-
-	fd=fopen(filename,"r");
-	if (fd!=NULL)
-		{
-			fgets(buffer,2048,fd);
-			while(fgets(buffer,2048,fd)!=NULL)
-				{
-					sscanf(buffer,"%i %[^\n]s",(int*)&currentline,(char*)&strarg);
-					if(openFile(strarg,currentline,true)==true)
-						{
-							page=getDocumentData(currentpage);
-							intarg=999;
-							fgets(buffer,2048,fd);
-							sscanf(buffer,"%i %s",(int*)&intarg,(char*)&strarg);
-							while(intarg!=-1)
-								{
-									buffer[0]=0;
-									gtk_text_buffer_get_iter_at_line((GtkTextBuffer*)page->buffer,&markiter,intarg);
-									gtk_text_buffer_place_cursor((GtkTextBuffer*)page->buffer,&markiter);
-									toggleBookmark(NULL,&markiter);
-									fgets(buffer,2048,fd);
-									sscanf(buffer,"%i %s",(int*)&intarg,(char*)&strarg);
-								}
-
-							gtk_text_buffer_get_iter_at_line_offset((GtkTextBuffer*)page->buffer,&markiter,currentline,0);
-							gtk_text_buffer_place_cursor((GtkTextBuffer*)page->buffer,&markiter);
-							if(!gtk_text_view_scroll_to_iter((GtkTextView*)page->view,&markiter,0,true,0,0.5));
-							currentpage++;
-						}
-					else
-						{
-							intarg=999;
-							fgets(buffer,2048,fd);
-							sscanf(buffer,"%i",(int*)&intarg);
-							while(intarg!=-1)
-								{
-									fgets(buffer,2048,fd);
-									sscanf(buffer,"%i",(int*)&intarg);
-								}
-						}
-				}
-			fclose(fd);
-			debugFree(&filename,"restoreSession filename");
-		}
-}
 
 void restoreSessionNum(GtkWidget* widget,gpointer data)
 {
-//restoreSession(NULL,NULL);
-//return;
 	char*		sessionfile;
 	char*		sname=NULL;
 	FILE*		fd=NULL;
 	const char	*widgetname=NULL;
-	plugData*	plugdata=(plugData*)data;
-
-	char		*barcommand;
-	char		*barcontrol;
-	int			lastline;
-
-//	asprintf(&barcontrol,"%s/BarControl-%s",plugdata->tmpFolder,"DEADBEEF");
-//	asprintf(&barcommand,POLEPATH " \"Restoring Session\" \"%s\" \"pulse\" &",barcontrol);
-//	system(barcommand);
-//	debugFree(&barcommand,"restore session barcommand");
-//
-//	closeAllTabs(NULL,NULL);
-//	while(gtk_events_pending())
-//		gtk_main_iteration_do(false);
-//
-//	doUpdateWidgets=false;
 
 	widgetname=gtk_widget_get_name(widget);
 	for(int j=0; j<MAXSESSIONS; j++)
@@ -293,8 +214,6 @@ void restoreSessionNum(GtkWidget* widget,gpointer data)
 					fscanf(fd,"%a[^\n]s",&sname);
 					if(strcmp(sname,widgetname)==0)
 						{
-							//free(sname);
-						//	fclose(fd);
 							restoreSession(NULL,sessionfile);
 							free(sessionfile);
 							free(sname);
@@ -305,18 +224,6 @@ void restoreSessionNum(GtkWidget* widget,gpointer data)
 					fclose(fd);
 				}
 		}
-
-//	while(gtk_events_pending())
-//		gtk_main_iteration_do(false);
-//
-//	setWidgets();
-//	setSensitive();
-//	asprintf(&barcommand,"echo quit>\"%s\"",barcontrol);
-//	system(barcommand);
-//	lastline=gtk_notebook_get_n_pages((GtkNotebook*)plugdata->notebook)-1;
-//	gtk_notebook_set_current_page((GtkNotebook*)plugdata->notebook,lastline);
-//	debugFree(&barcommand,"restore session barcommand");
-//	debugFree(&barcontrol,"restore session barcontrol");
 }
 
 void rebuildMainMenu(GtkWidget* menu,plugData*	plugdata,GCallback* func)

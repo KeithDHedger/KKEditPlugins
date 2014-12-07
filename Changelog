@@ -86,6 +86,7 @@ Added askpass helper app to get password for scp.
 
 SessionManager
 0.0.5
+Now uses KKEdit's restore session routine.
 Added barber pole.
 Speeded up load session.
 Code clean.

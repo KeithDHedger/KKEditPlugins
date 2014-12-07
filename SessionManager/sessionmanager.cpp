@@ -28,6 +28,7 @@ extern bool	currentTabNumber;
 extern void switchPage(GtkNotebook *notebook,gpointer arg1,guint arg2,gpointer user_data);
 extern void setWidgets(void);
 extern void setSensitive(void);
+extern void restoreSession(GtkWidget* widget,gpointer data);
 
 char*		prefsPath;
 GtkWidget*	menuPlug;
@@ -259,25 +260,28 @@ void restoreSessionFromFile(char* filename)
 
 void restoreSessionNum(GtkWidget* widget,gpointer data)
 {
+//restoreSession(NULL,NULL);
+//return;
 	char*		sessionfile;
 	char*		sname=NULL;
 	FILE*		fd=NULL;
-	const char*	widgetname=NULL;
+	const char	*widgetname=NULL;
 	plugData*	plugdata=(plugData*)data;
 
-	char			*barcommand;
-	char			*barcontrol;
+	char		*barcommand;
+	char		*barcontrol;
+	int			lastline;
 
-	asprintf(&barcontrol,"%s/BarControl-%s",plugdata->tmpFolder,"DEADBEEF");
-	asprintf(&barcommand,POLEPATH " \"Restoring Session\" \"%s\" \"pulse\" &",barcontrol);
-	system(barcommand);
-	debugFree(&barcommand,"restore session barcommand");
-
-	closeAllTabs(NULL,NULL);
-	while(gtk_events_pending())
-		gtk_main_iteration_do(false);
-
-	doUpdateWidgets=false;
+//	asprintf(&barcontrol,"%s/BarControl-%s",plugdata->tmpFolder,"DEADBEEF");
+//	asprintf(&barcommand,POLEPATH " \"Restoring Session\" \"%s\" \"pulse\" &",barcontrol);
+//	system(barcommand);
+//	debugFree(&barcommand,"restore session barcommand");
+//
+//	closeAllTabs(NULL,NULL);
+//	while(gtk_events_pending())
+//		gtk_main_iteration_do(false);
+//
+//	doUpdateWidgets=false;
 
 	widgetname=gtk_widget_get_name(widget);
 	for(int j=0; j<MAXSESSIONS; j++)
@@ -289,27 +293,30 @@ void restoreSessionNum(GtkWidget* widget,gpointer data)
 					fscanf(fd,"%a[^\n]s",&sname);
 					if(strcmp(sname,widgetname)==0)
 						{
+							//free(sname);
+						//	fclose(fd);
+							restoreSession(NULL,sessionfile);
+							free(sessionfile);
 							free(sname);
 							fclose(fd);
-							restoreSessionFromFile(sessionfile);
-							break;
+							return;
 						}
 					free(sname);
 					fclose(fd);
 				}
 		}
 
-
-	while(gtk_events_pending())
-		gtk_main_iteration_do(false);
-
-	currentTabNumber=gtk_notebook_get_n_pages((GtkNotebook*)plugdata->notebook)-1;
-	setWidgets();
-	setSensitive();
-	asprintf(&barcommand,"echo quit>\"%s\"",barcontrol);
-	system(barcommand);
-	debugFree(&barcommand,"restore session barcommand");
-	debugFree(&barcontrol,"restore session barcontrol");
+//	while(gtk_events_pending())
+//		gtk_main_iteration_do(false);
+//
+//	setWidgets();
+//	setSensitive();
+//	asprintf(&barcommand,"echo quit>\"%s\"",barcontrol);
+//	system(barcommand);
+//	lastline=gtk_notebook_get_n_pages((GtkNotebook*)plugdata->notebook)-1;
+//	gtk_notebook_set_current_page((GtkNotebook*)plugdata->notebook,lastline);
+//	debugFree(&barcommand,"restore session barcommand");
+//	debugFree(&barcontrol,"restore session barcontrol");
 }
 
 void rebuildMainMenu(GtkWidget* menu,plugData*	plugdata,GCallback* func)

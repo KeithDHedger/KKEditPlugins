@@ -344,11 +344,6 @@ extern "C" int addToGui(gpointer data)
 			gtk_widget_show_all(restoreSessionMenu);
 		}
 
-	findMenu(gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuFile),RESTORESESSIONBMMENUNAME);
-	if(holdWidget!=NULL)
-		{
-			gtk_widget_destroy(holdWidget);
-		}
 	return(0);
 }
 

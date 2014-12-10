@@ -20,7 +20,7 @@
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "https://sites.google.com/site/kkeditlinuxtexteditor"
-#define VERSION "0.0.3"
+#define VERSION "0.0.4"
 #define TEXTDOMAIN "RemoteEdit"
 #define PLATFORM "gtk"
 
@@ -46,6 +46,7 @@ bool		syncSave=false;
 GList*		remoteSaves=NULL;
 char*		currentdomain=NULL;
 plugData*	globalPData=NULL;
+extern void setWidgets(void);
 
 void setTextDomain(bool plugdomain,plugData* pdata)
 {
@@ -182,6 +183,7 @@ void doRemote(GtkWidget* widget,gpointer data)
 				{
 					((remoteFiles*)data)->saved=false;
 					openFile(((remoteFiles*)data)->localFilePath,0,true);
+					setWidgets();
 				}			
 			else
 				{

@@ -161,8 +161,6 @@ void newProject(GtkWidget* widget,gpointer data)
 			free(command);
 
 			asprintf(&archive,"mkdir %s/NewProject;cd %s/NewProject;tar -xvf %s/NewProject/bones/bones%s.tar.gz",plugdata->tmpFolder,plugdata->tmpFolder,plugdata->lPlugFolder,name);
-			printf(">>%s<<\n",archive);
-			return;
 			runCommandAndOut(archive,plugdata);
 			makesvn=gtk_toggle_button_get_active((GtkToggleButton*)createsvn);
 			free(archive);
@@ -172,24 +170,24 @@ void newProject(GtkWidget* widget,gpointer data)
 				appnamelower[j]=tolower(appnamelower[j]);
 
 //filenames
-			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*aaaa*\" -type d -exec bash -c 'mv $0 ${0/aaaa/%s}' '{}' \\; 2>/dev/null",plugdata->tmpFolder,name,appnamelower);
+			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>APP<>*\" -type d -exec bash -c 'mv $0 ${0/<>APP<>/%s}' '{}' \\; 2>/dev/null",plugdata->tmpFolder,name,appnamelower);
 			runCommandAndOut(command,plugdata);
 			free(command);
-			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*aaaa*\" -type f -exec bash -c 'mv $0 ${0/aaaa/%s}' '{}'  \\; 2>/dev/null",plugdata->tmpFolder,name,appnamelower);
+			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>APP<>*\" -type f -exec bash -c 'mv $0 ${0/<>APP<>/%s}' '{}'  \\; 2>/dev/null",plugdata->tmpFolder,name,appnamelower);
 			runCommandAndOut(command,plugdata);
 			free(command);
-			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*aaaa*\" -type d -exec bash -c 'mv $0 ${0/aaaa/%s}' '{}'  \\; 2>/dev/null",plugdata->tmpFolder,name,projname);
+			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>PROJ<>*\" -type d -exec bash -c 'mv $0 ${0/<>PROJ<>/%s}' '{}'  \\; 2>/dev/null",plugdata->tmpFolder,name,projname);
 			runCommandAndOut(command,plugdata);
 			free(command);
-			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*aaaa*\" -type f -exec bash -c 'mv $0 ${0/aaaa/%s}' '{}'  \\; 2>/dev/null",plugdata->tmpFolder,name,projname);
+			asprintf(&command,"cd %s/NewProject/bones%s;find -iname \"*<>PROJ<>*\" -type f -exec bash -c 'mv $0 ${0/<>PROJ<>/%s}' '{}'  \\; 2>/dev/null",plugdata->tmpFolder,name,projname);
 			runCommandAndOut(command,plugdata);
 			free(command);
 
 //in files
-			asprintf(&command,"cd %s/NewProject/bones%s;find -type f|xargs grep -lI \"aaaa\"|xargs sed -i 's/aaaa/%s/g'",plugdata->tmpFolder,name,appnamelower);
+			asprintf(&command,"cd %s/NewProject/bones%s;find -type f|xargs grep -lI \"<>APP<>\"|xargs sed -i 's/<>APP<>/%s/g'",plugdata->tmpFolder,name,appnamelower);
 			runCommandAndOut(command,plugdata);
 			free(command);
-			asprintf(&command,"cd %s/NewProject/bones%s;find -type f|xargs grep -lI \"aaaa\"|xargs sed -i 's/aaaa/%s/g'",plugdata->tmpFolder,name,projname);
+			asprintf(&command,"cd %s/NewProject/bones%s;find -type f|xargs grep -lI \"<>PROJ<>\"|xargs sed -i 's/<>PROJ<>/%s/g'",plugdata->tmpFolder,name,projname);
 			runCommandAndOut(command,plugdata);
 			free(command);
 

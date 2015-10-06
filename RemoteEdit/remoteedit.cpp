@@ -126,7 +126,7 @@ void doSyncSave(plugData* pdata)
 		touch(filepath);
 	else
 		unlink(filepath);
-	debugFree(&filepath,"filepath");
+	debugFree(&filepath);
 }
 
 void saveRemoteData(void)

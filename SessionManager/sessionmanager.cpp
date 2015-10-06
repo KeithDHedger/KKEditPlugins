@@ -19,7 +19,7 @@
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
 #define PLUGVERSION "0.0.5"
-#define	MAXSESSIONS 8
+#define	MAXSESSIONS 16
 #define TEXTDOMAIN "SessionManager"
 
 extern void restoreSession(GtkWidget* widget,gpointer data);
@@ -163,7 +163,7 @@ void saveSessionPlug(char* name,plugData* plugdata,int snum)
 
 	asprintf(&filename,"%s/.KKEdit",getenv("HOME"));
 	g_mkdir_with_parents(filename,493);
-	debugFree(&filename,"saveSession filename");
+	debugFree(&filename);
 	asprintf(&filename,"%s/.KKEdit/session-%i",getenv("HOME"),snum);
 	fd=fopen(filename,"w");
 	if (fd!=NULL)
@@ -171,7 +171,7 @@ void saveSessionPlug(char* name,plugData* plugdata,int snum)
 			fprintf(fd,"%s\n",name);
 			for(int loop=0; loop<gtk_notebook_get_n_pages(plugdata->notebook); loop++)
 				{
-					page=getDocumentData(loop);
+					page=getPageStructPtr(loop);
 					mark=gtk_text_buffer_get_insert((GtkTextBuffer*)page->buffer);
 					gtk_text_buffer_get_iter_at_mark((GtkTextBuffer*)page->buffer,&iter,mark);
 					linenumber=gtk_text_iter_get_line(&iter);
@@ -192,7 +192,7 @@ void saveSessionPlug(char* name,plugData* plugdata,int snum)
 				}
 
 			fclose(fd);
-			debugFree(&filename,"saveSession filename");
+			debugFree(&filename);
 		}
 }
 

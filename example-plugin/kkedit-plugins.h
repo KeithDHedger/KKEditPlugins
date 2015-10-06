@@ -66,11 +66,20 @@
 #define SEARCHFORDEFMENUNAME "searchfordefmenu"
 #define SEARCHGTKMENUNAME "searchgtkmenu"
 #define SEARCHQT5MENUNAME "searchqt5menu"
+#define SEARCHQT5ASSISTMENUNAME "searchqt5assistmenu"
 #define SEARCHDOXYMENUNAME "searchdoxymenu"
 #define GOBACKMENUNAME "gobackmenu"
 #define ABOUTMENUNAME "aboutmenu"
 #define HELPMENUNAME "helpmenu"
 #define GETPLUGSMENUNAME "getplugsmenu"
+#define SELECTTABMENUNAME "selecttabmenu"
+
+#define VIEWSHOWLINENUMERS "viewshowlinenumbers"
+#define VIEWAUTOINDENT "viewautoindent"
+#define VIEWWRAPLINES "viewwraplines"
+#define VIEWNOSYNTAX "viewnosyntax"
+#define VIEWAUTOCOMPLETE "viewautocomplete"
+#define VIEWHIGHLIGHT "viewhighlight"
 
 #ifndef _PAGESTRUCT_
 #define _PAGESTRUCT_
@@ -211,7 +220,7 @@ struct plugData
 };
 
 void		showDocView(int howtodisplay,char* text,const char* title);
-pageStruct*	getDocumentData(int pagenum);
+pageStruct*	getPageStructPtr(int pagenum);
 void		showToolOutput(bool immediate);
 void		hideToolOutput(bool immediate);
 void		showSide(bool left);
@@ -219,7 +228,7 @@ void		hideSide(bool left);
 void		showTop(bool top);
 void		hideTop(bool top);
 void		runCommand(char* commandtorun,void* ptr,bool interm,int flags,int useroot,char* title);
-void		debugFree(char** ptr,const char* message);
+void		debugFree(char** ptr);
 bool		openFile(const gchar *filepath,int linenumber,bool warn);
 bool		saveFile(GtkWidget* widget,gpointer data);
 void		newFile(GtkWidget* widget,gpointer data);

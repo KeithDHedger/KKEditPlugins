@@ -98,7 +98,7 @@ void doStartUpCheck(plugData* pdata)
 	else
 		showing=false;
 
-	debugFree(&filepath,"filepath");
+	debugFree(&filepath);
 }
 
 void showHideTerminal(plugData* plugdata,bool startup)
@@ -124,7 +124,7 @@ void showHideTerminal(plugData* plugdata,bool startup)
 			gtk_menu_item_set_label((GtkMenuItem*)hideMenu,gettext("Show Terminal"));
 		}
 	setTextDomain(false,plugdata);
-	debugFree(&filepath,"filepath");
+	debugFree(&filepath);
 }
 
 void toggleTerminal(GtkWidget* widget,gpointer data)
@@ -253,7 +253,7 @@ extern "C" int addToGui(gpointer data)
 
 	asprintf(&filename,"%s/terminalpane.rc",plugdata->lPlugFolder);
 	loadVarsFromFile(filename,mydata);
-	debugFree(&filename,"readConfig filename");
+	debugFree(&filename);
 
 	gdk_color_parse((const gchar*)foreColour,&colour);
 	vte_terminal_set_color_foreground((VteTerminal*)terminal,(const GdkColor*)&colour);
@@ -325,7 +325,7 @@ extern "C" int plugPrefs(gpointer data)
 
 			asprintf(&filename,"%s/terminalpane.rc",plugdata->lPlugFolder);
 			saveVarsToFile(filename,mydata);
-			debugFree(&filename,"plugPrefs filename");
+			debugFree(&filename);
 			
 			vte_terminal_set_default_colors((VteTerminal*)terminal);
 			gdk_color_parse((const gchar*)foreColour,&colour);

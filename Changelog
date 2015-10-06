@@ -1,3 +1,7 @@
+OpenUri
+0.0.3
+Fixed open-xdg blocking.
+
 All
 Now uses plugins-gtk/plugins-qt depending on the PLATFORM variable in the makefile's.
 
@@ -65,6 +69,8 @@ Added French translations.
 1st commit
 
 RemoteEdit
+0.0.4
+Fixed setting file prefs.
 0.0.3
 Fixed gettext domain not being set for export menu item.
 Fixed locale folder being set properly in makefile

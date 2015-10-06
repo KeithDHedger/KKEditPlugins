@@ -14,7 +14,7 @@
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
-#define VERSION "0.0.2"
+#define VERSION "0.0.3"
 #define TEXTDOMAIN "OpenUri"
 
 GtkWidget*	menuPlug;
@@ -59,14 +59,14 @@ void theCallBack(GtkWidget* widget,gpointer data)
 	char*		text;
 	pageStruct*	page=NULL;
 
-	page=getDocumentData(-1);
+	page=getPageStructPtr(-1);
 	if(page==NULL)
 		return;
 
 	if(gtk_text_buffer_get_selection_bounds((GtkTextBuffer*)page->buffer,&start,&end))
 		{
 			text=gtk_text_buffer_get_text((GtkTextBuffer*)page->buffer,&start,&end,false);
-			asprintf(&command,"xdg-open %s",text);
+			asprintf(&command,"xdg-open %s &",text);
 			system(command);
 			free(command);
 			free(text);

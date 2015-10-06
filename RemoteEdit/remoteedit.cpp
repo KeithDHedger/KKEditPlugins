@@ -19,7 +19,7 @@
 #include <kkedit-plugins.h>
 
 #define MYEMAIL "kdhedger68713@gmail.com"
-#define MYWEBSITE "https://sites.google.com/site/kkeditlinuxtexteditor"
+#define MYWEBSITE "http://kkedit.darktech.org"
 #define VERSION "0.0.4"
 #define TEXTDOMAIN "RemoteEdit"
 #define PLATFORM "gtk"

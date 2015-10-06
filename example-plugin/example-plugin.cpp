@@ -14,7 +14,7 @@
 #include "kkedit-plugins.h"
 
 #define MYEMAIL "kdhedger68713@gmail.com"
-#define MYWEBSITE "https://sites.google.com/site/kkeditlinuxtexteditor"
+#define MYWEBSITE "http://kkedit.darktech.org"
 #define VERSION "1.0.1"
 #define TEXTDOMAIN "example-plugin"
 

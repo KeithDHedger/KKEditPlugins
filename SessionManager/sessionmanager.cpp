@@ -17,7 +17,7 @@
 #include <kkedit-plugins.h>
 
 #define MYEMAIL "kdhedger68713@gmail.com"
-#define MYWEBSITE "http://keithhedger.hostingsiteforfree.com/index.html"
+#define MYWEBSITE "http://kkedit.darktech.org"
 #define PLUGVERSION "0.0.5"
 #define	MAXSESSIONS 16
 #define TEXTDOMAIN "SessionManager"

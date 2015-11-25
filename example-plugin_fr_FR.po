@@ -1,0 +1,75 @@
+# French translations for example-plugin package
+# Traductions françaises du paquet example-plugin.
+# Copyright (C) 2014 THE example-plugin'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the example-plugin package.
+# Automatically generated, 2014.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: example-plugin 1.2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-10-08 15:09+0100\n"
+"PO-Revision-Date: 2014-10-11 13:42+0100\n"
+"Last-Translator: Thanh Tung Nguyen <thngtong@gmail.com>\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 1.5.4\n"
+
+#: example-plugin/example-plugin.cpp:101
+msgid "KKEdit Plugin Help"
+msgstr ""
+
+#: example-plugin/example-plugin.cpp:116
+msgid "Plugin Help"
+msgstr ""
+
+#: example-plugin/example-plugin.cpp:120
+msgid ""
+"left side button\n"
+"at top"
+msgstr ""
+
+#: example-plugin/example-plugin.cpp:122
+msgid "echo Left Button Clicked"
+msgstr ""
+
+#: example-plugin/example-plugin.cpp:128
+msgid ""
+"right side button\n"
+"at bottom"
+msgstr ""
+
+#: example-plugin/example-plugin.cpp:130
+msgid "echo Right Button Clicked"
+msgstr ""
+
+#: example-plugin/example-plugin.cpp:136
+msgid ""
+"Top user vbox demo label\n"
+"Select 'Edit->Plugin Prefs' to disable this plugin from the dialog box.\n"
+"Unselect 'kkedit-example-plug and click 'Apply'"
+msgstr ""
+
+#: example-plugin/example-plugin.cpp:140
+msgid "Bottom user vbox demo label"
+msgstr ""
+
+#: example-plugin/example-plugin.cpp:233
+msgid "KKEdit Project Plugin - An example plugin"
+msgstr ""
+
+#: example-plugin/example-plugin.cpp:234
+msgid ""
+"\n"
+"More by the same author\n"
+msgstr ""
+"\n"
+"Plus du même auteur\n"
+
+#: example-plugin/example-plugin.cpp:240
+msgid "KKEdit Example Plugin"
+msgstr "Exemple de greffon pour KKEdit"

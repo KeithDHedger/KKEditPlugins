@@ -1,0 +1,10 @@
+#!/bin/bash
+
+
+find -maxdepth 2 -name Makefile|while read
+	do
+		pushd "$(dirname $REPLY)"
+			make clean
+			make makepkg
+		popd
+	done

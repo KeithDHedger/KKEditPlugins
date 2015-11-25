@@ -1,0 +1,69 @@
+# French translations for NewProject package
+# Traductions françaises du paquet NewProject.
+# Copyright (C) 2014 THE NewProject'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the NewProject package.
+# Automatically generated, 2014.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: NewProject 1.2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-10-30 15:07+0000\n"
+"PO-Revision-Date: 2014-10-30 15:09-0000\n"
+"Last-Translator: K. D. Hedger <kdhedger68713@gmail.com>\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 1.6.9\n"
+
+#: NewProject/newproject.cpp:146
+msgid "Creat SVN Repo"
+msgstr "Créer un dépôt SVN"
+
+#: NewProject/newproject.cpp:148
+msgid "Project Name"
+msgstr "Nom du projet"
+
+#: NewProject/newproject.cpp:242
+msgid "_Projects"
+msgstr "_Projets"
+
+#: NewProject/newproject.cpp:267
+#, c-format
+msgid "New %s Project"
+msgstr "Nouveau %s projet"
+
+#: NewProject/newproject.cpp:308
+msgid "KKEdit Project Plugin Prefs"
+msgstr "Préférences du greffon Projet pour KKEdit"
+
+#: NewProject/newproject.cpp:318
+msgid "Projects Folder"
+msgstr "Répertoire des projets"
+
+#: NewProject/newproject.cpp:320
+msgid "Subversion Folder"
+msgstr "Répertoire des dépôts Subversion"
+
+#: NewProject/newproject.cpp:351
+msgid "Project Plugin - Add's create barebones projects"
+msgstr "Greffon de projets - Créer des squelettes de projets"
+
+#: NewProject/newproject.cpp:352
+msgid ""
+"\n"
+"More by the same author\n"
+msgstr ""
+"\n"
+"Plus du même auteur\n"
+
+#: NewProject/newproject.cpp:355
+msgid "French Translation"
+msgstr "Traduction française"
+
+#: NewProject/newproject.cpp:359
+msgid "KKEdit Project Plugin"
+msgstr "Greffon de projets pour KKEdit"

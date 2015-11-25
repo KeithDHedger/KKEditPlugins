@@ -1,0 +1,96 @@
+# French translations for RemoteEdit package
+# Traductions françaises du paquet RemoteEdit.
+# Copyright (C) 2014 THE RemoteEdit'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the RemoteEdit package.
+# Automatically generated, 2014.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: RemoteEdit 1.2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-10-30 15:07+0000\n"
+"PO-Revision-Date: 2014-10-30 15:09-0000\n"
+"Last-Translator: K. D. Hedger <kdhedger68713@gmail.com>\n"
+"Language-Team: none\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 1.6.9\n"
+
+#: RemoteEdit/askpass.cpp:41
+msgid "Enter Password"
+msgstr "Entrer le mot de passe"
+
+#: RemoteEdit/remoteedit.cpp:188
+#, c-format
+msgid ""
+"Can't open %s\n"
+"scp error %i"
+msgstr ""
+"Impossible d'ouvrir %s\n"
+"erreur scp %i"
+
+#: RemoteEdit/remoteedit.cpp:207
+#, c-format
+msgid ""
+"Can't save %s\n"
+"scp error %i"
+msgstr ""
+"Impossible de sauvegarder %s\n"
+"erreur scp %i"
+
+#: RemoteEdit/remoteedit.cpp:253 RemoteEdit/remoteedit.cpp:400
+msgid "Remote Edit"
+msgstr "Édition à distance"
+
+#: RemoteEdit/remoteedit.cpp:264
+msgid "Remote File"
+msgstr "Fichier distant"
+
+#: RemoteEdit/remoteedit.cpp:266
+msgid "User Name"
+msgstr "Nom d'utilisateur"
+
+#: RemoteEdit/remoteedit.cpp:293
+msgid "Reload Remote File"
+msgstr "Recharger le fichier distant"
+
+#: RemoteEdit/remoteedit.cpp:300
+msgid "Export To Remote File"
+msgstr "Exporter vers le fichier distant"
+
+#: RemoteEdit/remoteedit.cpp:332
+msgid "_Remote Edit"
+msgstr "_Édition à distance"
+
+#: RemoteEdit/remoteedit.cpp:337
+msgid "Open Remote File"
+msgstr "Ouvrir un fichier distant"
+
+#: RemoteEdit/remoteedit.cpp:392
+msgid "A KKEdit plugin to import/export a file over SSH"
+msgstr ""
+"Un greffon pour KKEdit permettant d'importer et d'exporter un fichier à "
+"travers SSH"
+
+#: RemoteEdit/remoteedit.cpp:393
+msgid ""
+"\n"
+"More by the same author\n"
+msgstr ""
+"\n"
+"Plus du même auteur\n"
+
+#: RemoteEdit/remoteedit.cpp:396
+msgid "French Translation"
+msgstr "Traduction française"
+
+#: RemoteEdit/remoteedit.cpp:431
+msgid "Remote Edit Plug In Prefs"
+msgstr "Préférences du greffon d'édition à distance"
+
+#: RemoteEdit/remoteedit.cpp:435
+msgid "Save also exports file"
+msgstr "Synchroniser les copies locales et distantes"

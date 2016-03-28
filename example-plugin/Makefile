@@ -1,13 +1,15 @@
 PACKAGENAME=$(shell /usr/bin/basename ${PWD})
 PLUGNAME=$(shell echo ${PACKAGENAME}|/usr/bin/tr A-Z a-z)
 PLATFORM=gtk
+GTKVERSION?=2.0
+
 ROOTINSTALLDIR=/usr/share/KKEdit/plugins-${PLATFORM}
 USERINSTALLDIR=${HOME}/.KKEdit/plugins-${PLATFORM}
 LOCALEDIR=${HOME}/.KKEdit/plugins-${PLATFORM}/locale
 MONAME=${PACKAGENAME}.mo
 
 all:
-	gcc -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs gtk+-2.0 gmodule-2.0 glib-2.0 gtksourceview-2.0` -DLOCALEDIR=\"${LOCALEDIR}\" -o ${PLUGNAME}.o
+	gcc ${EXTRAMAKEFLAGS} -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs ${PLATFORM}+-${GTKVERSION} gmodule-2.0 glib-2.0 gtksourceview-${GTKVERSION}` -DLOCALEDIR=\"${LOCALEDIR}\" -o ${PLUGNAME}.o
 	gcc -shared -Wl,--version-script=exportmap,-soname,${PLUGNAME}.so -o lib${PLUGNAME}.so ${PLUGNAME}.o -lc
 
 clean: distclean

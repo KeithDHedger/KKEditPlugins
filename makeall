@@ -1,13 +1,15 @@
-#!/bin/bash
+#!/bin/bash -e
 
+export GTKVERSION=${GTKVERSION:-2.0}
+export EXTRAMAKEFLAGS=${EXTRAMAKEFLAGS:-" -Wfatal-errors "}
 
 find -maxdepth 2 -name Makefile|while read
 	do
 		pushd "$(dirname $REPLY)"
 			make clean ||true
-			make
-			if [ "X${1}" = "Xinstall" ];then
-				make install
-			fi
+#			make
+#			if [ "X${1}" = "Xinstall" ];then
+#				make install
+#			fi
 		popd
 	done

@@ -4,6 +4,7 @@ MONAME=${PACKAGENAME}.mo
 SETSID=setsid
 ASKPASS=askpass
 PLATFORM=gtk
+GTKVERSION?=2.0
 
 PREFIX=/usr
 GLOBAL=0
@@ -17,10 +18,10 @@ else
 endif
 
 all:
-	gcc -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs gtk+-2.0 gmodule-2.0 glib-2.0 gtksourceview-2.0` -DLOCALEDIR=\"${LOCALEFOLDER}\" -o ${PLUGNAME}.o
+	gcc ${EXTRAMAKEFLAGS} -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs ${PLATFORM}+-${GTKVERSION} gmodule-2.0 glib-2.0 gtksourceview-${GTKVERSION}` -DLOCALEDIR=\"${LOCALEFOLDER}\" -o ${PLUGNAME}.o
 	gcc -shared -Wl,--version-script=exportmap,-soname,${PLUGNAME}.so -o lib${PLUGNAME}.so ${PLUGNAME}.o -lc
-	g++ -fPIC ${ASKPASS}.cpp `pkg-config --cflags --libs gtk+-2.0` -DLOCALEDIR=\"${LOCALEDIR}\" -o ${ASKPASS}
-	g++ -fPIC -Wall ${SETSID}.cpp -o ${SETSID}
+	g++ ${EXTRAMAKEFLAGS} -fPIC ${ASKPASS}.cpp `pkg-config --cflags --libs ${PLATFORM}+-${GTKVERSION}` -DLOCALEDIR=\"${LOCALEDIR}\" -o ${ASKPASS}
+	g++ ${EXTRAMAKEFLAGS} -fPIC -Wall ${SETSID}.cpp -o ${SETSID}
 	strip ${ASKPASS} ${SETSID} 
 
 clean: distclean

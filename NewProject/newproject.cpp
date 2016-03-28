@@ -31,6 +31,15 @@
 #include <libintl.h>
 #include <locale.h>
 
+//#ifdef _USEGTK3_
+//#ifdef _DEVMODE_
+//#include "../../KKEdit/gtk-kkedit/KKEdit/src/kkedit-includes.h"
+//#else
+//#include <kkedit-includes.h>
+//#endif
+//#endif
+
+#include "../common.h"
 #include <kkedit-plugins.h>
 
 #define MYEMAIL "kdhedger68713@gmail.com"
@@ -126,6 +135,27 @@ void openNewFiles(char* projectsPath,const char* projname)
 	free(command);
 }
 
+enum {NEWVBOX=0,NEWHBOX};
+GtkWidget* creatNewBox(int orient,bool homog,int spacing)
+{
+	GtkWidget	*retwidg=NULL;
+
+#ifdef _USEGTK3_
+	if(orient==NEWVBOX)
+		retwidg=gtk_box_new(GTK_ORIENTATION_VERTICAL,spacing);
+	else
+		retwidg=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,spacing);
+	gtk_box_set_homogeneous((GtkBox*)retwidg,homog);
+#else
+	if(orient==NEWVBOX)
+		retwidg=gtk_vbox_new(homog,spacing);
+	else
+		retwidg=gtk_hbox_new(homog,spacing);
+#endif
+
+	return(retwidg);
+}
+
 void newProject(GtkWidget* widget,gpointer data)
 {
 	const char*	name;
@@ -152,7 +182,9 @@ void newProject(GtkWidget* widget,gpointer data)
 		makesvn=false;
 
 	name=gtk_widget_get_name(widget);
-	vbox=gtk_vbox_new(false,0);
+//	vbox=gtk_vbox_new(false,0);
+	vbox=creatNewBox(NEWVBOX,false,0);
+//	gtk_vbox_new(false,0);
 
 	dialog=gtk_dialog_new_with_buttons("New Project",NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
 	gtk_window_set_default_size((GtkWindow*)dialog,300,120);

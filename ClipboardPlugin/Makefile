@@ -2,6 +2,7 @@ PACKAGENAME=$(shell /usr/bin/basename `pwd`)
 PLUGNAME=$(shell echo ${PACKAGENAME}|/usr/bin/tr A-Z a-z)
 MONAME=${PACKAGENAME}.mo
 PLATFORM=gtk
+GTKVERSION?=2.0
 
 PREFIX=/usr
 GLOBAL=0
@@ -15,7 +16,7 @@ else
 endif
 
 all:
-	gcc -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs gtk+-2.0 gmodule-2.0 glib-2.0 gtksourceview-2.0` -DLOCALEDIR=\"${LOCALEFOLDER}\" -o ${PLUGNAME}.o
+	gcc ${EXTRAMAKEFLAGS} -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs ${PLATFORM}+-${GTKVERSION} gmodule-2.0 glib-2.0 gtksourceview-${GTKVERSION}` -DLOCALEDIR=\"${LOCALEFOLDER}\" -o ${PLUGNAME}.o
 	gcc -shared -Wl,--version-script=exportmap,-soname,${PLUGNAME}.so -o lib${PLUGNAME}.so ${PLUGNAME}.o -lc
 
 clean: distclean

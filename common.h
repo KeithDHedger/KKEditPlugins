@@ -28,6 +28,9 @@
 #define GTK_STOCK_NEW gettext("New")
 #define GTK_STOCK_HELP gettext("Help")
 
+#define GDK_C GDK_KEY_C
+#define GDK_V GDK_KEY_V
+
 #endif
 
 enum {NEWVBOX=0,NEWHBOX};

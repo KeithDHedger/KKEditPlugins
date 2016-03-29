@@ -1,4 +1,6 @@
 All
+TerminalPane plugin now gtk2/3.
+SessionManager plugin now gtk2/3.
 example-plugin now gtk2/3.
 Clipboard plugin now gtk2/3.
 New Project plugin now gtk2/3.
@@ -119,6 +121,15 @@ Added askpass helper app to get password for scp.
 1st commit
 
 SessionManager
+0.3.0
+Session files now stored in the plugins-gtk folder.
+Removed redundant mkdir for .KKEdit(3) folder.
+Use plugin folder path instead of hard coded path.
+SessionManager plugin now gtk2/3.
+Changed deprecated gtk_signal_connect to g_signal_connect.
+Changed deprecated GTK_OBJECT etc to G_OBJECT.
+New Makefile.
+
 0.0.5
 Code clean.
 Now uses KKEdit's restore session routine.
@@ -139,6 +150,12 @@ Fixed Makefile
 First commit.
 
 TerminalPane
+0.3.0
+TerminalPane plugin now gtk2/3.
+Changed deprecated gtk_signal_connect to g_signal_connect.
+Changed deprecated GTK_OBJECT etc to G_OBJECT.
+New Makefile.
+
 0.0.3
 Fixed locale folder being set properly in makefile
 Fixed makefile.

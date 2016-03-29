@@ -161,9 +161,7 @@ void newProject(GtkWidget* widget,gpointer data)
 		makesvn=false;
 
 	name=gtk_widget_get_name(widget);
-//	vbox=gtk_vbox_new(false,0);
 	vbox=creatNewBox(NEWVBOX,false,0);
-//	gtk_vbox_new(false,0);
 
 	dialog=gtk_dialog_new_with_buttons("New Project",NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
 	gtk_window_set_default_size((GtkWindow*)dialog,300,120);
@@ -242,7 +240,6 @@ void newProject(GtkWidget* widget,gpointer data)
 			system(command);
 			free(command);
 			free(appnamelower);
-			//printf("%s/%s\n",projectsPath,projname);
 			openNewFiles(projectsPath,projname);
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
@@ -293,7 +290,6 @@ extern "C" int addToGui(gpointer data)
 							info=basename(line);
 							*(strstr(info,".info"))=0;
 							sprintf(line,gettext("New %s Project"),info);
-							//menuitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW,NULL);
 							menuitem=createNewStockMenuItem(GTK_STOCK_NEW,GTK_STOCK_NEW);
 							gtk_widget_set_name(menuitem,info);
 							gtk_widget_set_tooltip_text(menuitem,infoline);
@@ -333,7 +329,6 @@ extern "C" int plugPrefs(gpointer data)
 	char*		prefspath;
 
 	setTextDomain(true,plugdata);
-//	vbox=gtk_vbox_new(false,0);
 	vbox=creatNewBox(NEWVBOX,false,0);
 
 	dialog=gtk_dialog_new_with_buttons(gettext("KKEdit Project Plugin Prefs"),NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);

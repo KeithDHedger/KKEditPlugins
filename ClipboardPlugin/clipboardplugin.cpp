@@ -30,6 +30,7 @@
 #include <libintl.h>
 #include <locale.h>
 
+#include "../common.h"
 #include <kkedit-plugins.h>
 
 #define MYEMAIL "kdhedger68713@gmail.com"

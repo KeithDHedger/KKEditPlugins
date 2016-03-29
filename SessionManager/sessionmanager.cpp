@@ -31,11 +31,12 @@
 #include <libintl.h>
 #include <locale.h>
 
+#include "../common.h"
 #include <kkedit-plugins.h>
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://kkedit.darktech.org"
-#define PLUGVERSION "0.0.5"
+#define PLUGVERSION "0.3.0"
 #define	MAXSESSIONS 16
 #define TEXTDOMAIN "SessionManager"
 
@@ -141,7 +142,7 @@ char* getNewSessionName(int sessionnumber,plugData* plugdata)
 	int			response;
 	char*		command;
 
-	vbox=gtk_vbox_new(false,0);
+	vbox=creatNewBox(NEWVBOX,false,0);
 
 	setTextDomain(true,plugdata);
 	dialog=gtk_dialog_new_with_buttons(gettext("Session Manager"),NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
@@ -178,10 +179,7 @@ void saveSessionPlug(char* name,plugData* plugdata,int snum)
 	GtkTextIter		markiter;
 	GList*			ptr;
 
-	asprintf(&filename,"%s/.KKEdit",getenv("HOME"));
-	g_mkdir_with_parents(filename,493);
-	debugFree(&filename);
-	asprintf(&filename,"%s/.KKEdit/session-%i",getenv("HOME"),snum);
+	asprintf(&filename,"%s/session-%i",plugdata->lPlugFolder,snum);
 	fd=fopen(filename,"w");
 	if (fd!=NULL)
 		{
@@ -213,18 +211,18 @@ void saveSessionPlug(char* name,plugData* plugdata,int snum)
 		}
 }
 
-
 void restoreSessionNum(GtkWidget* widget,gpointer data)
 {
 	char*		sessionfile;
 	char*		sname=NULL;
 	FILE*		fd=NULL;
 	const char	*widgetname=NULL;
+	plugData	*plugdata=(plugData*)data;
 
 	widgetname=gtk_widget_get_name(widget);
 	for(int j=0; j<MAXSESSIONS; j++)
 		{
-			asprintf(&sessionfile,"%s/.KKEdit/session-%i",getenv("HOME"),j);
+			asprintf(&sessionfile,"%s/session-%i",plugdata->lPlugFolder,j);
 			fd=fopen(sessionfile,"r");
 			if(fd!=NULL)
 				{
@@ -260,7 +258,7 @@ void rebuildMainMenu(GtkWidget* menu,plugData*	plugdata,GCallback* func)
 			menuitem=gtk_menu_item_new_with_label(sessionname);
 			gtk_widget_set_name(menuitem,sessionNames[j]);
 			free(sessionname);
-			gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(func),plugdata);
+			g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(func),plugdata);
 			gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menuitem);
 		}
 	gtk_widget_show_all(menu);
@@ -304,7 +302,7 @@ extern "C" int addToGui(gpointer data)
 	setTextDomain(true,plugdata);
 	for(int j=0; j<MAXSESSIONS; j++)
 		{
-			asprintf(&sessionfile,"%s/.KKEdit/session-%i",getenv("HOME"),j);
+			asprintf(&sessionfile,"%s/session-%i",plugdata->lPlugFolder,j);
 			fd=fopen(sessionfile,"r");
 			if(fd!=NULL)
 				{
@@ -333,7 +331,7 @@ extern "C" int addToGui(gpointer data)
 					menuitem=gtk_menu_item_new_with_label(sessionname);
 					gtk_widget_set_name(menuitem,sessionNames[j]);
 					free(sessionname);
-					gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(saveSessionNum),plugdata);
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(saveSessionNum),plugdata);
 					gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
 				}
 			gtk_widget_show_all(saveSessionMenu);
@@ -355,7 +353,7 @@ extern "C" int addToGui(gpointer data)
 					menuitem=gtk_menu_item_new_with_label(sessionname);
 					gtk_widget_set_name(menuitem,sessionNames[j]);
 					free(sessionname);
-					gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(restoreSessionNum),plugdata);
+					g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(restoreSessionNum),plugdata);
 					gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
 				}
 			gtk_widget_show_all(restoreSessionMenu);

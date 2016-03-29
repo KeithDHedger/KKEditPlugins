@@ -2,22 +2,38 @@ PACKAGENAME=$(shell /usr/bin/basename `pwd`)
 PLUGNAME=$(shell echo ${PACKAGENAME}|/usr/bin/tr A-Z a-z)
 MONAME=${PACKAGENAME}.mo
 PLATFORM=gtk
-GTKVERSION?=2.0
+GTKVERSION?=2
+EXTRAMAKEFLAGS?=
+GLOBAL?=0
+DEVELOP?=0
 
 PREFIX=/usr
-GLOBAL=0
+VTESUFFIX=
+
+ifeq (3,$(GTKVERSION))
+INSTALLSUFFIX=3
+VTESUFFIX=-2.91
+endif
 
 ifeq (0,$(GLOBAL))
-	LOCALEFOLDER=${HOME}/.KKEdit/plugins-${PLATFORM}/locale
-	INSTALLFOLDER=${HOME}/.KKEdit/plugins-${PLATFORM}
+	LOCALEFOLDER=${HOME}/.KKEdit${INSTALLSUFFIX}/plugins-${PLATFORM}/locale
+	INSTALLFOLDER=${HOME}/.KKEdit${INSTALLSUFFIX}/plugins-${PLATFORM}
 else
 	LOCALEFOLDER=$(PREFIX)/share/locale
-	INSTALLFOLDER=$(PREFIX)/share/KKEdit/plugins-${PLATFORM}
+	INSTALLFOLDER=$(PREFIX)/share/KKEdit${INSTALLSUFFIX}/plugins-${PLATFORM}
+endif
+
+ifeq (1,$(DEVELOP))
+	DEVMODE=-D_DEVMODE_
+endif
+
+ifeq (3,$(GTKVERSION))
+	USEGTK3=-D_USEGTK3_
 endif
 
 all:
-	gcc ${EXTRAMAKEFLAGS} -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs ${PLATFORM}+-${GTKVERSION} gmodule-2.0 glib-2.0 gtksourceview-${GTKVERSION} vte` -DLOCALEDIR=\"${LOCALEFOLDER}\" -o ${PLUGNAME}.o
-	gcc -shared -Wl,--version-script=exportmap,-soname,${PLUGNAME}.so -o lib${PLUGNAME}.so ${PLUGNAME}.o -lc -lvte
+	gcc ${EXTRAMAKEFLAGS} -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs ${PLATFORM}+-${GTKVERSION}.0 gmodule-2.0 glib-2.0 gtksourceview-${GTKVERSION}.0 vte${VTESUFFIX}` -DLOCALEDIR=\"${LOCALEFOLDER}\" $(DEVMODE) $(USEGTK3) -DGTK_DISABLE_SINGLE_INCLUDES -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DGSEAL_ENABLE -o ${PLUGNAME}.o
+	gcc -shared -Wl,--version-script=exportmap,-soname,${PLUGNAME}.so -o lib${PLUGNAME}.so ${PLUGNAME}.o -lc -lvte${VTESUFFIX}
 
 clean: distclean
 

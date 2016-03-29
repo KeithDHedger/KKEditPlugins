@@ -38,11 +38,12 @@
 #include <libintl.h>
 #include <locale.h>
 
+#include "../common.h"
 #include <kkedit-plugins.h>
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://kkedit.darktech.org"
-#define VERSION "0.0.3"
+#define VERSION "0.3.0"
 #define TEXTDOMAIN "TerminalPane"
 
 int	(*module_plug_function)(gpointer globaldata);
@@ -229,23 +230,23 @@ void makeMenu(gpointer plugdata)
 
 	setTextDomain(true,(plugData*)plugdata);
 	popmenuitem=gtk_menu_item_new_with_label(gettext("Hide Terminal"));
-	gtk_signal_connect(GTK_OBJECT(popmenuitem),"activate",G_CALLBACK(toggleTerminal),plugdata);
+	g_signal_connect(G_OBJECT(popmenuitem),"activate",G_CALLBACK(toggleTerminal),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(contextMenu),popmenuitem);
 
 	popmenuitem=gtk_menu_item_new_with_label(gettext("CD To Page"));
-	gtk_signal_connect(GTK_OBJECT(popmenuitem),"activate",G_CALLBACK(cdHere),plugdata);
+	g_signal_connect(G_OBJECT(popmenuitem),"activate",G_CALLBACK(cdHere),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(contextMenu),popmenuitem);
 
 	popmenuitem=gtk_menu_item_new_with_label(gettext("Copy"));
-	gtk_signal_connect(GTK_OBJECT(popmenuitem),"activate",G_CALLBACK(copyFromTerm),plugdata);
+	g_signal_connect(G_OBJECT(popmenuitem),"activate",G_CALLBACK(copyFromTerm),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(contextMenu),popmenuitem);
 
 	popmenuitem=gtk_menu_item_new_with_label(gettext("Paste"));
-	gtk_signal_connect(GTK_OBJECT(popmenuitem),"activate",G_CALLBACK(pasteToTerm),plugdata);
+	g_signal_connect(G_OBJECT(popmenuitem),"activate",G_CALLBACK(pasteToTerm),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(contextMenu),popmenuitem);
 
 	popmenuitem=gtk_menu_item_new_with_label(gettext("Select All"));
-	gtk_signal_connect(GTK_OBJECT(popmenuitem),"activate",G_CALLBACK(selectAllInTerm),plugdata);
+	g_signal_connect(G_OBJECT(popmenuitem),"activate",G_CALLBACK(selectAllInTerm),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(contextMenu),popmenuitem);
 	setTextDomain(false,(plugData*)plugdata);
 }
@@ -254,14 +255,18 @@ extern "C" int addToGui(gpointer data)
 {
 	GtkWidget*	menu;
 	plugData*	plugdata=(plugData*)data;
+#ifdef _USEGTK3_
+	GdkRGBA		colour;
+#else
 	GdkColor	colour;
+#endif
 	char*		startterm[2]={0,0};
 	char*		filename;
 
 	setTextDomain(true,plugdata);
 	menu=gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuView);
 	hideMenu=gtk_menu_item_new_with_label(gettext("Hide Terminal"));
-	gtk_signal_connect(GTK_OBJECT(hideMenu),"activate",G_CALLBACK(toggleTerminal),plugdata);
+	g_signal_connect(G_OBJECT(hideMenu),"activate",G_CALLBACK(toggleTerminal),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu),hideMenu);
 	gtk_widget_show_all(plugdata->mlist.menuView);
 
@@ -272,21 +277,35 @@ extern "C" int addToGui(gpointer data)
 	loadVarsFromFile(filename,mydata);
 	debugFree(&filename);
 
+//gdk_rgba_parse
+#ifdef _USEGTK3_
+	gdk_rgba_parse(&colour,(const gchar*)foreColour);
+	vte_terminal_set_color_foreground((VteTerminal*)terminal,(const GdkRGBA*)&colour);
+	gdk_rgba_parse(&colour,(const gchar*)backColour);
+	vte_terminal_set_color_background((VteTerminal*)terminal,(const GdkRGBA*)&colour);
+#else
 	gdk_color_parse((const gchar*)foreColour,&colour);
 	vte_terminal_set_color_foreground((VteTerminal*)terminal,(const GdkColor*)&colour);
-
 	gdk_color_parse((const gchar*)backColour,&colour);
 	vte_terminal_set_color_background((VteTerminal*)terminal,(const GdkColor*)&colour);
+#endif
 
 	swindow = gtk_scrolled_window_new(NULL, NULL);
-	gtk_container_add(GTK_CONTAINER(swindow), terminal);
-	gtk_container_add(GTK_CONTAINER(plugdata->bottomUserBox),swindow);
+	gtk_container_add(GTK_CONTAINER(swindow),terminal);
+	gtk_box_pack_start((GtkBox*)plugdata->bottomUserBox,swindow,true,true,0);
+	gtk_widget_show_all(plugdata->bottomUserBox);
 
 	g_signal_connect(terminal,"key-press-event",G_CALLBACK(on_key_press),NULL);
 	g_signal_connect(terminal,"button-press-event",G_CALLBACK(doButton),(void*)plugdata);
-	vte_terminal_set_emulation((VteTerminal *)terminal,"xterm");
+//TODO?//
+	//vte_terminal_set_emulation((VteTerminal *)terminal,"xterm");
 	startterm[0]=vte_get_user_shell();
+
+#ifdef _USEGTK3_
+	vte_terminal_spawn_sync((VteTerminal *)terminal,VTE_PTY_DEFAULT,NULL,startterm,NULL,(GSpawnFlags)(G_SPAWN_DEFAULT|G_SPAWN_LEAVE_DESCRIPTORS_OPEN),NULL,NULL,&childPid,NULL,NULL);
+#else
 	vte_terminal_fork_command_full((VteTerminal *)terminal,VTE_PTY_DEFAULT,NULL,startterm,NULL,(GSpawnFlags)(G_SPAWN_DEFAULT|G_SPAWN_LEAVE_DESCRIPTORS_OPEN),NULL,NULL,&childPid,NULL);
+#endif
 
 	doStartUpCheck(plugdata);
 	showHideTerminal(plugdata,true);
@@ -308,14 +327,17 @@ extern "C" int plugPrefs(gpointer data)
 	GtkWidget*	bcolour;
 	GtkWidget*	vbox;
 	int			response;
+#ifdef _USEGTK3_
+	GdkRGBA		colour;
+#else
 	GdkColor	colour;
+#endif
 	char*		filename;
 
 	plugData*	plugdata=(plugData*)data;
 
 	setTextDomain(true,plugdata);
-	vbox=gtk_vbox_new(false,0);
-
+	vbox=creatNewBox(NEWVBOX,false,0);
 	dialog=gtk_dialog_new_with_buttons(gettext("Terminal Pane"),NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
 	gtk_window_set_default_size((GtkWindow*)dialog,300,120);
 	dialogbox=gtk_dialog_get_content_area((GtkDialog*)dialog);
@@ -345,10 +367,17 @@ extern "C" int plugPrefs(gpointer data)
 			debugFree(&filename);
 			
 			vte_terminal_set_default_colors((VteTerminal*)terminal);
+#ifdef _USEGTK3_
+			gdk_rgba_parse(&colour,(const gchar*)foreColour);
+			vte_terminal_set_color_foreground((VteTerminal*)terminal,(const GdkRGBA*)&colour);
+			gdk_rgba_parse(&colour,(const gchar*)backColour);
+			vte_terminal_set_color_background((VteTerminal*)terminal,(const GdkRGBA*)&colour);
+#else
 			gdk_color_parse((const gchar*)foreColour,&colour);
 			vte_terminal_set_color_foreground((VteTerminal*)terminal,(const GdkColor*)&colour);
 			gdk_color_parse((const gchar*)backColour,&colour);
 			vte_terminal_set_color_background((VteTerminal*)terminal,(const GdkColor*)&colour);
+#endif
 			gtk_widget_show_all(terminal);
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);

@@ -29,4 +29,38 @@
 
 #endif
 
+enum {NEWVBOX=0,NEWHBOX};
+GtkWidget* creatNewBox(int orient,bool homog,int spacing)
+{
+	GtkWidget	*retwidg=NULL;
+
+#ifdef _USEGTK3_
+	if(orient==NEWVBOX)
+		retwidg=gtk_box_new(GTK_ORIENTATION_VERTICAL,spacing);
+	else
+		retwidg=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,spacing);
+	gtk_box_set_homogeneous((GtkBox*)retwidg,homog);
+#else
+	if(orient==NEWVBOX)
+		retwidg=gtk_vbox_new(homog,spacing);
+	else
+		retwidg=gtk_hbox_new(homog,spacing);
+#endif
+
+	return(retwidg);
+}
+
+GtkWidget* createNewStockMenuItem(const char* stock,const char* label)
+{
+	GtkWidget*	item;
+
+#ifdef _USEGTK3_
+	item=gtk_menu_item_new_with_mnemonic(label);
+#else
+	item=gtk_image_menu_item_new_from_stock(stock,NULL);
+#endif
+
+	return(item);
+}
+
 #endif

@@ -167,7 +167,7 @@ extern "C" int addToGui(gpointer data)
 			clip[j].menuItem=(GtkWidget*)gtk_menu_item_new_with_label(command);
 			free(command);
 			clip[j].text=NULL;
-			g_signal_connect(GTK_OBJECT(clip[j].menuItem),"activate",G_CALLBACK(theCallBack),(void*)(long)j);
+			g_signal_connect(G_OBJECT(clip[j].menuItem),"activate",G_CALLBACK(theCallBack),(void*)(long)j);
 			gtk_menu_shell_append(GTK_MENU_SHELL(menu),clip[j].menuItem);
 		}
 

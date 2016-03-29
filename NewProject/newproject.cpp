@@ -135,27 +135,6 @@ void openNewFiles(char* projectsPath,const char* projname)
 	free(command);
 }
 
-enum {NEWVBOX=0,NEWHBOX};
-GtkWidget* creatNewBox(int orient,bool homog,int spacing)
-{
-	GtkWidget	*retwidg=NULL;
-
-#ifdef _USEGTK3_
-	if(orient==NEWVBOX)
-		retwidg=gtk_box_new(GTK_ORIENTATION_VERTICAL,spacing);
-	else
-		retwidg=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,spacing);
-	gtk_box_set_homogeneous((GtkBox*)retwidg,homog);
-#else
-	if(orient==NEWVBOX)
-		retwidg=gtk_vbox_new(homog,spacing);
-	else
-		retwidg=gtk_hbox_new(homog,spacing);
-#endif
-
-	return(retwidg);
-}
-
 void newProject(GtkWidget* widget,gpointer data)
 {
 	const char*	name;
@@ -314,11 +293,13 @@ extern "C" int addToGui(gpointer data)
 							info=basename(line);
 							*(strstr(info,".info"))=0;
 							sprintf(line,gettext("New %s Project"),info);
-							menuitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW,NULL);
+							//menuitem=gtk_image_menu_item_new_from_stock(GTK_STOCK_NEW,NULL);
+							menuitem=createNewStockMenuItem(GTK_STOCK_NEW,GTK_STOCK_NEW);
 							gtk_widget_set_name(menuitem,info);
 							gtk_widget_set_tooltip_text(menuitem,infoline);
 							gtk_menu_item_set_label((GtkMenuItem*)menuitem,line);
-							gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(newProject),plugdata);
+							g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(newProject),plugdata);
+							g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(newProject),plugdata);
 							gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
 							line[0]=0;
 					}
@@ -352,7 +333,8 @@ extern "C" int plugPrefs(gpointer data)
 	char*		prefspath;
 
 	setTextDomain(true,plugdata);
-	vbox=gtk_vbox_new(false,0);
+//	vbox=gtk_vbox_new(false,0);
+	vbox=creatNewBox(NEWVBOX,false,0);
 
 	dialog=gtk_dialog_new_with_buttons(gettext("KKEdit Project Plugin Prefs"),NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
 	gtk_window_set_default_size((GtkWindow*)dialog,300,120);

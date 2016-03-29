@@ -1,5 +1,7 @@
 All
-Added gtk3 support.
+Clipboard plugin now gtk2/3.
+New Project plugin now gtk2/3.
+Adding gtk3 support.
 
 All
 Updated webpage link

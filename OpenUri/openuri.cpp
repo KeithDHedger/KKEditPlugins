@@ -27,11 +27,12 @@
 #include <libintl.h>
 #include <locale.h>
 
+#include "../common.h"
 #include <kkedit-plugins.h>
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://kkedit.darktech.org"
-#define VERSION "0.0.3"
+#define VERSION "0.3.0"
 #define TEXTDOMAIN "OpenUri"
 
 GtkWidget*	menuPlug;
@@ -93,15 +94,12 @@ void theCallBack(GtkWidget* widget,gpointer data)
 extern "C" int addToContext(gpointer data)
 {
 	GtkWidget*	menuitem;
-	GtkWidget*	image;
 	plugData*	plugdata=(plugData*)data;
 
 	setTextDomain(true,plugdata);
-	menuitem=gtk_image_menu_item_new_with_label(gettext("Open Selection"));
-	image=gtk_image_new_from_stock(GTK_STOCK_OPEN,GTK_ICON_SIZE_MENU);
-	gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
+	menuitem=createNewImageMenuItem(GTK_STOCK_OPEN,gettext("Open Selection"));
 	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->contextPopUpMenu),menuitem);
-	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(theCallBack),(void*)plugdata);
+	g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(theCallBack),(void*)plugdata);
 
 	setTextDomain(false,plugdata);
 	return(0);
@@ -110,7 +108,6 @@ extern "C" int addToContext(gpointer data)
 extern "C" int addToGui(gpointer data)
 {
 	GtkWidget*	submenu=NULL;
-	GtkWidget*	image;
 
 	plugData*	plugdata=(plugData*)data;
 
@@ -118,10 +115,8 @@ extern "C" int addToGui(gpointer data)
 	submenu=gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuNav);
 	if(submenu!=NULL)
 		{
-			menuPlug=gtk_image_menu_item_new_with_label(gettext("Open Selection"));
-			image=gtk_image_new_from_stock(GTK_STOCK_OPEN,GTK_ICON_SIZE_MENU);
-			gtk_image_menu_item_set_image((GtkImageMenuItem *)menuPlug,image);
-			gtk_signal_connect(GTK_OBJECT(menuPlug),"activate",G_CALLBACK(theCallBack),plugdata);
+			menuPlug=createNewImageMenuItem(GTK_STOCK_OPEN,gettext("Open Selection"));
+			g_signal_connect(G_OBJECT(menuPlug),"activate",G_CALLBACK(theCallBack),plugdata);
 			gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menuPlug);
 		}
 	setTextDomain(false,plugdata);

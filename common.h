@@ -27,6 +27,7 @@
 #define GTK_STOCK_CANCEL gettext("Cancel")
 #define GTK_STOCK_NEW gettext("New")
 #define GTK_STOCK_HELP gettext("Help")
+#define GTK_STOCK_OPEN gettext("Open")
 
 #define GDK_C GDK_KEY_C
 #define GDK_V GDK_KEY_V
@@ -62,6 +63,22 @@ GtkWidget* createNewStockMenuItem(const char* stock,const char* label)
 	item=gtk_menu_item_new_with_mnemonic(label);
 #else
 	item=gtk_image_menu_item_new_from_stock(stock,NULL);
+#endif
+
+	return(item);
+}
+
+GtkWidget* createNewImageMenuItem(const char* stock,const char* label)
+{
+	GtkWidget	*item;
+
+#ifdef _USEGTK3_
+	item=gtk_menu_item_new_with_label(label);
+#else
+	GtkWidget	*image;
+	item=gtk_image_menu_item_new_with_label(label);
+	image=gtk_image_new_from_stock(stock,GTK_ICON_SIZE_MENU);
+	gtk_image_menu_item_set_image((GtkImageMenuItem *)item,image);
 #endif
 
 	return(item);

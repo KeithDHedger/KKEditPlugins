@@ -1,4 +1,5 @@
 All
+OpenUri plugin now gtk2/3.
 TerminalPane plugin now gtk2/3.
 SessionManager plugin now gtk2/3.
 example-plugin now gtk2/3.
@@ -11,6 +12,12 @@ Updated webpage link
 Updated licence preamble in source files.
 
 OpenUri
+0.3.0
+OpenUri plugin now gtk2/3.
+Changed deprecated gtk_signal_connect to g_signal_connect.
+Changed deprecated GTK_OBJECT etc to G_OBJECT.
+New Makefile.
+
 0.0.3
 Fixed open-xdg blocking.
 

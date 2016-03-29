@@ -34,7 +34,7 @@
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://kkedit.darktech.org"
-#define VERSION "0.0.3"
+#define VERSION "0.3.0"
 #define MAXCLIPS 10
 #define MAXCLIPMENULEN 43
 #define CLIPENDLEN 20

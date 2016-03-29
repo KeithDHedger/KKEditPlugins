@@ -44,7 +44,7 @@
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://kkedit.darktech.org"
-#define VERSION "0.0.8"
+#define VERSION "0.3.0"
 #define TEXTDOMAIN "NewProject"
 
 char*		SVNRepoPath;

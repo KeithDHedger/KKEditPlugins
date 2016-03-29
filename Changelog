@@ -1,4 +1,5 @@
 All
+example-plugin now gtk2/3.
 Clipboard plugin now gtk2/3.
 New Project plugin now gtk2/3.
 Adding gtk3 support.
@@ -15,6 +16,12 @@ All
 Now uses plugins-gtk/plugins-qt depending on the PLATFORM variable in the makefile's.
 
 ClipboardPlugin
+0.3.0
+Clipboard plugin now gtk2/3.
+Changed deprecated gtk_signal_connect to g_signal_connect.
+Changed deprecated GTK_OBJECT etc to G_OBJECT.
+New Makefile.
+
 0.0.3
 Selecting an item from the clipboard menu now recopies that text back to the clipboard instead of inserting it.
 Fixed locale folder being set properly in makefile
@@ -27,6 +34,12 @@ Fixed Makefile
 First commit.
 
 example-plugin
+0.3.0
+example-plugin now gtk2/3.
+Changed deprecated gtk_signal_connect to g_signal_connect.
+Changed deprecated GTK_OBJECT etc to G_OBJECT.
+New Makefile.
+
 0.0.3-1.0.1
 Removed local version of help.html now redirects to website ( more up to date ).
 Fixed locale folder being set properly in makefile
@@ -58,6 +71,12 @@ Fixed not opening files/folders with spaces in the names.
 First launch of browser plugin.
 
 NewProject
+0.3.0
+NewProject plugin now gtk2/3.
+Changed deprecated gtk_signal_connect to g_signal_connect.
+Changed deprecated GTK_OBJECT etc to G_OBJECT.
+New Makefile.
+
 0.0.7-0.0.8
 Fixed locale folder being set properly in makefile
 Fixed makefile.

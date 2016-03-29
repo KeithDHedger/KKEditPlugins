@@ -1,15 +1,36 @@
-PACKAGENAME=$(shell /usr/bin/basename ${PWD})
+PACKAGENAME=$(shell /usr/bin/basename `pwd`)
 PLUGNAME=$(shell echo ${PACKAGENAME}|/usr/bin/tr A-Z a-z)
-PLATFORM=gtk
-GTKVERSION?=2.0
-
-ROOTINSTALLDIR=/usr/share/KKEdit/plugins-${PLATFORM}
-USERINSTALLDIR=${HOME}/.KKEdit/plugins-${PLATFORM}
-LOCALEDIR=${HOME}/.KKEdit/plugins-${PLATFORM}/locale
 MONAME=${PACKAGENAME}.mo
+PLATFORM=gtk
+GTKVERSION?=2
+EXTRAMAKEFLAGS?=
+GLOBAL?=0
+DEVELOP?=0
+
+PREFIX=/usr
+
+ifeq (3,$(GTKVERSION))
+INSTALLSUFFIX=3
+endif
+
+ifeq (0,$(GLOBAL))
+	LOCALEFOLDER=${HOME}/.KKEdit${INSTALLSUFFIX}/plugins-${PLATFORM}/locale
+	INSTALLFOLDER=${HOME}/.KKEdit${INSTALLSUFFIX}/plugins-${PLATFORM}
+else
+	LOCALEFOLDER=$(PREFIX)/share/locale
+	INSTALLFOLDER=$(PREFIX)/share/KKEdit${INSTALLSUFFIX}/plugins-${PLATFORM}
+endif
+
+ifeq (1,$(DEVELOP))
+	DEVMODE=-D_DEVMODE_
+endif
+
+ifeq (3,$(GTKVERSION))
+	USEGTK3=-D_USEGTK3_
+endif
 
 all:
-	gcc ${EXTRAMAKEFLAGS} -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs ${PLATFORM}+-${GTKVERSION} gmodule-2.0 glib-2.0 gtksourceview-${GTKVERSION}` -DLOCALEDIR=\"${LOCALEDIR}\" -o ${PLUGNAME}.o
+	gcc ${EXTRAMAKEFLAGS} -fPIC -Wall -g -c ${PLUGNAME}.cpp `pkg-config --cflags --libs ${PLATFORM}+-${GTKVERSION}.0 gmodule-2.0 glib-2.0 gtksourceview-${GTKVERSION}.0` -DLOCALEDIR=\"${LOCALEFOLDER}\" $(DEVMODE) $(USEGTK3) -DGTK_DISABLE_SINGLE_INCLUDES -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DGSEAL_ENABLE -o ${PLUGNAME}.o
 	gcc -shared -Wl,--version-script=exportmap,-soname,${PLUGNAME}.so -o lib${PLUGNAME}.so ${PLUGNAME}.o -lc
 
 clean: distclean
@@ -19,18 +40,12 @@ distclean:
 	rm ${PLUGNAME}.o||true
 
 install:
-	if [ ${USER} = "root" ];then \
-		cp -rv lib${PLUGNAME}.so "${ROOTINSTALLDIR}";cd po;cp -rv . ${LOCALEDIR}; \
-	else \
-		cp -rv lib${PLUGNAME}.so "${USERINSTALLDIR}";cd po;cp -rv . ${LOCALEDIR}; \
-	fi
+		mkdir -vp $(DESTDIR)${INSTALLFOLDER} $(DESTDIR)$(LOCALEFOLDER) || true
+		cp -v lib${PLUGNAME}.so $(DESTDIR)$(INSTALLFOLDER)
+		cd po;cp -rv . $(DESTDIR)$(LOCALEFOLDER)
 
 uninstall:
-	if [ ${USER} = "root" ];then \
-		rm -rv "${ROOTINSTALLDIR}/lib${PLUGNAME}.so" ${LOCALEDIR}/*/LC_MESSAGES/${MONAME}; \
-	else \
-		rm -rv "${USERINSTALLDIR}/lib${PLUGNAME}.so" ${LOCALEDIR}/*/LC_MESSAGES/${MONAME}; \
-	fi
+	rm -rv $(DESTDIR)$(INSTALLFOLDER)/lib${PLUGNAME}.so $(DESTDIR)$(LOCALEFOLDER)/*/LC_MESSAGES/${MONAME}
 
-makepkg:
-	cd .. && tar -cvhzf ${PACKAGENAME}.tar.gz ${PACKAGENAME}
+makepkg: clean
+	cd .. && tar -cvzhf ${PACKAGENAME}.tar.gz ${PACKAGENAME}

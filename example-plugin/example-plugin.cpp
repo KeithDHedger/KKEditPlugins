@@ -28,11 +28,12 @@
 #include <libintl.h>
 #include <locale.h>
 
-#include "kkedit-plugins.h"
+#include "../common.h"
+#include <kkedit-plugins.h>
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://kkedit.darktech.org"
-#define VERSION "1.0.1"
+#define VERSION "0.3.0"
 #define TEXTDOMAIN "example-plugin"
 
 int	(*module_plug_function)(gpointer globaldata);
@@ -127,15 +128,16 @@ extern "C" int addToGui(gpointer data)
 	printf("Adding to GUI from example-plugin\n");
 
 	menu=gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuHelp);
-	examplemenu=gtk_image_menu_item_new_from_stock(GTK_STOCK_HELP,NULL);
+	examplemenu=createNewStockMenuItem(GTK_STOCK_NEW,GTK_STOCK_NEW);
 	gtk_menu_item_set_label((GtkMenuItem*)examplemenu,gettext("Plugin Help"));
-	gtk_signal_connect(GTK_OBJECT(examplemenu),"activate",G_CALLBACK(openPlugHelp),plugdata);
+	g_signal_connect(G_OBJECT(examplemenu),"activate",G_CALLBACK(openPlugHelp),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu),examplemenu);
+	gtk_widget_show(examplemenu);
 
 	leftButton=gtk_button_new_with_label(gettext("left side button\nat top"));
 	gtk_box_pack_start(GTK_BOX(plugdata->leftUserBox),leftButton,false,false,0);
 	gtk_widget_set_name(leftButton,gettext("echo Left Button Clicked"));
-	gtk_signal_connect(GTK_OBJECT(leftButton),"clicked",G_CALLBACK(clickButton),plugdata);
+	g_signal_connect(G_OBJECT(leftButton),"clicked",G_CALLBACK(clickButton),plugdata);
 
 	showSide(true);
 	gtk_widget_show(leftButton);
@@ -143,7 +145,7 @@ extern "C" int addToGui(gpointer data)
 	rightButton=gtk_button_new_with_label(gettext("right side button\nat bottom"));
 	gtk_box_pack_end(GTK_BOX(plugdata->rightUserBox),rightButton,false,false,0);
 	gtk_widget_set_name(rightButton,gettext("echo Right Button Clicked"));
-	gtk_signal_connect(GTK_OBJECT(rightButton),"clicked",G_CALLBACK(clickButton),plugdata);
+	g_signal_connect(G_OBJECT(rightButton),"clicked",G_CALLBACK(clickButton),plugdata);
 
 	showSide(false);
 	gtk_widget_show(rightButton);

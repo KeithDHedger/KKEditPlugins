@@ -26,6 +26,7 @@
 #define GTK_STOCK_APPLY gettext("Apply")
 #define GTK_STOCK_CANCEL gettext("Cancel")
 #define GTK_STOCK_NEW gettext("New")
+#define GTK_STOCK_HELP gettext("Help")
 
 #endif
 

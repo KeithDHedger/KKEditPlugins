@@ -1,0 +1,38 @@
+To compile the plugins, first you need to install KKEdit ( obviously ).
+
+To compile for gtk2 for the current user run:
+./makeall
+./makeall install
+
+This will install ALL the plugins for the current user into ~/.KKEdit/plugins-gtk, to install individual plugins cd into the relevent folder and run:
+make
+make install.
+
+To compile for gtk2 for the users run:
+./makeall GLOBAL=1
+sudo ./makeall install GLOBAL=1
+
+This will install ALL the plugins for ALL users into PREFIX/share/KKEdit/plugins-gtk, to install individual plugins cd into the relevent folder and run:
+make GLOBAL=1
+sudo make install GLOBAL=1
+
+To compile for gtk3 for the current user run:
+./makeall GTKVERSION=3
+./makeall install GTKVERSION=3
+
+This will install ALL the plugins for the current user into ~/.KKEdit3/plugins-gtk, to install individual plugins cd into the relevent folder and run:
+make GTKVERSION=3
+make install GTKVERSION=3.
+
+To compile for gtk3 for the users Run:
+./makeall GLOBAL=1 GTKVERSION=3
+sudo ./makeall install GLOBAL=1 GTKVERSION=3
+
+This will install ALL the plugins ALL users into PREFIX/share/KKEdit3/plugins-gtk, to install individual plugins cd into the relevent folder and run:
+make GLOBAL=1 GTKVERSION=3
+sudo make install GLOBAL=1 GTKVERSION=3
+
+PREFIX defaults to /usr, you can also used a staged install by setting DESTDIR as normal eg:
+make GLOBAL=1 PREFIX=/opt install DESTDIR=/tmp/xxx
+
+Certain plugins need extra dependencies eg the terminal pane needs vte for gtk2 and vte-2.91 for gtk3, you should consult your distros package manager and/or forums on how to install dependencies.

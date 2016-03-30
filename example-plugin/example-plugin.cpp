@@ -97,10 +97,10 @@ extern "C" const gchar* g_module_check_init(GModule *module)
 }
 
 //run when module unloaded, not really a lot of use.
-extern "C" const gchar* g_module_unload(GModule *module)
+extern "C" void g_module_unload(GModule *module)
 {
 	perror("doin cleanup");
-	return(NULL);
+	return;
 }
 
 //callback for the two buttons added by the demo

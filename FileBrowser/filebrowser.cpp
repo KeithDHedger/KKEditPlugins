@@ -34,11 +34,12 @@
 #include <libintl.h>
 #include <locale.h>
 
+#include "../common.h"
 #include <kkedit-plugins.h>
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://kkedit.darktech.org"
-#define VERSION "0.0.8"
+#define VERSION "0.3.0"
 #define NUM_COLUMNS 3
 #define COLUMN_FILENAME 1
 #define COLUMN_PATHNAME 2
@@ -114,8 +115,8 @@ extern "C" int plugPrefs(gpointer data)
 	GtkWidget*	showinvis;
 	GtkWidget*	vbox;
 	int			response;
-	vbox=gtk_vbox_new(false,0);
 
+	vbox=creatNewBox(NEWVBOX,false,0);
 	setTextDomain(true,plugdata);
 
 	dialog=gtk_dialog_new_with_buttons(gettext("File Browser Plug In Prefs"),NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
@@ -280,31 +281,6 @@ void collapseRow(GtkTreeView* treeview,GtkTreeIter* iter,GtkTreePath* path,gpoin
 	debugFree(&pathstring);
 }
 
-void onColWidthChange(GObject* gobject,GParamSpec* pspec,gpointer data)
-{
-	gint			intval;
-	GtkRequisition	requisition;
-	GtkWidget*		vbar=gtk_scrolled_window_get_vscrollbar((GtkScrolledWindow *)scrollbox);
-
-	g_object_get(data,"width",&intval,NULL);
-	gtk_widget_size_request(vbar,&requisition);
-
-	if(flag==true)
-		{
-			if(colflag==false)
-				{
-					colsize=intval+requisition.width;
-					colflag=true;
-					return;
-				}
-			colsize=colsize+intval;
-			colflag=false;
-			gtk_widget_set_size_request((GtkWidget*)leftBox,colsize,-1);
-		}
-	else
-		gtk_widget_set_size_request((GtkWidget*)leftBox,100,-1);
-}
-
 const char* getApp(char* name)
 {
 	GFile*		file=g_file_new_for_path(name);
@@ -318,14 +294,23 @@ const char* getApp(char* name)
 
 void onRowActivated(GtkTreeView* treeview, GtkTreePath* path,GtkTreeViewColumn* col,gpointer userdata)
 {
-	GtkTreeModel*	model;
-	GtkTreeIter		iter;
-	gchar*			name;
-	char*			command;
-	GdkModifierType	mask;
-	const char*		app;
+	GtkTreeModel		*model;
+	GtkTreeIter			iter;
+	gchar				*name;
+	char				*command;
+	GdkModifierType		mask;
+	const char			*app;
 
+#ifdef _USEGTK3_
+	GdkDeviceManager	*device_manager=gdk_display_get_device_manager(gdk_display_get_default());
+	GdkDevice			*device=gdk_device_manager_get_client_pointer(device_manager);
+	GdkWindow			*window;
+
+	window=gdk_screen_get_active_window (gdk_screen_get_default());
+	gdk_window_get_device_position(window,device,NULL,NULL,&mask);
+#else
 	gdk_window_get_pointer(NULL,NULL,NULL,&mask);
+#endif
 
 	model=gtk_tree_view_get_model(treeview);
 
@@ -475,35 +460,30 @@ extern "C" void doTabMenu(GtkWidget *widget,gpointer data)
 extern "C" int addToTab(gpointer data)
 {
 	GtkWidget*	menuitem;
-	GtkWidget*	image;
 	plugData*	plugdata=(plugData*)data;
 
 	setTextDomain(true,plugdata);
 
-	menuitem=gtk_image_menu_item_new_with_label(gettext("Open In Browser"));
-	image=gtk_image_new_from_stock(GTK_STOCK_OPEN,GTK_ICON_SIZE_MENU);
-	gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
+	menuitem=createNewImageMenuItem(GTK_STOCK_OPEN,gettext("Open In Browser"));
 	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->tabPopUpMenu),menuitem);
-	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(doTabMenu),(void*)plugdata);
+	g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(doTabMenu),(void*)plugdata);
 
 	setTextDomain(false,plugdata);
 	return(0);
 }
 
-//extern "C" int addToContext(gpointer data)
-//{
-//	GtkWidget*	menuitem;
-//	GtkWidget*	image;
-//	plugData*	plugdata=(plugData*)data;
-//
-//	menuitem=gtk_image_menu_item_new_with_label("Open In Browser");
-//	image=gtk_image_new_from_stock(GTK_STOCK_OPEN,GTK_ICON_SIZE_MENU);
-//	gtk_image_menu_item_set_image((GtkImageMenuItem *)menuitem,image);
-//	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->contextPopUpMenu),menuitem);
-//	gtk_signal_connect(GTK_OBJECT(menuitem),"activate",G_CALLBACK(doTabMenu),(void*)plugdata);
-//
-//	return(0);
-//}
+extern "C" int addToContext(gpointer data)
+{
+	GtkWidget*	menuitem;
+	plugData*	plugdata=(plugData*)data;
+
+	menuitem=createNewImageMenuItem(GTK_STOCK_OPEN,gettext("Open In Browser"));
+	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->contextPopUpMenu),menuitem);
+	g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(doTabMenu),(void*)plugdata);
+
+	setTextDomain(false,plugdata);
+	return(0);
+}
 
 extern "C" int addToGui(gpointer data)
 {
@@ -518,7 +498,7 @@ extern "C" int addToGui(gpointer data)
 
 	menu=gtk_menu_item_get_submenu((GtkMenuItem*)plugdata->mlist.menuView);
 	hideMenu=gtk_menu_item_new_with_label(gettext("Hide Browser"));
-	gtk_signal_connect(GTK_OBJECT(hideMenu),"activate",G_CALLBACK(toggleBrowser),plugdata);
+	g_signal_connect(G_OBJECT(hideMenu),"activate",G_CALLBACK(toggleBrowser),plugdata);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu),hideMenu);
 	gtk_widget_show_all(plugdata->mlist.menuView);
 
@@ -528,20 +508,21 @@ extern "C" int addToGui(gpointer data)
 	treeview=gtk_tree_view_new_with_model(model);
 	gtk_tree_view_set_enable_tree_lines((GtkTreeView*)treeview,true);
 	scrollbox=gtk_scrolled_window_new(NULL,NULL);
-	gtk_scrolled_window_set_policy((GtkScrolledWindow*)scrollbox,GTK_POLICY_NEVER,GTK_POLICY_AUTOMATIC);
+	gtk_scrolled_window_set_policy((GtkScrolledWindow*)scrollbox,GTK_POLICY_AUTOMATIC,GTK_POLICY_AUTOMATIC);
 
 	gtk_container_add(GTK_CONTAINER(scrollbox),(GtkWidget*)treeview);
-	gtk_container_add(GTK_CONTAINER(plugdata->leftUserBox),(GtkWidget*)scrollbox);
+	gtk_box_pack_start((GtkBox*)plugdata->leftUserBox,scrollbox,true,true,0);
+	gtk_widget_show_all(plugdata->leftUserBox);
+	gtk_widget_set_size_request((GtkWidget*)scrollbox,100,-1);
 
 //pixbuf
 	renderer=gtk_cell_renderer_pixbuf_new();
 	column=gtk_tree_view_column_new_with_attributes("path",renderer,"pixbuf",COLUMN_PIXBUF,NULL);
-	gtk_tree_view_column_set_resizable(column,true);
+	gtk_tree_view_column_set_resizable(column,false);
 	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column((GtkTreeView*)treeview,column);
 	gtk_tree_view_column_set_spacing(column,0);
 	gtk_tree_view_column_set_expand(column,false);
-	g_signal_connect((GtkWidget*)column,"notify::width",G_CALLBACK(onColWidthChange),column);
 
 //colom file
 	renderer=gtk_cell_renderer_text_new();
@@ -550,8 +531,7 @@ extern "C" int addToGui(gpointer data)
 	gtk_tree_view_column_set_sizing(column,GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column((GtkTreeView*)treeview,column);
 	gtk_tree_view_column_set_expand(column,true);
-	gtk_tree_view_column_set_spacing    (column,0);
-	g_signal_connect((GtkWidget*)column,"notify::width",G_CALLBACK(onColWidthChange),column);
+	gtk_tree_view_column_set_spacing(column,0);
 
 	gtk_tree_view_set_headers_visible((GtkTreeView*)treeview,false);
 

@@ -83,7 +83,7 @@ void setTextDomain(bool plugdomain,plugData* pdata)
 		}
 }
 
-extern "C" const gchar* g_module_unload(GModule *module)
+extern "C" void g_module_unload(GModule *module)
 {
 	for(int j=0;j<MAXCLIPS;j++)
 		{
@@ -91,7 +91,7 @@ extern "C" const gchar* g_module_unload(GModule *module)
 				free(clip[j].text);
 		}
 	g_signal_handler_disconnect(mainClipboard,clipid);
-	return(NULL);
+	return;
 }
 
 void setCurrentClip(void)

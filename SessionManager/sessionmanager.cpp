@@ -126,11 +126,11 @@ extern "C" const gchar* g_module_check_init(GModule *module)
 	return(NULL);
 }
 
-extern "C" const gchar* g_module_unload(GModule *module)
+extern "C" void g_module_unload(GModule *module)
 {
 	for(int j=0; j<MAXSESSIONS; j++)
 		free(sessionNames[j]);
-	return(NULL);
+	return;
 }
 
 char* getNewSessionName(int sessionnumber,plugData* plugdata)

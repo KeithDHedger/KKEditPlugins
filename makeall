@@ -1,11 +1,15 @@
 #!/bin/bash -e
 
-export GTKVERSION=${GTKVERSION:-2}
-export EXTRAMAKEFLAGS=${EXTRAMAKEFLAGS:-" -Wfatal-errors "}
+#set these variable's if you want, see the readme.
+#export GTKVERSION=${GTKVERSION:-2}
+#export EXTRAMAKEFLAGS=${EXTRAMAKEFLAGS:-" -Wfatal-errors "}
+#export GLOBAL=0
+
+#useage ./makeall [clean|install]
 
 find -maxdepth 2 -name Makefile|while read
 	do
 		pushd "$(dirname $REPLY)"
-			make ${1}
+			make ${@}
 		popd
 	done

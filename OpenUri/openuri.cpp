@@ -64,9 +64,9 @@ extern "C" const gchar* g_module_check_init(GModule *module)
 	return(NULL);
 }
 
-extern "C" const gchar* g_module_unload(GModule *module)
+extern "C" void g_module_unload(GModule *module)
 {
-	return(NULL);
+	return;
 }
 
 void theCallBack(GtkWidget* widget,gpointer data)

@@ -18,7 +18,6 @@
  * along with KKEditPlugins.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include <stdlib.h>
 #include <glib.h>
 #include <gtk/gtk.h>
@@ -33,6 +32,7 @@
 #include <libintl.h>
 #include <locale.h>
 
+#include "../common.h"
 #include <kkedit-plugins.h>
 
 #define MYEMAIL "kdhedger68713@gmail.com"
@@ -161,12 +161,12 @@ void saveRemoteData(void)
 	free(command);
 }
 
-extern "C" const gchar* g_module_unload(GModule *module)
+extern "C" void g_module_unload(GModule *module)
 {
 	if(pathToAskPass!=NULL)
 		free(pathToAskPass);
 	saveRemoteData();
-	return(NULL);
+	return;
 }
 
 void doMessage(char* message,GtkMessageType type)

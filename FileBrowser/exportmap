@@ -6,6 +6,7 @@ global:	addToGui;
 		switchTab;
 		plugPrefs;
 		addToTab;
+		addToContext;
 		doTabMenu;
 		g_module_check_init;
 

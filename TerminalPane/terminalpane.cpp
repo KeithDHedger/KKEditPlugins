@@ -52,6 +52,8 @@ GtkWidget*	terminal=NULL;
 GtkWidget*	hideMenu=NULL;
 bool		showing=false;
 GtkWidget*	swindow;
+//GtkWidget	*termVBox=NULL;
+
 char*		foreColour=strdup("#000000");
 char*		backColour=strdup("#ffffff");
 int			childPid=-999;
@@ -98,12 +100,9 @@ extern "C" const gchar* g_module_check_init(GModule *module)
 	return(NULL);
 }
 
-extern "C" const gchar* g_module_unload(GModule *module)
+extern "C" void g_module_unload(GModule *module)
 {
-	gtk_widget_hide(swindow);
-	gtk_widget_destroy(swindow);
-	gtk_widget_destroy(contextMenu);
-	return(NULL);
+	return;
 }
 
 void doStartUpCheck(plugData* pdata)

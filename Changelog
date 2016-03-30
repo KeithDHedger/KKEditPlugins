@@ -1,4 +1,7 @@
 All
+Added build instructions to README.
+Fixed occasional segfault when unloading plugs.
+FileBrowser plugin now gtk2/3.
 OpenUri plugin now gtk2/3.
 TerminalPane plugin now gtk2/3.
 SessionManager plugin now gtk2/3.
@@ -61,6 +64,14 @@ Fixed Makefile
 First commit.
 
 FileBrowser
+0.3.0
+Added "open In Browser" to context menu in document.
+Removed annoying auto expand of browser pane.
+FileBrowser plugin now gtk2/3.
+Changed deprecated gtk_signal_connect to g_signal_connect.
+Changed deprecated GTK_OBJECT etc to G_OBJECT.
+New Makefile.
+
 0.0.8
 Fixed locale folder being set properly in makefile
 Fixed makefile.
@@ -158,6 +169,7 @@ First commit.
 
 TerminalPane
 0.3.0
+Fixed unload crash when quitting.
 TerminalPane plugin now gtk2/3.
 Changed deprecated gtk_signal_connect to g_signal_connect.
 Changed deprecated GTK_OBJECT etc to G_OBJECT.

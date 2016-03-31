@@ -161,7 +161,7 @@ void newProject(GtkWidget* widget,gpointer data)
 		makesvn=false;
 
 	name=gtk_widget_get_name(widget);
-	vbox=creatNewBox(NEWVBOX,false,0);
+	vbox=createNewBox(NEWVBOX,false,0);
 
 	dialog=gtk_dialog_new_with_buttons("New Project",NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
 	gtk_window_set_default_size((GtkWindow*)dialog,300,120);
@@ -329,7 +329,7 @@ extern "C" int plugPrefs(gpointer data)
 	char*		prefspath;
 
 	setTextDomain(true,plugdata);
-	vbox=creatNewBox(NEWVBOX,false,0);
+	vbox=createNewBox(NEWVBOX,false,0);
 
 	dialog=gtk_dialog_new_with_buttons(gettext("KKEdit Project Plugin Prefs"),NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
 	gtk_window_set_default_size((GtkWindow*)dialog,300,120);

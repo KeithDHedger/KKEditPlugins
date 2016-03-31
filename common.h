@@ -28,6 +28,8 @@
 #define GTK_STOCK_NEW gettext("New")
 #define GTK_STOCK_HELP gettext("Help")
 #define GTK_STOCK_OPEN gettext("Open")
+#define GTK_STOCK_CONNECT gettext("Connect")
+#define GTK_STOCK_OK gettext("OK")
 
 #define GDK_C GDK_KEY_C
 #define GDK_V GDK_KEY_V
@@ -35,7 +37,7 @@
 #endif
 
 enum {NEWVBOX=0,NEWHBOX};
-GtkWidget* creatNewBox(int orient,bool homog,int spacing)
+GtkWidget* createNewBox(int orient,bool homog,int spacing)
 {
 	GtkWidget	*retwidg=NULL;
 

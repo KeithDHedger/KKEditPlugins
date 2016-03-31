@@ -1,4 +1,5 @@
 All
+RemoteEdit plugin now gtk2/3.
 Added build instructions to README.
 Fixed occasional segfault when unloading plugs.
 FileBrowser plugin now gtk2/3.
@@ -17,8 +18,8 @@ Updated licence preamble in source files.
 OpenUri
 0.3.0
 OpenUri plugin now gtk2/3.
-Changed deprecated gtk_signal_connect to g_signal_connect.
-Changed deprecated GTK_OBJECT etc to G_OBJECT.
+Changed deprecated g_signal_connect to g_signal_connect.
+Changed deprecated G_OBJECT etc to G_OBJECT.
 New Makefile.
 
 0.0.3
@@ -30,8 +31,8 @@ Now uses plugins-gtk/plugins-qt depending on the PLATFORM variable in the makefi
 ClipboardPlugin
 0.3.0
 Clipboard plugin now gtk2/3.
-Changed deprecated gtk_signal_connect to g_signal_connect.
-Changed deprecated GTK_OBJECT etc to G_OBJECT.
+Changed deprecated g_signal_connect to g_signal_connect.
+Changed deprecated G_OBJECT etc to G_OBJECT.
 New Makefile.
 
 0.0.3
@@ -48,8 +49,8 @@ First commit.
 example-plugin
 0.3.0
 example-plugin now gtk2/3.
-Changed deprecated gtk_signal_connect to g_signal_connect.
-Changed deprecated GTK_OBJECT etc to G_OBJECT.
+Changed deprecated g_signal_connect to g_signal_connect.
+Changed deprecated G_OBJECT etc to G_OBJECT.
 New Makefile.
 
 0.0.3-1.0.1
@@ -68,8 +69,8 @@ FileBrowser
 Added "open In Browser" to context menu in document.
 Removed annoying auto expand of browser pane.
 FileBrowser plugin now gtk2/3.
-Changed deprecated gtk_signal_connect to g_signal_connect.
-Changed deprecated GTK_OBJECT etc to G_OBJECT.
+Changed deprecated g_signal_connect to g_signal_connect.
+Changed deprecated G_OBJECT etc to G_OBJECT.
 New Makefile.
 
 0.0.8
@@ -93,8 +94,8 @@ First launch of browser plugin.
 NewProject
 0.3.0
 NewProject plugin now gtk2/3.
-Changed deprecated gtk_signal_connect to g_signal_connect.
-Changed deprecated GTK_OBJECT etc to G_OBJECT.
+Changed deprecated g_signal_connect to g_signal_connect.
+Changed deprecated G_OBJECT etc to G_OBJECT.
 New Makefile.
 
 0.0.7-0.0.8
@@ -117,6 +118,12 @@ Added French translations.
 1st commit
 
 RemoteEdit
+0.3.0
+RemoteEdit plugin now gtk2/3.
+Changed deprecated g_signal_connect to g_signal_connect.
+Changed deprecated G_OBJECT etc to G_OBJECT.
+New Makefile.
+
 0.0.4
 Fixed setting file prefs.
 0.0.3
@@ -144,8 +151,8 @@ Session files now stored in the plugins-gtk folder.
 Removed redundant mkdir for .KKEdit(3) folder.
 Use plugin folder path instead of hard coded path.
 SessionManager plugin now gtk2/3.
-Changed deprecated gtk_signal_connect to g_signal_connect.
-Changed deprecated GTK_OBJECT etc to G_OBJECT.
+Changed deprecated g_signal_connect to g_signal_connect.
+Changed deprecated G_OBJECT etc to G_OBJECT.
 New Makefile.
 
 0.0.5
@@ -171,8 +178,8 @@ TerminalPane
 0.3.0
 Fixed unload crash when quitting.
 TerminalPane plugin now gtk2/3.
-Changed deprecated gtk_signal_connect to g_signal_connect.
-Changed deprecated GTK_OBJECT etc to G_OBJECT.
+Changed deprecated g_signal_connect to g_signal_connect.
+Changed deprecated G_OBJECT etc to G_OBJECT.
 New Makefile.
 
 0.0.3

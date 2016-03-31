@@ -11,6 +11,8 @@
 #include <libintl.h>
 #include <locale.h>
 
+#include "../common.h"
+
 #define TEXTDOMAIN "RemoteEdit"
 
 GtkWidget*	dialog;

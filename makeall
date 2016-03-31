@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 
 #set these variable's if you want, see the readme.
 #export GTKVERSION=${GTKVERSION:-2}

@@ -336,7 +336,7 @@ extern "C" int plugPrefs(gpointer data)
 	plugData*	plugdata=(plugData*)data;
 
 	setTextDomain(true,plugdata);
-	vbox=creatNewBox(NEWVBOX,false,0);
+	vbox=createNewBox(NEWVBOX,false,0);
 	dialog=gtk_dialog_new_with_buttons(gettext("Terminal Pane"),NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
 	gtk_window_set_default_size((GtkWindow*)dialog,300,120);
 	dialogbox=gtk_dialog_get_content_area((GtkDialog*)dialog);

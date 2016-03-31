@@ -116,7 +116,7 @@ extern "C" int plugPrefs(gpointer data)
 	GtkWidget*	vbox;
 	int			response;
 
-	vbox=creatNewBox(NEWVBOX,false,0);
+	vbox=createNewBox(NEWVBOX,false,0);
 	setTextDomain(true,plugdata);
 
 	dialog=gtk_dialog_new_with_buttons(gettext("File Browser Plug In Prefs"),NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
@@ -512,6 +512,7 @@ extern "C" int addToGui(gpointer data)
 
 	gtk_container_add(GTK_CONTAINER(scrollbox),(GtkWidget*)treeview);
 	gtk_box_pack_start((GtkBox*)plugdata->leftUserBox,scrollbox,true,true,0);
+
 	gtk_widget_show_all(plugdata->leftUserBox);
 	gtk_widget_set_size_request((GtkWidget*)scrollbox,100,-1);
 

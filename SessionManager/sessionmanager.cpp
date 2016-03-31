@@ -142,7 +142,7 @@ char* getNewSessionName(int sessionnumber,plugData* plugdata)
 	int			response;
 	char*		command;
 
-	vbox=creatNewBox(NEWVBOX,false,0);
+	vbox=createNewBox(NEWVBOX,false,0);
 
 	setTextDomain(true,plugdata);
 	dialog=gtk_dialog_new_with_buttons(gettext("Session Manager"),NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);

@@ -31,16 +31,12 @@
 #include <libintl.h>
 #include <locale.h>
 
-//#ifdef _USEGTK3_
-//#ifdef _DEVMODE_
-//#include "../../KKEdit/gtk-kkedit/KKEdit/src/kkedit-includes.h"
-//#else
-//#include <kkedit-includes.h>
-//#endif
-//#endif
-
 #include "../common.h"
+#ifdef _DEVMODE_
+#include "../../KKEdit/gtk-kkedit/KKEdit/src/kkedit-plugins.h"
+#else
 #include <kkedit-plugins.h>
+#endif
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://kkedit.darktech.org"

@@ -12,6 +12,11 @@
 #include <locale.h>
 
 #include "../common.h"
+#ifdef _DEVMODE_
+#include "../../KKEdit/gtk-kkedit/KKEdit/src/kkedit-plugins.h"
+#else
+#include <kkedit-plugins.h>
+#endif
 
 #define TEXTDOMAIN "RemoteEdit"
 

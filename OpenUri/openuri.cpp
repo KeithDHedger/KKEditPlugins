@@ -39,8 +39,8 @@
 #define VERSION "0.3.0"
 #define TEXTDOMAIN "OpenUri"
 
-GtkWidget*	menuPlug;
-char*		currentdomain=NULL;
+GtkWidget	*menuPlug;
+char		*currentdomain=NULL;
 
 int	(*module_plug_function)(gpointer globaldata);
 
@@ -95,15 +95,25 @@ void theCallBack(GtkWidget* widget,gpointer data)
 		}
 }
 
+extern "C" int setSensitive(gpointer data)
+{
+	plugData*	plugdata=(plugData*)data;
+	bool hasselection;
+
+	hasselection=gtk_text_buffer_get_has_selection((GtkTextBuffer*)plugdata->page->buffer);
+	gtk_widget_set_sensitive(menuPlug,hasselection);
+	return(0);
+}
+
 extern "C" int addToContext(gpointer data)
 {
-	GtkWidget*	menuitem;
+	GtkWidget	*openMenu;
 	plugData*	plugdata=(plugData*)data;
 
 	setTextDomain(true,plugdata);
-	menuitem=createNewImageMenuItem(GTK_STOCK_OPEN,gettext("Open Selection"));
-	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->contextPopUpMenu),menuitem);
-	g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(theCallBack),(void*)plugdata);
+	openMenu=createNewImageMenuItem(GTK_STOCK_OPEN,gettext("Open Selection"));
+	gtk_menu_shell_append(GTK_MENU_SHELL(plugdata->contextPopUpMenu),openMenu);
+	g_signal_connect(G_OBJECT(openMenu),"activate",G_CALLBACK(theCallBack),(void*)plugdata);
 
 	setTextDomain(false,plugdata);
 	return(0);
@@ -122,6 +132,7 @@ extern "C" int addToGui(gpointer data)
 			menuPlug=createNewImageMenuItem(GTK_STOCK_OPEN,gettext("Open Selection"));
 			g_signal_connect(G_OBJECT(menuPlug),"activate",G_CALLBACK(theCallBack),plugdata);
 			gtk_menu_shell_append(GTK_MENU_SHELL(submenu),menuPlug);
+			gtk_widget_set_sensitive(menuPlug,false);
 		}
 	setTextDomain(false,plugdata);
 	return(0);
@@ -172,13 +183,15 @@ extern "C" int enablePlug(gpointer data)
 	if(plugdata->modData->unload==true)
 		{
 			gtk_widget_destroy(menuPlug);
-			gtk_widget_show_all(plugdata->mlist.menuBar);	
+			//gtk_widget_show_all(plugdata->mlist.menuBar);
+			gtk_widget_show_all(plugdata->mlist.menuNav);
 		}
 	else
 		{
 			if(g_module_symbol(plugdata->modData->module,"addToGui",(gpointer*)&module_plug_function))
 				module_plug_function(data);
-			gtk_widget_show_all(plugdata->mlist.menuBar);
+			//gtk_widget_show_all(plugdata->mlist.menuBar);
+			gtk_widget_show_all(plugdata->mlist.menuNav);
 		}
 	return(0);
 }

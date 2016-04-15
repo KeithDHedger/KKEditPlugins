@@ -1,5 +1,7 @@
 #!/bin/bash
 
+rm -rf packages||true
+mkdir packages||true
 
 find -maxdepth 2 -name Makefile|while read
 	do
@@ -7,4 +9,5 @@ find -maxdepth 2 -name Makefile|while read
 			make clean
 			make makepkg
 		popd
+		mv *.tar.gz packages
 	done

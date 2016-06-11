@@ -36,7 +36,13 @@
 
 #endif
 
+#define MYEMAIL "keithhedger@keithhedger.darktech.org"
+#define MYWEBSITE "http://kkedit.darktech.org"
+
 enum {NEWVBOX=0,NEWHBOX};
+
+const char	*authors[]={"K.D.Hedger <" MYEMAIL ">",MYWEBSITE,gettext("\nMore by the same author\n"),"Xfce-Theme-Manager\nhttp://khapplications.darktech.org/pages/apps.html#themeed\n","Xfce4-Composite-Editor\nhttp://khapplications.darktech.org/pages/apps.html#xfcecomp\n","Manpage Editor\nhttp://gtk-apps.org/content/show.php?content=160219\n","GtkSu\nhttp://gtk-apps.org/content/show.php?content=158974\n","ASpell GUI\nhttp://gtk-apps.org/content/show.php/?content=161353\n","Clipboard Viewer\nhttp://gtk-apps.org/content/show.php/?content=121667",NULL};
+
 GtkWidget* createNewBox(int orient,bool homog,int spacing)
 {
 	GtkWidget	*retwidg=NULL;

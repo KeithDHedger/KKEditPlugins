@@ -67,7 +67,7 @@ bool		syncSave=false;
 GList*		remoteSaves=NULL;
 char*		currentdomain=NULL;
 plugData*	globalPData=NULL;
-extern void setWidgets(void);
+//extern void setWidgets(void);
 
 void setTextDomain(bool plugdomain,plugData* pdata)
 {
@@ -162,19 +162,17 @@ void doRemote(GtkWidget* widget,gpointer data)
 	setTextDomain(true,globalPData);
 	if(strcasecmp(gtk_widget_get_name(widget),"openremote")==0)
 		{
-			if(pathToAskPass==NULL)
-				asprintf(&command,"PS1=\"\" xterm -geometry 50x1 -e scp %s@%s %s",((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath,((remoteFiles*)data)->localFilePath);
-			else	
-				{
-					asprintf(&command,"SSH_ASKPASS=%s %s scp %s@%s %s",pathToAskPass,pathToSetSid,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath,((remoteFiles*)data)->localFilePath);
-					exitstatus=system(command);
-					free(command);
-				}
+			if(strcmp(getenv("USER"),((remoteFiles*)data)->user)!=0)
+				asprintf(&command,"gtksu -- scp %s@%s %s",((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath,((remoteFiles*)data)->localFilePath);
+			else
+				asprintf(&command,"scp %s@%s %s",((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath,((remoteFiles*)data)->localFilePath);
+			exitstatus=system(command);
+			free(command);
+
 			if(WEXITSTATUS(exitstatus)==0)
 				{
 					((remoteFiles*)data)->saved=false;
 					openFile(((remoteFiles*)data)->localFilePath,0,true);
-					setWidgets();
 				}			
 			else
 				{
@@ -186,11 +184,10 @@ void doRemote(GtkWidget* widget,gpointer data)
 
 	if(strcasecmp(gtk_widget_get_name(widget),"save")==0)
 		{
-			if(pathToAskPass==NULL)
-				asprintf(&command,"PS1=\"\" xterm -geometry 50x1 -e scp %s %s@%s",((remoteFiles*)data)->localFilePath,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath);
+			if(strcmp(getenv("USER"),((remoteFiles*)data)->user)!=0)
+				asprintf(&command,"gtksu -- scp %s %s@%s",((remoteFiles*)data)->localFilePath,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath);
 			else
-				asprintf(&command,"SSH_ASKPASS=%s %s scp %s %s@%s",pathToAskPass,pathToSetSid,((remoteFiles*)data)->localFilePath,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath);
-
+				asprintf(&command,"scp %s %s@%s",((remoteFiles*)data)->localFilePath,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath);
 			exitstatus=system(command);
 			free(command);
 			if(WEXITSTATUS(exitstatus)==0)

@@ -109,6 +109,9 @@ Added auto open files from filelit in file 'filestoopen' in project archives.
 1st release
 
 OpenUri
+0.3.1
+Fixed new KKEdit calls.
+
 Fixed setting sensitive of menu if no selection.
 0.3.0 OpenUri plugin now gtk2/3.
 Changed deprecated g_signal_connect to g_signal_connect.

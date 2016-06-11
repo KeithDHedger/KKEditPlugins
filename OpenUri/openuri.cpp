@@ -36,7 +36,7 @@
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://kkedit.darktech.org"
-#define VERSION "0.3.0"
+#define VERSION "0.3.1"
 #define TEXTDOMAIN "OpenUri"
 
 GtkWidget	*menuPlug;
@@ -81,7 +81,7 @@ void theCallBack(GtkWidget* widget,gpointer data)
 	char*		text;
 	pageStruct*	page=NULL;
 
-	page=getPageStructPtr(-1);
+	page=getPageStructByIDFromPage(-1);
 	if(page==NULL)
 		return;
 

@@ -127,6 +127,10 @@ Added French translations.
 1st commit
 
 RemoteEdit
+0.3.1
+Updated to new KKEdit API's
+Now works with key file's only, more secure!
+
 0.3.0
 RemoteEdit plugin now gtk2/3.
 Changed deprecated g_signal_connect to g_signal_connect.

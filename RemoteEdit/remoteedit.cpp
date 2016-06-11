@@ -41,7 +41,7 @@
 
 #define MYEMAIL "kdhedger68713@gmail.com"
 #define MYWEBSITE "http://kkedit.darktech.org"
-#define VERSION "0.3.0"
+#define VERSION "0.3.1"
 #define TEXTDOMAIN "RemoteEdit"
 #define PLATFORM "gtk"
 
@@ -67,7 +67,14 @@ bool		syncSave=false;
 GList*		remoteSaves=NULL;
 char*		currentdomain=NULL;
 plugData*	globalPData=NULL;
-//extern void setWidgets(void);
+char		*adminCommand=NULL;
+
+args		mydata[]=
+				{
+					{"syncsave",TYPEBOOL,&syncSave},
+					{"admincommand",TYPESTRING,&adminCommand},
+					{NULL,0,NULL}
+				};
 
 void setTextDomain(bool plugdomain,plugData* pdata)
 {
@@ -91,27 +98,6 @@ extern "C" const gchar* g_module_check_init(GModule *module)
 {
 	currentdomain=strdup(textdomain(NULL));
 	return(NULL);
-}
-
-void touch(char* path)
-{
-	int	fd;
-
-	fd=open(path,O_WRONLY|O_CREAT,DEFFILEMODE);
-	if(fd!=-1)
-		close(fd);
-}
-
-void doSyncSave(plugData* pdata)
-{
-	char*	filepath;
-
-	asprintf(&filepath,"%s/remoteedit.sync",pdata->lPlugFolder);
-	if(syncSave==true)
-		touch(filepath);
-	else
-		unlink(filepath);
-	debugFree(&filepath);
 }
 
 void saveRemoteData(plugData *plugdata)
@@ -155,17 +141,28 @@ void doMessage(char* message,GtkMessageType type)
 
 void doRemote(GtkWidget* widget,gpointer data)
 {
-	char*	command;
+	char	*command;
 	int		exitstatus;
-	char*	messagedata;
+	char	*messagedata;
+	char	*scriptfile=NULL;
 
 	setTextDomain(true,globalPData);
 	if(strcasecmp(gtk_widget_get_name(widget),"openremote")==0)
 		{
 			if(strcmp(getenv("USER"),((remoteFiles*)data)->user)!=0)
-				asprintf(&command,"gtksu -- scp %s@%s %s",((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath,((remoteFiles*)data)->localFilePath);
+				{
+					asprintf(&scriptfile,"%s.scipt.sh",((remoteFiles*)data)->localFilePath);
+					asprintf(&command,"echo -e \"#!/bin/sh\\nscp %s@%s %s\\nchown %s %s\\n\" > \"%s\"",((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath,((remoteFiles*)data)->localFilePath,getenv("USER"),((remoteFiles*)data)->localFilePath,scriptfile);
+					system(command);
+					free(command);
+					chmod(scriptfile,S_IXUSR);
+					asprintf(&command,"%s %s",adminCommand,scriptfile);
+					free(scriptfile);
+				}
 			else
-				asprintf(&command,"scp %s@%s %s",((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath,((remoteFiles*)data)->localFilePath);
+				{
+					asprintf(&command,"scp %s@%s %s",((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath,((remoteFiles*)data)->localFilePath);
+				}
 			exitstatus=system(command);
 			free(command);
 
@@ -185,7 +182,7 @@ void doRemote(GtkWidget* widget,gpointer data)
 	if(strcasecmp(gtk_widget_get_name(widget),"save")==0)
 		{
 			if(strcmp(getenv("USER"),((remoteFiles*)data)->user)!=0)
-				asprintf(&command,"gtksu -- scp %s %s@%s",((remoteFiles*)data)->localFilePath,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath);
+				asprintf(&command,"%s scp %s %s@%s",adminCommand,((remoteFiles*)data)->localFilePath,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath);
 			else
 				asprintf(&command,"scp %s %s@%s",((remoteFiles*)data)->localFilePath,((remoteFiles*)data)->user,((remoteFiles*)data)->remoteFilePath);
 			exitstatus=system(command);
@@ -238,7 +235,6 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 	remoteFiles*	remote=NULL;
 	char*			tempdata=NULL;
 
-//	vbox=gtk_vbox_new(false,0);
 	vbox=createNewBox(NEWVBOX,false,0);
 
 	setTextDomain(true,plugdata);
@@ -276,8 +272,6 @@ void mountSSHFS(GtkWidget* widget,gpointer data)
 			remote->user=strdup(gtk_entry_get_text((GtkEntry*)user));
 			remote->saved=true;
 			asprintf(&tempdata,"%s@%s",remote->user,remote->remoteFilePath);
-			//remote->menuItem=createNewImageMenuItem(const char* stock,const char* label)
-			//remote->menuItem=gtk_image_menu_item_new_with_label(tempdata);
 			remote->menuItem=gtk_menu_item_new_with_label(tempdata);
 			free(tempdata);
 
@@ -317,7 +311,6 @@ void getPrefs(plugData *plugdata)
 	FILE*	fp;
 	char	line[1024];
 	char*	command;
-	char*	filepath;
 
 	currentdomain=strdup(textdomain(NULL));
 	asprintf(&command,"cat %s/remotedata",plugdata->lPlugFolder);
@@ -343,14 +336,6 @@ void getPrefs(plugData *plugdata)
 			pclose(fp);
 		}
 	free(command);
-
-	asprintf(&filepath,"%s/remoteedit.sync",plugdata->lPlugFolder);
-	if(g_file_test(filepath,G_FILE_TEST_EXISTS))
-		syncSave=true;
-	else
-		syncSave=false;
-	free(filepath);
-
 }
 
 extern "C" int addToGui(gpointer data)
@@ -358,6 +343,7 @@ extern "C" int addToGui(gpointer data)
 	GtkWidget*	menuitem;
 	GtkWidget*	menu;
 	struct stat sb;
+	char		*prefspath;
 
 	plugData*	plugdata=(plugData*)data;
 	globalPData=plugdata;
@@ -407,6 +393,12 @@ extern "C" int addToGui(gpointer data)
 				}
 		}
 
+	asprintf(&adminCommand,"%s","gtksu -- ");
+	syncSave=false;
+	asprintf(&prefspath,"%s/remoteedit.rc",plugdata->lPlugFolder);
+	loadVarsFromFile(prefspath,mydata);
+	free(prefspath);
+
 	setTextDomain(false,plugdata);
 	return(0);
 }
@@ -452,12 +444,14 @@ extern "C" int doAbout(gpointer data)
 
 extern "C" int plugPrefs(gpointer data)
 {
-	plugData*	plugdata=(plugData*)data;
-	GtkWidget*	dialog;
-	GtkWidget*	dialogbox;
-	GtkWidget*	showinvis;
-	GtkWidget*	vbox;
+	plugData	*plugdata=(plugData*)data;
+	GtkWidget	*dialog;
+	GtkWidget	*dialogbox;
+	GtkWidget	*showinvis;
+	GtkWidget	*vbox;
 	int			response;
+	GtkWidget	*admincom;
+	char		*prefspath=NULL;
 
 	vbox=createNewBox(NEWVBOX,false,0);
 
@@ -465,6 +459,11 @@ extern "C" int plugPrefs(gpointer data)
 	dialog=gtk_dialog_new_with_buttons(gettext("Remote Edit Plug In Prefs"),NULL,GTK_DIALOG_MODAL,GTK_STOCK_APPLY,GTK_RESPONSE_APPLY,GTK_STOCK_CANCEL,GTK_RESPONSE_CANCEL,NULL);
 	dialogbox=gtk_dialog_get_content_area((GtkDialog*)dialog);
 	gtk_container_add(GTK_CONTAINER(dialogbox),vbox);
+
+	admincom=gtk_entry_new();
+	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new(gettext("Graphical Admin Command")),true,true,4);
+	gtk_entry_set_text((GtkEntry*)admincom,adminCommand);
+	gtk_box_pack_start((GtkBox*)vbox,admincom,true,true,4);
 
 	showinvis=gtk_check_button_new_with_label(gettext("Save also exports file"));
 	gtk_toggle_button_set_active((GtkToggleButton*)showinvis,syncSave);
@@ -476,7 +475,12 @@ extern "C" int plugPrefs(gpointer data)
 	if(response==GTK_RESPONSE_APPLY)
 		{
 			syncSave=gtk_toggle_button_get_active((GtkToggleButton*)showinvis);
-			doSyncSave(plugdata);
+			debugFree(&adminCommand);
+			asprintf(&adminCommand,"%s",gtk_entry_get_text((GtkEntry*)admincom));
+			asprintf(&prefspath,"%s/remoteedit.rc",plugdata->lPlugFolder);
+			
+			saveVarsToFile(prefspath,mydata);
+			debugFree(&prefspath);
 		}
 	gtk_widget_destroy((GtkWidget*)dialog);
 	setTextDomain(false,plugdata);

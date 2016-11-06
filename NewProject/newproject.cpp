@@ -236,6 +236,7 @@ void newProject(GtkWidget* widget,gpointer data)
 			free(appnamelower);
 			openNewFiles(projectsPath,projname);
 		}
+	gtk_widget_hide(dialog);
 	gtk_widget_destroy((GtkWidget*)dialog);
 
 	setTextDomain(false,plugdata);
@@ -289,7 +290,6 @@ extern "C" int addToGui(gpointer data)
 							gtk_widget_set_tooltip_text(menuitem,infoline);
 							gtk_menu_item_set_label((GtkMenuItem*)menuitem,line);
 							g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(newProject),plugdata);
-							g_signal_connect(G_OBJECT(menuitem),"activate",G_CALLBACK(newProject),plugdata);
 							gtk_menu_shell_append(GTK_MENU_SHELL(menu),menuitem);
 							line[0]=0;
 					}
@@ -339,6 +339,7 @@ extern "C" int plugPrefs(gpointer data)
 	gtk_box_pack_start((GtkBox*)vbox,projects,true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,gtk_label_new(gettext("Subversion Folder")),true,true,4);
 	gtk_box_pack_start((GtkBox*)vbox,svn,true,true,4);
+	gtk_window_set_transient_for((GtkWindow*)dialog,(GtkWindow*)plugdata->prefsWindow);
 
 	gtk_widget_show_all(dialog);
 	response=gtk_dialog_run(GTK_DIALOG(dialog));

@@ -1,4 +1,5 @@
 All
+Added Debugger.
 RemoteEdit plugin now gtk2/3.
 Added build instructions to README.
 Fixed occasional segfault when unloading plugs.

@@ -343,7 +343,7 @@ extern "C" int plugPrefs(gpointer data)
 
 	gtk_widget_show_all(dialog);
 	response=gtk_dialog_run(GTK_DIALOG(dialog));
-	if(response==GTK_RESPONSE_APPLY);
+	if(response==GTK_RESPONSE_APPLY)
 		{
 			asprintf(&prefspath,"%s/newproject.rc",plugdata->lPlugFolder);
 			free(projectsPath);

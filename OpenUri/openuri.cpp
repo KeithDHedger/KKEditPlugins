@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Tue  6 Oct 12:23:01 BST 2015 kdhedger68713@gmail.com
+ * ©K. D. Hedger. Tue 31 Jul 12:38:53 BST 2018 keithdhedger@gmail.com
 
  * This file (openuri.cpp) is part of KKEditPlugins.
 
@@ -140,7 +140,7 @@ extern "C" int doAbout(gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;
 	char*			licencepath;
-	const char		copyright[] ="Copyright \xc2\xa9 2014 K.D.Hedger";
+	const char		copyright[] ="Copyright ©2014 K.D.Hedger";
 	char*			licence;
 	GtkAboutDialog*	about;
 	char*			translators;

@@ -12,7 +12,7 @@
  * 2008-08-20 Daniel Kahn Gillmor <dkg@fifthhorseman.net>
  * - if forked,wait on child process and emit its return code.
  *
- * This version hacked by K.D.Hedger kdhedger@gmail.com
+ * This version hacked by K.D.Hedger keithdhedger@gmail.com
  */
 
 #include <stdlib.h>

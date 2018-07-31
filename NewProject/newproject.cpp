@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Tue  6 Oct 12:24:24 BST 2015 kdhedger68713@gmail.com
+ * ©K. D. Hedger. Tue 31 Jul 12:08:41 BST 2018 keithdhedger@gmail.com
 
  * This file (newproject.cpp) is part of KKEditPlugins.
 
@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU General Public License
  * along with KKEditPlugins.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -362,7 +361,7 @@ extern "C" int doAbout(gpointer data)
 {
 	plugData*		plugdata=(plugData*)data;
 	char*			licencepath;
-	const char		copyright[] ="Copyright \xc2\xa9 2014 K.D.Hedger";
+	const char		copyright[] ="Copyright ©2014 K.D.Hedger";
 	char*			licence;
 	GtkAboutDialog*	about;
 	char*			translators;

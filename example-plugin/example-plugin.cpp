@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Tue  6 Oct 12:23:32 BST 2015 kdhedger68713@gmail.com
+ * ©K. D. Hedger. Tue 31 Jul 12:07:36 BST 2018 keithdhedger@gmail.com
 
  * This file (example-plugin.cpp) is part of KKEditPlugins.
 
@@ -243,7 +243,7 @@ extern "C" int doAbout(gpointer data)
 printf("about from example plug\n");
 	plugData*	plugdata=(plugData*)data;
 	char*		licencepath;
-	const char	copyright[] ="Copyright \xc2\xa9 2014 K.D.Hedger";
+	const char	copyright[] ="Copyright ©2014 K.D.Hedger";
 	char*		licence;
 	GtkAboutDialog*	about;
 

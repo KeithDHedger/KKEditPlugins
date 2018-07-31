@@ -1,6 +1,6 @@
 /*
  *
- * ©K. D. Hedger. Tue  6 Oct 12:24:31 BST 2015 kdhedger68713@gmail.com
+ * ©K. D. Hedger. Tue 31 Jul 12:39:57 BST 2018 keithdhedger@gmail.com
 
  * This file (remoteedit.cpp) is part of KKEditPlugins.
 

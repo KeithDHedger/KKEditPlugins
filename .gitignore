@@ -1,3 +1,4 @@
 .svn
 makenagtime
 packages
+*.o

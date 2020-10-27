@@ -2,3 +2,4 @@
 makenagtime
 packages
 *.o
+*.so

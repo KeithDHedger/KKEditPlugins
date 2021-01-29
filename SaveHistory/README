@@ -1,0 +1,4 @@
+Files are copied to ~/.KKEdit/plugins-gtk/SaveHistory, the filename has a time string appended to it.
+Files are copied when saved.
+Use the 'Delete History' menu to delete all history files that have the current document name ie:
+rm /home/keithhedger/.KKEdit/plugins-gtk/SaveHistory/newtest-*

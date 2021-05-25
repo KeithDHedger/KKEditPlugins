@@ -118,7 +118,7 @@ extern "C" int saveFile(gpointer data)
 	struct tm	tim=*localtime(&t);
 
 	plugData	*plugdata=(plugData*)data;
-	asprintf(&command,"cp '%s' '%s/SaveHistory/%s-%i%i%02i%02i%02i'",plugdata->page->filePath,plugdata->lPlugFolder,plugdata->page->fileName,tim.tm_year-100,tim.tm_yday,tim.tm_hour,tim.tm_min,tim.tm_sec);
+	asprintf(&command,"cp '%s' '%s/SaveHistory/%s-%i:%i-%02i:%02i:%02i'",plugdata->page->filePath,plugdata->lPlugFolder,plugdata->page->fileName,tim.tm_year-100,tim.tm_yday,tim.tm_hour,tim.tm_min,tim.tm_sec);
 	system(command);
 	free(command);
 	return(0);

@@ -82,7 +82,7 @@ void deleteHistory(GtkWidget* widget,gpointer data)
 	plugData	*plugdata=(plugData*)data;
 	char		*command;
 
-	asprintf(&command,"rm %s/SaveHistory/%s-*",plugdata->lPlugFolder,plugdata->page->fileName);
+	asprintf(&command,"rm -r \"%s/SaveHistory/%s\"",plugdata->lPlugFolder,plugdata->page->fileName);
 printf("%s",command);
 	system(command);
 	free(command);
@@ -99,7 +99,7 @@ extern "C" int addToGui(gpointer data)
 
 	setTextDomain(true,plugdata);
 
-	histMenu=gtk_menu_item_new_with_label(gettext("_Delete History"));
+	histMenu=gtk_menu_item_new_with_label(gettext("_Delete Current File History"));
 	gtk_menu_item_set_use_underline((GtkMenuItem*)histMenu,true);
 
 	gtk_widget_set_name(histMenu,"deletehist");
@@ -118,7 +118,16 @@ extern "C" int saveFile(gpointer data)
 	struct tm	tim=*localtime(&t);
 
 	plugData	*plugdata=(plugData*)data;
-	asprintf(&command,"cp '%s' '%s/SaveHistory/%s-%i:%i-%02i:%02i:%02i'",plugdata->page->filePath,plugdata->lPlugFolder,plugdata->page->fileName,tim.tm_year-100,tim.tm_yday,tim.tm_hour,tim.tm_min,tim.tm_sec);
+
+	asprintf(&command,"mkdir -p \"%s/SaveHistory/%s\";cp '%s' '%s/SaveHistory/%s/%s-%i:%i-%02i:%02i:%02i'",
+	plugdata->lPlugFolder,
+	plugdata->page->fileName,
+	plugdata->page->filePath,
+	plugdata->lPlugFolder,
+	plugdata->page->fileName,
+	plugdata->page->fileName,
+	tim.tm_year-100,tim.tm_yday,tim.tm_hour,tim.tm_min,tim.tm_sec);
+
 	system(command);
 	free(command);
 	return(0);
